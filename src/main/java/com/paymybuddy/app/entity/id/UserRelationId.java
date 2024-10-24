@@ -1,27 +1,16 @@
-package com.paymybuddy.app.model.id;
+package com.paymybuddy.app.entity.id;
+
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.Objects;
 
+@Setter
+@Getter
 public class UserRelationId implements Serializable {
     private int userId;
     private int userRelationId;
-
-    public int getUserRelationId() {
-        return userRelationId;
-    }
-
-    public void setUserRelationId(int userRelationId) {
-        this.userRelationId = userRelationId;
-    }
-
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
 
     public UserRelationId() {}
 

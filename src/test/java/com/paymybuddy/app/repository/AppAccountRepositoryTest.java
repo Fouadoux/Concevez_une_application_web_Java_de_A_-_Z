@@ -1,7 +1,7 @@
 package com.paymybuddy.app.repository;
 
-import com.paymybuddy.app.model.AppAccount;
-import com.paymybuddy.app.model.AppUser;
+import com.paymybuddy.app.entity.AppAccount;
+import com.paymybuddy.app.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ public class AppAccountRepositoryTest {
     private AppAccountRepository appAccountRepository;
 
     @Autowired
-    private AppUserRepository appUserRepository;
+    private UserRepository userRepository;
 
     private AppAccount appAccount;
 
@@ -32,7 +32,7 @@ public class AppAccountRepositoryTest {
      */
     @BeforeEach
     public void setUp() {
-        AppUser user = new AppUser();
+        User user = new User();
         user.setUserName("TestUser");
         user.setEmail("testuser@example.com");
         user.setPassword("password123");
@@ -42,7 +42,7 @@ public class AppAccountRepositoryTest {
         appAccount.setBalance(200.0f);
         appAccount.setLastUpdate(LocalDateTime.now());
 
-        AppUser savedUser = appUserRepository.save(appAccount.getUser());
+        User savedUser = userRepository.save(appAccount.getUser());
         appAccount.setUser(savedUser);
     }
 

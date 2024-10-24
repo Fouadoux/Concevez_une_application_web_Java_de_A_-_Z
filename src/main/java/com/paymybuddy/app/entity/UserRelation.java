@@ -1,6 +1,6 @@
-package com.paymybuddy.app.model;
+package com.paymybuddy.app.entity;
 
-import com.paymybuddy.app.model.id.UserRelationId;
+import com.paymybuddy.app.entity.id.UserRelationId;
 import jakarta.persistence.*;
 import java.util.Date;
 
@@ -19,7 +19,7 @@ public class UserRelation {
 
     @ManyToOne
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
-    private AppUser appUser;
+    private User user;
 
     @Column(name = "status")
     private boolean status;
@@ -43,12 +43,12 @@ public class UserRelation {
         this.userRelationId = userRelationId;
     }
 
-    public AppUser getAppUser() {
-        return appUser;
+    public User getAppUser() {
+        return user;
     }
 
-    public void setAppUser(AppUser appUser) {
-        this.appUser = appUser;
+    public void setAppUser(User user) {
+        this.user = user;
     }
 
     public boolean isStatus() {

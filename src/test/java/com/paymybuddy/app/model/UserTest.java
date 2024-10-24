@@ -1,31 +1,33 @@
 package com.paymybuddy.app.model;
 
+import com.paymybuddy.app.entity.Transaction;
+import com.paymybuddy.app.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Test class for the {@link AppUser} entity.
+ * Test class for the {@link User} entity.
  * This class contains unit tests to verify the creation, addition, and removal of transactions
- * for {@link AppUser}.
+ * for {@link User}.
  */
-class AppUserTest {
+class UserTest {
 
-    private AppUser sender;
-    private AppUser receiver;
+    private User sender;
+    private User receiver;
     private Transaction transaction;
 
     /**
      * Sets up the test environment before each test.
-     * Initializes two {@link AppUser} objects (sender and receiver) and one {@link Transaction} object.
+     * Initializes two {@link User} objects (sender and receiver) and one {@link Transaction} object.
      */
     @BeforeEach
     public void setUp() {
-        sender = new AppUser();
+        sender = new User();
         sender.setUserName("Sender");
 
-        receiver = new AppUser();
+        receiver = new User();
         receiver.setUserName("Receiver");
 
         transaction = new Transaction();
@@ -34,12 +36,12 @@ class AppUserTest {
     }
 
     /**
-     * Tests the creation of an {@link AppUser} and verifies that the fields are set correctly.
+     * Tests the creation of an {@link User} and verifies that the fields are set correctly.
      * Specifically checks the user name, email, and password.
      */
     @Test
     public void testCreateUser() {
-        AppUser user = new AppUser();
+        User user = new User();
         user.setUserName("Test User");
         user.setEmail("test@example.com");
         user.setPassword("password123");
@@ -50,7 +52,7 @@ class AppUserTest {
     }
 
     /**
-     * Tests the addition of a sender transaction to the {@link AppUser}.
+     * Tests the addition of a sender transaction to the {@link User}.
      * Verifies that the transaction is added to the sender's transaction list and that the transaction's sender is set correctly.
      */
     @Test
@@ -62,7 +64,7 @@ class AppUserTest {
     }
 
     /**
-     * Tests the addition of a receiver transaction to the {@link AppUser}.
+     * Tests the addition of a receiver transaction to the {@link User}.
      * Verifies that the transaction is added to the receiver's transaction list and that the transaction's receiver is set correctly.
      */
     @Test
@@ -74,7 +76,7 @@ class AppUserTest {
     }
 
     /**
-     * Tests the removal of a sender transaction from the {@link AppUser}.
+     * Tests the removal of a sender transaction from the {@link User}.
      * Verifies that the transaction is removed from the sender's transaction list and that the transaction's sender is set to null.
      */
     @Test
@@ -87,7 +89,7 @@ class AppUserTest {
     }
 
     /**
-     * Tests the removal of a receiver transaction from the {@link AppUser}.
+     * Tests the removal of a receiver transaction from the {@link User}.
      * Verifies that the transaction is removed from the receiver's transaction list and that the transaction's receiver is set to null.
      */
     @Test

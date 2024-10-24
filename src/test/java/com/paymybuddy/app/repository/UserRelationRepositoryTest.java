@@ -1,8 +1,8 @@
 package com.paymybuddy.app.repository;
 
-import com.paymybuddy.app.model.UserRelation;
-import com.paymybuddy.app.model.AppUser;
-import com.paymybuddy.app.model.id.UserRelationId;
+import com.paymybuddy.app.entity.User;
+import com.paymybuddy.app.entity.UserRelation;
+import com.paymybuddy.app.entity.id.UserRelationId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,16 +28,16 @@ public class UserRelationRepositoryTest {
     private UserRelationRepository userRelationRepository;
 
     @Autowired
-    private AppUserRepository appUserRepository;
+    private UserRepository userRepository;
 
-    private AppUser user1;
-    private AppUser user2;
+    private User user1;
+    private User user2;
     private UserRelation userRelation;
 
     /**
      * Initialisation des données avant chaque test.
      * <p>
-     * Cette méthode crée deux utilisateurs {@link AppUser} et une relation
+     * Cette méthode crée deux utilisateurs {@link User} et une relation
      * {@link UserRelation} entre eux. Elle est exécutée avant chaque test afin
      * de garantir un état cohérent des objets à tester.
      * </p>
@@ -45,18 +45,18 @@ public class UserRelationRepositoryTest {
     @BeforeEach
     public void setUp() {
         // Création et sauvegarde de l'utilisateur 1
-        user1 = new AppUser();
+        user1 = new User();
         user1.setUserName("User 1");
         user1.setEmail("User1@example.com");
         user1.setPassword("password");
-        appUserRepository.save(user1);
+        userRepository.save(user1);
 
         // Création et sauvegarde de l'utilisateur 2
-        user2 = new AppUser();
+        user2 = new User();
         user2.setUserName("User 2");
         user2.setEmail("User2@example.com");
         user2.setPassword("password");
-        appUserRepository.save(user2);
+        userRepository.save(user2);
 
         // Création de la relation entre user1 et user2
         userRelation = new UserRelation();

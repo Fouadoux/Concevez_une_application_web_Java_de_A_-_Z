@@ -1,14 +1,17 @@
-package com.paymybuddy.app.model;
+package com.paymybuddy.app.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "app_user")
-public class AppUser {
+@Table(name = "users")
+@Data
+public class User {
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,14 +27,25 @@ public class AppUser {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "created_at")
+    @ManyToOne
+    @JoinColumn(name = "role_id", nullable = false)
+    private Role role;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    // Cette méthode sera appelée juste avant de persister l'entité
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
 
     @OneToMany(
             cascade = CascadeType.ALL,
             orphanRemoval = true,
             fetch = FetchType.LAZY
     )
+
     @JoinColumn(name = "user_id")
     private List<UserRelation> userRelations = new ArrayList<>();
 
@@ -43,69 +57,6 @@ public class AppUser {
     )
     private List<Transaction> receiverTransactions = new ArrayList<>();
 
-    public int getId() {
-        return Id;
-    }
-
-    public void setId(int id) {
-        Id = id;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public List<UserRelation> getUserRelations() {
-        return userRelations;
-    }
-
-    public void setUserRelations(List<UserRelation> userRelations) {
-        this.userRelations = userRelations;
-    }
-
-    public List<Transaction> getSenderTransactions() {
-        return senderTransactions;
-    }
-
-    public void setSenderTransactions(List<Transaction> senderTransaction) {
-        this.senderTransactions = senderTransaction;
-    }
-
-    public List<Transaction> getReceiverTransactions() {
-        return receiverTransactions;
-    }
-
-    public void setReceiverTransactions(List<Transaction> receiverTransaction) {
-        this.receiverTransactions = receiverTransaction;
-    }
 
     public void addSenderTransactions(Transaction transaction) {
         senderTransactions.add(transaction);

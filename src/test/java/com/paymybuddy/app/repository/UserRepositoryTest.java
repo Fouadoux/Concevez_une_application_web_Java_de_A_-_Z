@@ -1,6 +1,6 @@
 package com.paymybuddy.app.repository;
 
-import com.paymybuddy.app.model.AppUser;
+import com.paymybuddy.app.entity.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -10,32 +10,32 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-public class AppUserRepositoryTest {
+public class UserRepositoryTest {
 
     @Autowired
-    private AppUserRepository appUserRepository;
+    private UserRepository userRepository;
 
     @Test
     public void testSaveUser() {
-        AppUser appUser = new AppUser();
-        appUser.setUserName("John Doe");
-        appUser.setEmail("john.doe@example.com");
-        appUser.setPassword("password");
+        User user = new User();
+        user.setUserName("John Doe");
+        user.setEmail("john.doe@example.com");
+        user.setPassword("password");
 
-        AppUser savedAppUser = appUserRepository.save(appUser);
+        User savedUser = userRepository.save(user);
 
-        assertThat(savedAppUser).isNotNull();
-        assertThat(savedAppUser.getId()).isGreaterThan(0);
+        assertThat(savedUser).isNotNull();
+        assertThat(savedUser.getId()).isGreaterThan(0);
     }
     @Test
     public void testFindById() {
-        AppUser user = new AppUser();
+        User user = new User();
         user.setUserName("Jane Doe");
         user.setEmail("jane.doe@example.com");
         user.setPassword("password");
 
-        AppUser savedUser = appUserRepository.save(user);
-        Optional<AppUser> foundUser = appUserRepository.findById(savedUser.getId());
+        User savedUser = userRepository.save(user);
+        Optional<User> foundUser = userRepository.findById(savedUser.getId());
 
         assertThat(foundUser).isPresent();
         assertThat(foundUser.get().getEmail()).isEqualTo("jane.doe@example.com");
@@ -43,33 +43,33 @@ public class AppUserRepositoryTest {
 
     @Test
     public void testDeleteUser() {
-        AppUser user = new AppUser();
+        User user = new User();
         user.setUserName("Mark Smith");
         user.setEmail("mark.smith@example.com");
         user.setPassword("password");
 
-        AppUser savedUser = appUserRepository.save(user);
-        appUserRepository.delete(savedUser);
+        User savedUser = userRepository.save(user);
+        userRepository.delete(savedUser);
 
-        Optional<AppUser> deletedUser = appUserRepository.findById(savedUser.getId());
+        Optional<User> deletedUser = userRepository.findById(savedUser.getId());
         assertThat(deletedUser).isEmpty();
     }
 
     @Test
     void testUpdateUser() {
-        AppUser user = new AppUser();
+        User user = new User();
         user.setUserName("TestUser");
         user.setEmail("testuser@example.com");
         user.setPassword("password123");
 
-        AppUser savedUser = appUserRepository.save(user);
+        User savedUser = userRepository.save(user);
 
         savedUser.setUserName("UpdatedUser");
         savedUser.setEmail("updateduser@example.com");
 
-        AppUser updatedUser = appUserRepository.save(savedUser);
+        User updatedUser = userRepository.save(savedUser);
 
-        AppUser foundUser = appUserRepository.findById(updatedUser.getId()).orElse(null);
+        User foundUser = userRepository.findById(updatedUser.getId()).orElse(null);
         assertThat(foundUser).isNotNull();
         assertThat(foundUser.getUserName()).isEqualTo("UpdatedUser");
         assertThat(foundUser.getEmail()).isEqualTo("updateduser@example.com");

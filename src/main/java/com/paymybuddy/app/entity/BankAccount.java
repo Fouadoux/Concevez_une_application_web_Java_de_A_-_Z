@@ -1,4 +1,4 @@
-package com.paymybuddy.app.model;
+package com.paymybuddy.app.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
@@ -15,7 +15,7 @@ public class BankAccount {
 
     @OneToOne
     @JoinColumn(name = "user_id",nullable = false)
-    private AppUser appUser;
+    private User user;
 
     @Column(name = "amount",nullable = false)
     @Min(value = 0, message = "The amount must be positive")
@@ -38,12 +38,12 @@ public class BankAccount {
         this.transferId = transferId;
     }
 
-    public AppUser getUser() {
-        return appUser;
+    public User getUser() {
+        return user;
     }
 
-    public void setUser(AppUser appUser) {
-        this.appUser = appUser;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public float getAmount() {

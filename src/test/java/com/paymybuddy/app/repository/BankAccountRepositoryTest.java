@@ -1,7 +1,7 @@
 package com.paymybuddy.app.repository;
 
-import com.paymybuddy.app.model.AppUser;
-import com.paymybuddy.app.model.BankAccount;
+import com.paymybuddy.app.entity.User;
+import com.paymybuddy.app.entity.BankAccount;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,28 +23,28 @@ public class BankAccountRepositoryTest {
     private BankAccountRepository bankAccountRepository;
 
     @Autowired
-    private AppUserRepository appUserRepository;
+    private UserRepository userRepository;
 
     private BankAccount bankAccount;
-    private AppUser appUser;
+    private User user;
 
     /**
-     * Set up a sample BankAccount and AppUser instance before each test.
+     * Set up a sample BankAccount and User instance before each test.
      */
     @BeforeEach
     public void setUp() {
         // Create a sample user
-        appUser = new AppUser();
-        appUser.setUserName("TestUser");
-        appUser.setEmail("test@example.com");
-        appUser.setPassword("password123");
+        user = new User();
+        user.setUserName("TestUser");
+        user.setEmail("test@example.com");
+        user.setPassword("password123");
 
         // Save the user before creating the bank account
-        appUser = appUserRepository.save(appUser);
+        user = userRepository.save(user);
 
         // Create a sample bank account
         bankAccount = new BankAccount();
-        bankAccount.setUser(appUser);
+        bankAccount.setUser(user);
         bankAccount.setAmount(500.0f);
         bankAccount.setBankAccount("1234-5678-9101");
         bankAccount.setTransferDate(LocalDateTime.now());

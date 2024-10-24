@@ -1,5 +1,7 @@
 package com.paymybuddy.app.model;
 
+import com.paymybuddy.app.entity.Transaction;
+import com.paymybuddy.app.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
@@ -7,19 +9,19 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TransactionTest {
 
-    private AppUser sender;
-    private AppUser receiver;
+    private User sender;
+    private User receiver;
     private Transaction transaction;
 
     @BeforeEach
     public void setUp() {
         // Création d'un utilisateur "sender" et "receiver"
-        sender = new AppUser();
+        sender = new User();
         sender.setUserName("Sender");
         sender.setEmail("sender@example.com");
         sender.setPassword("password123");
 
-        receiver = new AppUser();
+        receiver = new User();
         receiver.setUserName("Receiver");
         receiver.setEmail("receiver@example.com");
         receiver.setPassword("password456");

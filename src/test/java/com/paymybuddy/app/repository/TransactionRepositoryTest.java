@@ -1,7 +1,7 @@
 package com.paymybuddy.app.repository;
 
-import com.paymybuddy.app.model.AppUser;
-import com.paymybuddy.app.model.Transaction;
+import com.paymybuddy.app.entity.User;
+import com.paymybuddy.app.entity.Transaction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,25 +19,25 @@ public class TransactionRepositoryTest {
     private TransactionRepository transactionRepository;
 
     @Autowired
-    private AppUserRepository appUserRepository;
+    private UserRepository userRepository;
 
-    private AppUser sender;
-    private AppUser receiver;
+    private User sender;
+    private User receiver;
     private Transaction transaction;
 
     @BeforeEach
     public void setUp() {
-        sender = new AppUser();
+        sender = new User();
         sender.setUserName("Sender");
         sender.setEmail("sender@example.com");
         sender.setPassword("password");
-        appUserRepository.save(sender);
+        userRepository.save(sender);
 
-        receiver = new AppUser();
+        receiver = new User();
         receiver.setUserName("Receiver");
         receiver.setEmail("receiver@example.com");
         receiver.setPassword("password");
-        appUserRepository.save(receiver);
+        userRepository.save(receiver);
 
         transaction = new Transaction();
         transaction.setUserSender(sender);

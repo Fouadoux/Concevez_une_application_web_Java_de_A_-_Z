@@ -1,5 +1,7 @@
 package com.paymybuddy.app.model;
 
+import com.paymybuddy.app.entity.BankAccount;
+import com.paymybuddy.app.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -13,20 +15,20 @@ import static org.junit.jupiter.api.Assertions.*;
 class BankAccountTest {
 
     private BankAccount bankAccount;
-    private AppUser appUser;
+    private User user;
 
     /**
-     * Set up a sample BankAccount and AppUser instance before each test.
+     * Set up a sample BankAccount and User instance before each test.
      */
     @BeforeEach
     public void setUp() {
         // Create a sample user
-        appUser = new AppUser();
-        appUser.setUserName("TestUser");
+        user = new User();
+        user.setUserName("TestUser");
 
         // Create a sample bank account
         bankAccount = new BankAccount();
-        bankAccount.setUser(appUser);
+        bankAccount.setUser(user);
         bankAccount.setAmount(500.0f);
         bankAccount.setBankAccount("1234-5678-9101");
         bankAccount.setTransferDate(LocalDateTime.now());
@@ -43,7 +45,7 @@ class BankAccountTest {
         assertEquals("1234-5678-9101", bankAccount.getBankAccount());
         assertNotNull(bankAccount.getTransferDate());
         assertTrue(bankAccount.isStatus());
-        assertEquals(appUser, bankAccount.getUser());
+        assertEquals(user, bankAccount.getUser());
     }
 
     /**
@@ -84,10 +86,10 @@ class BankAccountTest {
     }
 
     /**
-     * Test to ensure that the BankAccount is correctly associated with an AppUser.
+     * Test to ensure that the BankAccount is correctly associated with an User.
      */
     @Test
     public void testUserAssociation() {
-        assertEquals(appUser, bankAccount.getUser());
+        assertEquals(user, bankAccount.getUser());
     }
 }

@@ -1,5 +1,6 @@
 package com.paymybuddy.app.model;
 
+import com.paymybuddy.app.entity.TransactionFee;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;

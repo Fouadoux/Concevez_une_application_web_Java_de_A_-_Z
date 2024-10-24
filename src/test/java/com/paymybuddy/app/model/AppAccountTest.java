@@ -1,26 +1,31 @@
 package com.paymybuddy.app.model;
 
+import com.paymybuddy.app.entity.AppAccount;
+import com.paymybuddy.app.entity.User;
+import jakarta.validation.*;
+import org.glassfish.jaxb.runtime.v2.runtime.reflect.opt.Const;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test class for the {@link AppAccount} entity.
  * This class contains unit tests to verify the creation, update, and relationship between
- * {@link AppAccount} and {@link AppUser}.
+ * {@link AppAccount} and {@link User}.
  */
 class AppAccountTest {
 
     /**
      * Tests the creation of an {@link AppAccount} and verifies that all fields are set correctly.
      * Specifically checks that the account has been created, the balance is correctly set,
-     * the associated {@link AppUser} is set, and the last update date is not null.
+     * the associated {@link User} is set, and the last update date is not null.
      */
     @Test
     public void testCreateAppAccount() {
-        AppUser user = new AppUser();
+        User user = new User();
         user.setUserName("testUser");
 
         AppAccount account = new AppAccount();
@@ -63,12 +68,12 @@ class AppAccountTest {
     }
 
     /**
-     * Tests the relationship between {@link AppAccount} and {@link AppUser}.
+     * Tests the relationship between {@link AppAccount} and {@link User}.
      * Verifies that the user assigned to the account is correctly retrieved.
      */
     @Test
     public void testAppAccountUserRelation() {
-        AppUser user = new AppUser();
+        User user = new User();
         user.setUserName("userTest");
 
         AppAccount account = new AppAccount();
@@ -77,4 +82,18 @@ class AppAccountTest {
         assertEquals(user, account.getUser(), "The user associated with the account should be the one assigned");
     }
 
+    @Test
+    void testBalanceValidation(){
+
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
+
+        AppAccount account = new AppAccount();
+        account.setBalance(-5f);
+
+
+        Set<ConstraintViolation<AppAccount>> violations = validator.validate(account);
+
+        assertFalse(violations.isEmpty(), "Validation should fail for negative balance");
+    }
 }
