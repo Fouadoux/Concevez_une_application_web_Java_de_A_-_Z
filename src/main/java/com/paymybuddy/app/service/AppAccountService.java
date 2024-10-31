@@ -1,9 +1,9 @@
 package com.paymybuddy.app.service;
 
 import com.paymybuddy.app.entity.AppAccount;
+import com.paymybuddy.app.exception.*;
 import com.paymybuddy.app.repository.AppAccountRepository;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import com.paymybuddy.app.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -14,78 +14,88 @@ import java.util.Optional;
 public class AppAccountService {
 
     private final AppAccountRepository appAccountRepository;
+    private final UserRepository userRepository;
 
-    public AppAccountService(AppAccountRepository appAccountRepository) {
+    public AppAccountService(AppAccountRepository appAccountRepository, UserRepository userRepository) {
         this.appAccountRepository = appAccountRepository;
+        this.userRepository = userRepository;
     }
 
-    // Obtenir le solde par ID du compte
-    public ResponseEntity<BigDecimal> getBalanceById(int id) {
-        Optional<AppAccount> accountOptional = appAccountRepository.findById(id);
-
-        if (accountOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(null);  // Retourne une réponse 404 avec un corps null
-        }
-
-        AppAccount account = accountOptional.get();
-        return ResponseEntity.ok(account.getBalance());
+    // Méthode privée pour récupérer le compte d'un utilisateur via userId
+    private AppAccount findAccountByUserId(int userId) {
+        return appAccountRepository.findByUserId(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Account not found for user with ID: " + userId));
     }
 
-    // Mettre à jour le solde par ID
-    public ResponseEntity<?> updateBalanceById(int id, BigDecimal newBalance) {
-        // Trouver le compte AppAccount par son ID
-        AppAccount account = appAccountRepository.findById(id)
-                .orElse(null);
+    // Obtenir le solde par ID de l'utilisateur
+    public BigDecimal getBalanceByUserId(int userId) {
+        return findAccountByUserId(userId).getBalance();
+    }
 
-        // Si le compte n'existe pas, retourner un statut 404
-        if (account == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Account not found with ID: " + id);
-        }
+    // Mettre à jour le solde par ID de l'utilisateur
+    public BigDecimal updateBalanceByUserId(int userId, BigDecimal newBalance) {
+        AppAccount account = findAccountByUserId(userId);
 
-        // Calculer le nouveau solde en ajoutant la nouvelle valeur
         BigDecimal updatedBalance = account.getBalance().add(newBalance);
-
-        // Vérifier que le solde ne devient pas négatif
         if (updatedBalance.compareTo(BigDecimal.ZERO) < 0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Balance can't be negative. Current balance: " + account.getBalance());
+            throw new InvalidBalanceException("Balance can't be negative. Current balance: " + account.getBalance());
         }
 
-        // Mettre à jour le solde et sauvegarder les modifications
         account.setBalance(updatedBalance);
-        appAccountRepository.save(account);
-
-        // Retourner une réponse OK avec le nouveau solde
-        return ResponseEntity.ok(updatedBalance);
-    }
-
-    // Record pour renvoyer les informations du compte
-    public record AppAccountInfo(@jakarta.validation.constraints.Min(0) BigDecimal balance, LocalDateTime lastUpdate, LocalDateTime createdAt) {}
-
-    // Obtenir les informations d'un compte par ID
-    public ResponseEntity<?> getInfoAppAccountById(int id) {
-        AppAccount account = appAccountRepository.findById(id)
-                .orElse(null);
-
-        if (account == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Account not found with ID: " + id);
+        try {
+            appAccountRepository.save(account);
+        } catch (Exception e) {
+            throw new EntitySaveException("Failed to save updated balance.", e);
         }
 
-        AppAccountInfo accountInfo = new AppAccountInfo(
-                account.getBalance(),
-                account.getLastUpdate(),
-                account.getCreatedAt()
-        );
-
-        return ResponseEntity.ok(accountInfo);
+        return updatedBalance;
     }
 
-    public Optional<BigDecimal> getBalanceByIdInBigDecimal(int id) {
-        return appAccountRepository.findById(id).map(AppAccount::getBalance);
+    // Obtenir les informations du compte d'un utilisateur
+    public record AppAccountInfo(BigDecimal balance, LocalDateTime lastUpdate, LocalDateTime createdAt) {}
+
+    public AppAccountInfo getInfoAppAccountByUserId(int userId) {
+        AppAccount account = findAccountByUserId(userId);
+        return new AppAccountInfo(account.getBalance(), account.getLastUpdate(), account.getCreatedAt());
     }
 
+    // Obtenir le solde sous forme de BigDecimal
+    public Optional<BigDecimal> getBalanceByIdInBigDecimal(int userId) {
+        return Optional.of(getBalanceByUserId(userId));
+    }
+
+    // Créer un compte pour un utilisateur
+    public AppAccount createAccountForUser(int userId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + userId));
+
+        if (appAccountRepository.findByUserId(userId).isPresent()) {
+            throw new AccountAlreadyExistsException("User already has an account");
+        }
+
+        AppAccount newAccount = new AppAccount();
+        newAccount.setUser(userRepository.getById(userId));
+        newAccount.setBalance(BigDecimal.ZERO);
+
+        try {
+            return appAccountRepository.save(newAccount);
+        } catch (Exception e) {
+            throw new EntitySaveException("Failed to save new account.", e);
+        }
+    }
+
+    public void deleteAccountByUserId(int userId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + userId));
+
+        AppAccount account = appAccountRepository.findByUserId(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Account not found for user with ID: " + userId));
+
+        try {
+            appAccountRepository.delete(account);
+        } catch (Exception e) {
+            throw new EntityDeleteException("Failed to delete account with ID: " + account.getAccountId(), e);
+        }
+    }
 
 }

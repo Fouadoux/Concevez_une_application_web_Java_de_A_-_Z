@@ -16,7 +16,7 @@ public class TransactionFee {
     @Id
     @Column(name = "fee_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int fee;
+    private int feeId;
 
     @Column(name = "percentage",nullable = false)
     private BigDecimal percentage;

@@ -1,5 +1,6 @@
 package com.paymybuddy.app.repository;
 
+import com.paymybuddy.app.entity.Role;
 import com.paymybuddy.app.entity.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +16,21 @@ public class UserRepositoryTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private RoleRepository roleRepository;
+
+
     @Test
     public void testSaveUser() {
+        Role role=new Role();
+        role.setRoleName("user");
+        roleRepository.save(role);
+
         User user = new User();
         user.setUserName("John Doe");
         user.setEmail("john.doe@example.com");
         user.setPassword("password");
+        user.setRole(role);
 
         User savedUser = userRepository.save(user);
 
@@ -29,12 +39,17 @@ public class UserRepositoryTest {
     }
     @Test
     public void testFindById() {
-        User user = new User();
-        user.setUserName("Jane Doe");
-        user.setEmail("jane.doe@example.com");
-        user.setPassword("password");
+        Role role=new Role();
+        role.setRoleName("user");
+        roleRepository.save(role);
 
-        User savedUser = userRepository.save(user);
+        User user1 = new User();
+        user1.setUserName("Jane Doe");
+        user1.setEmail("jane.doe@example.com");
+        user1.setPassword("password");
+        user1.setRole(role);
+
+        User savedUser = userRepository.save(user1);
         Optional<User> foundUser = userRepository.findById(savedUser.getId());
 
         assertThat(foundUser).isPresent();
@@ -43,10 +58,15 @@ public class UserRepositoryTest {
 
     @Test
     public void testDeleteUser() {
+        Role role=new Role();
+        role.setRoleName("user");
+        roleRepository.save(role);
+
         User user = new User();
         user.setUserName("Mark Smith");
         user.setEmail("mark.smith@example.com");
         user.setPassword("password");
+        user.setRole(role);
 
         User savedUser = userRepository.save(user);
         userRepository.delete(savedUser);
@@ -57,12 +77,16 @@ public class UserRepositoryTest {
 
     @Test
     void testUpdateUser() {
+        Role role=new Role();
+        role.setRoleName("user");
+        roleRepository.save(role);
+
         User user = new User();
         user.setUserName("TestUser");
         user.setEmail("testuser@example.com");
-        user.setPassword("password123");
+        user.setRole(role);
 
-        User savedUser = userRepository.save(user);
+        user.setPassword("password123");User savedUser = userRepository.save(user);
 
         savedUser.setUserName("UpdatedUser");
         savedUser.setEmail("updateduser@example.com");

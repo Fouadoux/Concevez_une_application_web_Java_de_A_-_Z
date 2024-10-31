@@ -5,6 +5,7 @@ import com.paymybuddy.app.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,8 +30,8 @@ class BankAccountTest {
         // Create a sample bank account
         bankAccount = new BankAccount();
         bankAccount.setUser(user);
-        bankAccount.setAmount(500.0f);
-        bankAccount.setBankAccount("1234-5678-9101");
+        bankAccount.setAmount(BigDecimal.valueOf(500.0));
+        bankAccount.setExternalBankAccountNumber("1234-5678-9101");
         bankAccount.setTransferDate(LocalDateTime.now());
         bankAccount.setStatus(true);
     }
@@ -41,8 +42,8 @@ class BankAccountTest {
     @Test
     public void testCreateBankAccount() {
         assertNotNull(bankAccount);
-        assertEquals(500.0f, bankAccount.getAmount());
-        assertEquals("1234-5678-9101", bankAccount.getBankAccount());
+        assertEquals(BigDecimal.valueOf(500.0), bankAccount.getAmount());
+        assertEquals("1234-5678-9101", bankAccount.getExternalBankAccountNumber());
         assertNotNull(bankAccount.getTransferDate());
         assertTrue(bankAccount.isStatus());
         assertEquals(user, bankAccount.getUser());
@@ -53,8 +54,8 @@ class BankAccountTest {
      */
     @Test
     public void testUpdateAmount() {
-        bankAccount.setAmount(750.0f);
-        assertEquals(750.0f, bankAccount.getAmount());
+        bankAccount.setAmount(BigDecimal.valueOf(750.0));
+        assertEquals(BigDecimal.valueOf(750.0), bankAccount.getAmount());
     }
 
     /**
@@ -81,8 +82,8 @@ class BankAccountTest {
      */
     @Test
     public void testUpdateBankAccountNumber() {
-        bankAccount.setBankAccount("9876-5432-1098");
-        assertEquals("9876-5432-1098", bankAccount.getBankAccount());
+        bankAccount.setExternalBankAccountNumber("9876-5432-1098");
+        assertEquals("9876-5432-1098", bankAccount.getExternalBankAccountNumber());
     }
 
     /**

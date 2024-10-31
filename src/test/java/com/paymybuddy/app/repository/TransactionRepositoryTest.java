@@ -1,5 +1,6 @@
 package com.paymybuddy.app.repository;
 
+import com.paymybuddy.app.entity.Role;
 import com.paymybuddy.app.entity.User;
 import com.paymybuddy.app.entity.Transaction;
 import org.junit.jupiter.api.BeforeEach;
@@ -7,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -21,28 +23,38 @@ public class TransactionRepositoryTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private RoleRepository roleRepository;
+
     private User sender;
     private User receiver;
     private Transaction transaction;
 
     @BeforeEach
     public void setUp() {
+        Role role=new Role();
+        role.setRoleName("USER");
+        roleRepository.save(role);
+
         sender = new User();
         sender.setUserName("Sender");
         sender.setEmail("sender@example.com");
         sender.setPassword("password");
+        sender.setRole(role);
         userRepository.save(sender);
 
         receiver = new User();
         receiver.setUserName("Receiver");
         receiver.setEmail("receiver@example.com");
         receiver.setPassword("password");
+        receiver.setRole(role);
         userRepository.save(receiver);
 
         transaction = new Transaction();
         transaction.setUserSender(sender);
         transaction.setUserReceiver(receiver);
-        transaction.setAmount(100.0f);
+        transaction.setAmount(BigDecimal.valueOf(100.0f));
+        transaction.setAmountWithFee(BigDecimal.valueOf(105.0f));
         transaction.setDescription("Initial Transaction");
         transaction.setTransactionDate(LocalDateTime.now());
     }
@@ -63,13 +75,13 @@ public class TransactionRepositoryTest {
         Transaction savedTransaction = transactionRepository.save(transaction);
 
         // Update the amount
-        savedTransaction.setAmount(200.0f);
+        savedTransaction.setAmount(BigDecimal.valueOf(200.0f));
         Transaction updatedTransaction = transactionRepository.save(savedTransaction);
 
         // Check that the amount is updated
         Optional<Transaction> retrievedTransaction = transactionRepository.findById(updatedTransaction.getId());
         assertTrue(retrievedTransaction.isPresent());
-        assertEquals(200.0f, retrievedTransaction.get().getAmount());
+        assertEquals(BigDecimal.valueOf(200.0f), retrievedTransaction.get().getAmount());
     }
 
     @Test

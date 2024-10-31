@@ -3,7 +3,7 @@ package com.paymybuddy.app.controller;
 import com.paymybuddy.app.entity.User;
 import com.paymybuddy.app.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,41 +15,71 @@ public class UserController {
 
     private final UserService userService;
 
-    //créer un nouvelle utilisateur
-    public ResponseEntity<?> registerUser(@RequestBody User user){
+    /**
+     * Register a new user
+     *
+     * @param user The user to be registered
+     * @return A success message if the user is registered successfully
+     */
+    @PostMapping("/users/register")
+    public String registerUser(@RequestBody User user) {
         return userService.createUser(user);
     }
 
-    //Obtenir la liste des utilisateur
+    /**
+     * Get a list of all users
+     *
+     * @return A list of users
+     */
+    //@PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/users")
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userService.getAllUsers();
-        return ResponseEntity.ok(users);
+    public List<User> getAllUsers() {
+        return userService.getAllUsers();
     }
 
-    // Obtenir un utilisateur par ID
+    /**
+     * Get a user by ID
+     *
+     * @param id The ID of the user to retrieve
+     * @return The user with the given ID
+     */
     @GetMapping("/users/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable int id) {
+    public User getUserById(@PathVariable int id) {
         return userService.getUserById(id);
     }
 
-    // Mettre à jour un utilisateur (userName et email)
+    /**
+     * Update a user’s username and email
+     *
+     * @param id   The ID of the user to update
+     * @param user The user data to update
+     * @return A success message if the user is updated successfully
+     */
     @PutMapping("/users/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable int id, @RequestBody User user) {
+    public String updateUser(@PathVariable int id, @RequestBody User user) {
         return userService.updateUser(id, user);
     }
 
-    //Mettre à jour le role
+    /**
+     * Update a user's role
+     *
+     * @param id       The ID of the user whose role is being updated
+     * @param roleName The new role name to assign to the user
+     * @return A success message if the user's role is updated successfully
+     */
     @PutMapping("/users/{id}/role/{roleName}")
-    public ResponseEntity<?> updateUserRole(@PathVariable int id,@PathVariable String roleName){
+    public String updateUserRole(@PathVariable int id, @PathVariable String roleName) {
         return userService.updateUserRole(id, roleName);
     }
 
-
-    // Supprimer un utilisateur
+    /**
+     * Delete a user by ID
+     *
+     * @param id The ID of the user to delete
+     * @return A success message if the user is deleted successfully
+     */
     @DeleteMapping("/users/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable int id) {
+    public String deleteUser(@PathVariable int id) {
         return userService.deleteUser(id);
     }
-
 }

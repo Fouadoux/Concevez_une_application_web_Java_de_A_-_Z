@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -49,7 +50,7 @@ public class AppAccountIT {
         // Créer un compte utilisateur
         AppAccount account = new AppAccount();
         account.setUser(user);
-        account.setBalance(100.0f);
+        account.setBalance(BigDecimal.valueOf(100));
 
         // Sauvegarder le compte dans la base de données
         AppAccount savedAccount = appAccountRepository.save(account);
@@ -62,7 +63,7 @@ public class AppAccountIT {
         LocalDateTime initialLastUpdate = account.getLastUpdate();
 
         // Mettre à jour le compte
-        savedAccount.setBalance(200.0f);
+        savedAccount.setBalance(BigDecimal.valueOf(200.0f));
         appAccountRepository.save(savedAccount);
         appAccountRepository.flush();
 

@@ -2,9 +2,14 @@ package com.paymybuddy.app.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+@Setter
+@Getter
 @Entity
 public class BankAccount {
 
@@ -13,16 +18,16 @@ public class BankAccount {
     @Column(name = "transfer_id")
     private int transferId;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "user_id",nullable = false)
     private User user;
 
     @Column(name = "amount",nullable = false)
     @Min(value = 0, message = "The amount must be positive")
-    private float amount;
+    private BigDecimal amount;
 
     @Column(name = "bank_account",nullable = false)
-    private String bankAccount;
+    private String externalBankAccountNumber;
 
     @Column(name = "transfer_date",nullable = false)
     private LocalDateTime transferDate;
@@ -30,51 +35,4 @@ public class BankAccount {
     @Column(name = "status")
     private boolean status;
 
-    public int getTransferId() {
-        return transferId;
-    }
-
-    public void setTransferId(int transferId) {
-        this.transferId = transferId;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public float getAmount() {
-        return amount;
-    }
-
-    public void setAmount(float amount) {
-        this.amount = amount;
-    }
-
-    public String getBankAccount() {
-        return bankAccount;
-    }
-
-    public void setBankAccount(String bankAccount) {
-        this.bankAccount = bankAccount;
-    }
-
-    public LocalDateTime getTransferDate() {
-        return transferDate;
-    }
-
-    public void setTransferDate(LocalDateTime transferDate) {
-        this.transferDate = transferDate;
-    }
-
-    public boolean isStatus() {
-        return status;
-    }
-
-    public void setStatus(boolean status) {
-        this.status = status;
-    }
 }

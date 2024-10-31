@@ -26,7 +26,8 @@ public class RegistrationLoginController {
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody User user) {
 
-        return userService.createUser(user);
+        userService.createUser(user);
+        return ResponseEntity.ok("ok");
     }
 
     @PostMapping("/login")

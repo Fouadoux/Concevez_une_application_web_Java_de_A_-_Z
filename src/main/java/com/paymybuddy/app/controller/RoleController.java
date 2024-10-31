@@ -1,10 +1,11 @@
 package com.paymybuddy.app.controller;
 
-
 import com.paymybuddy.app.entity.Role;
+import com.paymybuddy.app.exception.EntityNotFoundException;
+import com.paymybuddy.app.exception.RoleAlreadyExistsException;
 import com.paymybuddy.app.service.RoleService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,63 +21,63 @@ public class RoleController {
     }
 
     /**
-     * Endpoint pour créer un nouveau rôle.
+     * Endpoint to create a new role.
      *
-     * @param role Les informations du rôle à créer
-     * @return Le rôle créé ou un message d'erreur si le rôle existe déjà
+     * @param role The role information to create
+     * @return The created role or an error message if the role already exists
      */
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<?> createRole(@RequestBody Role role) {
-        return roleService.createRole(role);
+    public ResponseEntity<Role> createRole(@RequestBody Role role) {
+        Role newRole = roleService.createRole(role);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newRole);
     }
 
     /**
-     * Endpoint pour récupérer tous les rôles existants.
+     * Endpoint to retrieve all existing roles.
      *
-     * @return La liste des rôles
+     * @return A list of roles
      */
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public List<Role> getAllRoles() {
-        return roleService.getAllRole();
+    public ResponseEntity<List<Role>> getAllRoles() {
+        List<Role> roleList = roleService.getAllRoles();
+        return ResponseEntity.ok(roleList);
     }
 
     /**
-     * Endpoint pour récupérer un rôle par son ID.
+     * Endpoint to retrieve a role by its ID.
      *
-     * @param roleId L'ID du rôle à récupérer
-     * @return Le rôle correspondant ou une réponse d'erreur si non trouvé
+     * @param roleId The ID of the role to retrieve
+     * @return The corresponding role or an error response if not found
      */
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{roleId}")
     public ResponseEntity<Role> getRoleById(@PathVariable int roleId) {
-        return roleService.getRoleById(roleId);
+        Role role = roleService.getRoleById(roleId);
+        return ResponseEntity.ok(role);
     }
 
     /**
-     * Endpoint pour mettre à jour un rôle existant.
+     * Endpoint to update an existing role.
      *
-     * @param roleId L'ID du rôle à mettre à jour
-     * @param role Les nouvelles informations du rôle
-     * @return Une réponse indiquant le succès ou une erreur si le rôle n'existe pas
+     * @param roleId The ID of the role to update
+     * @param role The new role information
+     * @return A response indicating success or an error if the role does not exist
      */
-    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{roleId}")
-    public ResponseEntity<?> updateRole(@PathVariable int roleId, @RequestBody Role role) {
-        return roleService.UpdateRole(roleId, role);
+    public ResponseEntity<String> updateRole(@PathVariable int roleId, @RequestBody Role role) {
+        String updateMessage = roleService.updateRole(roleId, role);
+        return ResponseEntity.ok(updateMessage);
     }
 
     /**
-     * Endpoint pour supprimer un rôle par son ID.
+     * Endpoint to delete a role by its ID.
      *
-     * @param roleId L'ID du rôle à supprimer
-     * @return Une réponse indiquant le succès ou une erreur si le rôle n'existe pas
+     * @param roleId The ID of the role to delete
+     * @return A response indicating success or an error if the role does not exist
      */
-    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{roleId}")
-    public ResponseEntity<?> deleteRole(@PathVariable int roleId) {
-        return roleService.deleteRole(roleId);
+    public ResponseEntity<String> deleteRole(@PathVariable int roleId) {
+        roleService.deleteRole(roleId);
+        return ResponseEntity.ok("Role deleted successfully");
     }
-}
 
+}

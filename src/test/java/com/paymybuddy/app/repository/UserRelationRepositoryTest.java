@@ -1,5 +1,6 @@
 package com.paymybuddy.app.repository;
 
+import com.paymybuddy.app.entity.Role;
 import com.paymybuddy.app.entity.User;
 import com.paymybuddy.app.entity.UserRelation;
 import com.paymybuddy.app.entity.id.UserRelationId;
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Optional;
 
@@ -30,6 +32,9 @@ public class UserRelationRepositoryTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private RoleRepository roleRepository;
+
     private User user1;
     private User user2;
     private UserRelation userRelation;
@@ -44,11 +49,15 @@ public class UserRelationRepositoryTest {
      */
     @BeforeEach
     public void setUp() {
+        Role role=new Role();
+        role.setRoleName("user");
+        roleRepository.save(role);
         // Création et sauvegarde de l'utilisateur 1
         user1 = new User();
         user1.setUserName("User 1");
         user1.setEmail("User1@example.com");
         user1.setPassword("password");
+        user1.setRole(role);
         userRepository.save(user1);
 
         // Création et sauvegarde de l'utilisateur 2
@@ -56,15 +65,16 @@ public class UserRelationRepositoryTest {
         user2.setUserName("User 2");
         user2.setEmail("User2@example.com");
         user2.setPassword("password");
+        user2.setRole(role);
         userRepository.save(user2);
 
         // Création de la relation entre user1 et user2
         userRelation = new UserRelation();
         userRelation.setUserId(user1.getId());
         userRelation.setUserRelationId(user2.getId());
-        userRelation.setAppUser(user1);
+        userRelation.setUser(user1);
         userRelation.setStatus(true);
-        userRelation.setCreatedAt(new Date());
+        userRelation.setCreatedAt(LocalDateTime.now());
     }
 
     /**
@@ -89,7 +99,7 @@ public class UserRelationRepositoryTest {
         Optional<UserRelation> savedRelation = userRelationRepository.findById(userRelationId);
         // Vérifications
         assertTrue(savedRelation.isPresent());
-        assertEquals(user1, savedRelation.get().getAppUser());
+        assertEquals(user1, savedRelation.get().getUser());
         assertEquals(user2.getId(), savedRelation.get().getUserRelationId());
         assertTrue(savedRelation.get().isStatus());
     }

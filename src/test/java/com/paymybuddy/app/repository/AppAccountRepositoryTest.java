@@ -1,12 +1,14 @@
 package com.paymybuddy.app.repository;
 
 import com.paymybuddy.app.entity.AppAccount;
+import com.paymybuddy.app.entity.Role;
 import com.paymybuddy.app.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -25,6 +27,9 @@ public class AppAccountRepositoryTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private RoleRepository roleRepository;
+
     private AppAccount appAccount;
 
     /**
@@ -32,14 +37,19 @@ public class AppAccountRepositoryTest {
      */
     @BeforeEach
     public void setUp() {
+        Role role = new Role();
+        role.setRoleName("user");
+        roleRepository.save(role);
+
         User user = new User();
         user.setUserName("TestUser");
         user.setEmail("testuser@example.com");
         user.setPassword("password123");
+        user.setRole(role);
 
         appAccount = new AppAccount();
         appAccount.setUser(user);
-        appAccount.setBalance(200.0f);
+        appAccount.setBalance(BigDecimal.valueOf(200.0f));
         appAccount.setLastUpdate(LocalDateTime.now());
 
         User savedUser = userRepository.save(appAccount.getUser());
@@ -56,7 +66,7 @@ public class AppAccountRepositoryTest {
         AppAccount savedAccount = appAccountRepository.save(appAccount);
 
         assertNotNull(savedAccount);
-        assertEquals(200.0f, savedAccount.getBalance());
+        assertEquals(BigDecimal.valueOf(200.0), savedAccount.getBalance());
         assertEquals("TestUser", savedAccount.getUser().getUserName());
     }
 
@@ -80,10 +90,10 @@ public class AppAccountRepositoryTest {
     @Test
     public void testUpdateAppAccount() {
         AppAccount savedAccount = appAccountRepository.save(appAccount);
-        savedAccount.setBalance(500.0f);
+        savedAccount.setBalance(BigDecimal.valueOf(500.0f));
         AppAccount updatedAccount = appAccountRepository.save(savedAccount);
 
-        assertEquals(500.0f, updatedAccount.getBalance());
+        assertEquals(BigDecimal.valueOf(500.0), updatedAccount.getBalance());
     }
 
     /**

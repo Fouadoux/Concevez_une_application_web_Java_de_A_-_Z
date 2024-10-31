@@ -1,14 +1,14 @@
 package com.paymybuddy.app.service;
 
 import com.paymybuddy.app.entity.Role;
+import com.paymybuddy.app.exception.EntityNotFoundException;
+import com.paymybuddy.app.exception.RoleAlreadyExistsException;
 import com.paymybuddy.app.repository.RoleRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import java.util.Arrays;
 import java.util.List;
@@ -26,25 +26,27 @@ class RoleServiceTest {
     private RoleService roleService;
 
     @BeforeEach
-    void setUp(){
-        MockitoAnnotations.openMocks((this));
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+
     }
 
     @Test
-    public void testCreateRole(){
-        Role role=new Role();
+    void testCreateRole_Success() {
+        Role role = new Role();
         role.setRoleName("TestRole");
 
         when(roleRepository.findByRoleName(role.getRoleName())).thenReturn(null);
+        when(roleRepository.save(role)).thenReturn(role);
 
-        ResponseEntity<?> response = roleService.createRole(role);
+        Role createdRole = roleService.createRole(role);
 
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals("TestRole", createdRole.getRoleName());
         verify(roleRepository).save(role);
     }
 
     @Test
-    public void testCreateRoleShouldReturnBadRequest_WhenUsernameExists(){
+    void testCreateRole_ShouldThrowException_WhenRoleNameExists() {
         Role existingRole = new Role();
         existingRole.setRoleName("admin");
 
@@ -53,92 +55,95 @@ class RoleServiceTest {
         Role newRole = new Role();
         newRole.setRoleName("admin");
 
-        ResponseEntity<?> response = roleService.createRole(newRole);
-
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertThrows(RoleAlreadyExistsException.class, () -> roleService.createRole(newRole));
         verify(roleRepository, never()).save(any(Role.class));
-
     }
 
     @Test
-    public void testAllRole(){
+    void testGetAllRoles() {
         Role role1 = new Role();
         role1.setRoleName("admin");
         Role role2 = new Role();
         role2.setRoleName("User");
         Role role3 = new Role();
-        role1.setRoleName("Moderator");
-        when(roleRepository.findAll()).thenReturn(Arrays.asList(role1,role2,role3));
+        role3.setRoleName("Moderator");
 
-        List<Role> roleList = roleService.getAllRole();
+        when(roleRepository.findAll()).thenReturn(Arrays.asList(role1, role2, role3));
 
-        assertEquals(3,roleList.size());
+        List<Role> roleList = roleService.getAllRoles();
+
+        assertEquals(3, roleList.size());
         verify(roleRepository, times(1)).findAll();
     }
 
     @Test
-    public void testGetRoleByIdSuccess(){
+    void testGetRoleById_Success() {
         Role role = new Role();
         role.setId(1);
         role.setRoleName("Test");
 
         when(roleRepository.findById(1)).thenReturn(Optional.of(role));
 
-        ResponseEntity<Role> response = roleService.getRoleById(1);
+        Role foundRole = roleService.getRoleById(1);
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-
+        assertNotNull(foundRole);
+        assertEquals("Test", foundRole.getRoleName());
     }
 
     @Test
-    void testGetRoleById_ShouldReturnNotFound_WhenUserDoesNotExist() {
-        // Arrange
+    void testGetRoleById_ShouldThrowException_WhenRoleNotFound() {
         when(roleRepository.findById(1)).thenReturn(Optional.empty());
 
-        // Act
-        ResponseEntity<Role> response = roleService.getRoleById(1);
-
-        // Assert
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-
+        assertThrows(EntityNotFoundException.class, () -> roleService.getRoleById(1));
     }
 
+    @Test
+    void testUpdateRole_Success() {
+        Role existingRole = new Role();
+        existingRole.setId(1);
+        existingRole.setRoleName("OldName");
 
+        Role updatedRole = new Role();
+        updatedRole.setRoleName("NewName");
+
+        when(roleRepository.findById(1)).thenReturn(Optional.of(existingRole));
+
+        String updateMessage = roleService.updateRole(1, updatedRole);
+
+        assertEquals("Role updated successfully", updateMessage);
+        assertEquals("NewName", existingRole.getRoleName());
+        verify(roleRepository, times(1)).save(existingRole);
+    }
 
     @Test
-    public void TestDeleteRoleSuccess(){
-        // Arrange
-        Role role= new Role();
-        role.setRoleName("user");
-        role.setId(1);
+    void testUpdateRole_ShouldThrowException_WhenRoleNotFound() {
+        Role updatedRole = new Role();
+        updatedRole.setRoleName("NewName");
 
-        // Simuler la présence d'un role dans la base de données
+        when(roleRepository.findById(1)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> roleService.updateRole(1, updatedRole));
+        verify(roleRepository, never()).save(any(Role.class));
+    }
+
+    @Test
+    void testDeleteRole_Success() {
+        Role role = new Role();
+        role.setId(1);
+        role.setRoleName("user");
+
         when(roleRepository.findById(1)).thenReturn(Optional.of(role));
 
-        // Act
-        ResponseEntity<?> response=roleService.deleteRole(1);
+        roleService.deleteRole(1);
 
-        // Assert
-        assertEquals(200, response.getStatusCodeValue());
-        assertEquals("Role deleted successfully", response.getBody());
-
-        // Vérifier que la méthode delete a bien été appelée une fois
         verify(roleRepository, times(1)).delete(role);
     }
 
     @Test
-    public void testDeleteUser_ShouldReturnNotFound_WhenUserDoesNotExist(){
-        // Arrange
-        // Simuler l'absence d'un role dans la base de données
+    void testDeleteRole_ShouldThrowException_WhenRoleNotFound() {
         when(roleRepository.findById(1)).thenReturn(Optional.empty());
 
-        // Act
-        ResponseEntity<?> response=roleService.deleteRole(1);
-
-        // Assert
-        assertEquals(404, response.getStatusCodeValue());
-        verify(roleRepository, never()).delete(any(Role.class)); // S'assurer que la méthode delete n'est jamais appelée
-
+        assertThrows(EntityNotFoundException.class, () -> roleService.deleteRole(1));
+        verify(roleRepository, never()).delete(any(Role.class));
     }
-
 }

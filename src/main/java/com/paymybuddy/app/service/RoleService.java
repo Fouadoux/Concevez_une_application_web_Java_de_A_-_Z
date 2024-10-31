@@ -1,16 +1,17 @@
 package com.paymybuddy.app.service;
 
 import com.paymybuddy.app.entity.Role;
+import com.paymybuddy.app.exception.EntityDeleteException;
+import com.paymybuddy.app.exception.EntityNotFoundException;
+import com.paymybuddy.app.exception.EntitySaveException;
+import com.paymybuddy.app.exception.RoleAlreadyExistsException;
 import com.paymybuddy.app.repository.RoleRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
-@Slf4j  // Utilise SLF4J pour le logging
+@Slf4j  // Use SLF4J for logging
 @Service
 public class RoleService {
 
@@ -20,63 +21,95 @@ public class RoleService {
         this.roleRepository = roleRepository;
     }
 
-
-    public ResponseEntity<?> createRole(Role role){
-        Role newRole = roleRepository.findByRoleName(role.getRoleName());
-        if(newRole!=null){
-            return ResponseEntity.badRequest().body("Role already exists");
+    /**
+     * Create a new role.
+     *
+     * @param role The role to create
+     * @return The created role
+     * @throws RoleAlreadyExistsException if the role already exists
+     */
+    public Role createRole(Role role) {
+        if (roleRepository.findByRoleName(role.getRoleName()) != null) {
+            log.error("Role with name '{}' already exists.", role.getRoleName());
+            throw new RoleAlreadyExistsException("Role already exists");
         }
-       Role save= roleRepository.save(role);
-       return new ResponseEntity<>(save,HttpStatus.CREATED);
-}
 
-    // find all users
-    public List<Role> getAllRole(){
-      log.info("Fetching all roles.");
-      List<Role> roleList = roleRepository.findAll();
-      log.info("Found {} roles.", roleList.size());
-      return roleList;
+        Role savedRole;
+        try{
+            savedRole = roleRepository.save(role);
+        }catch (Exception e){
+            throw new EntitySaveException("Failed to save role",e);
+        }
+
+        log.info("Role with name '{}' created successfully.", savedRole.getRoleName());
+        return savedRole;
     }
 
-    //find role by Id
-    public ResponseEntity<Role> getRoleById(int id){
+    /**
+     * Retrieve all roles.
+     *
+     * @return A list of all roles
+     */
+    public List<Role> getAllRoles() {
+        log.info("Fetching all roles.");
+        List<Role> roleList = roleRepository.findAll();
+        log.info("Found {} roles.", roleList.size());
+        return roleList;
+    }
+
+    /**
+     * Find a role by its ID.
+     *
+     * @param id The ID of the role
+     * @return The role with the given ID
+     * @throws EntityNotFoundException if the role is not found
+     */
+    public Role getRoleById(int id) {
         log.info("Fetching role by ID: {}", id);
-        return roleRepository.findById(id).map(role -> {
-                    log.info("Role found with ID: {}", id);
-                    return ResponseEntity.ok(role);
-                })
-                .orElseGet(() -> {
-                    log.error("role not found with ID: {}", id);
-                    return ResponseEntity.notFound().build();
+        return roleRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.error("Role not found with ID: {}", id);
+                    return new EntityNotFoundException("Role not found with ID: " + id);
                 });
     }
 
-    //Update role
-    public ResponseEntity<?> UpdateRole(int id, Role role){
+    /**
+     * Update an existing role.
+     *
+     * @param id The ID of the role to update
+     * @param role The new role details
+     * @return A message indicating successful update
+     * @throws EntityNotFoundException if the role is not found
+     */
+    public String updateRole(int id, Role role) {
         log.info("Updating role with ID: {}", id);
-        return roleRepository.findById(id).map(existingRole-> {
-            existingRole.setRoleName(role.getRoleName());
-            log.info("Role with ID: {} updated successfully", id);
-            roleRepository.save(existingRole);
-            return ResponseEntity.ok("Role update sucessfully");
-        }).orElseGet(()-> {
-            log.error("Role not found with ID: {}", id);
-            return ResponseEntity.notFound().build();
-        });
+        Role existingRole = roleRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.error("Role not found with ID: {}", id);
+                    return new EntityNotFoundException("Role not found with ID: " + id);
+                });
+
+        existingRole.setRoleName(role.getRoleName());
+        roleRepository.save(existingRole);
+        log.info("Role with ID: {} updated successfully", id);
+        return "Role updated successfully";
     }
 
-    //delete role
-    public ResponseEntity<?> deleteRole(int id){
+    /**
+     * Delete a role by its ID.
+     *
+     * @param id The ID of the role to delete
+     * @throws EntityNotFoundException if the role is not found
+     */
+    public void deleteRole(int id) {
         log.info("Deleting role with ID: {}", id);
-        return roleRepository.findById(id).map(role -> {
-            roleRepository.delete(role);
-            log.info("Role with ID: {} deleted successfully", id);
-            return ResponseEntity.ok("Role deleted successfully");
-        }).orElseGet(() -> {
-            log.error("Role not found with ID: {}", id);
-            return ResponseEntity.notFound().build();
-        });
+        Role role = roleRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.error("Role not found with ID: {}", id);
+                    return new EntityNotFoundException("Role not found with ID: " + id);
+                });
+
+        roleRepository.delete(role);
+        log.info("Role with ID: {} deleted successfully", id);
     }
-
-
 }

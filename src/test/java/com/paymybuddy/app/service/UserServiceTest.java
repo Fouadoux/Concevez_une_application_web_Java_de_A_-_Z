@@ -2,6 +2,7 @@ package com.paymybuddy.app.service;
 
 import com.paymybuddy.app.entity.Role;
 import com.paymybuddy.app.entity.User;
+import com.paymybuddy.app.exception.EntityNotFoundException;
 import com.paymybuddy.app.repository.RoleRepository;
 import com.paymybuddy.app.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,8 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Arrays;
@@ -40,43 +39,39 @@ class UserServiceTest {
     }
 
     @Test
-    void createUser_ShouldReturnBadRequest_WhenUsernameExists() {
-        // Arrange
+    void createUser_UsernameAlreadyExists_ThrowsException() {
         User existingUser = new User();
         existingUser.setUserName("existingUser");
 
         when(userRepository.findByUserName("existingUser")).thenReturn(existingUser);
 
-        // Act
         User newUser = new User();
         newUser.setUserName("existingUser");
-        ResponseEntity<?> response = userService.createUser(newUser);
 
-        // Assert
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());        assertEquals("Username already exists", response.getBody());
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                userService.createUser(newUser));
+
+        assertEquals("Username already exists", exception.getMessage());
         verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
-    void createUser_ShouldReturnBadRequest_WhenDefaultRoleNotFound() {
-        // Arrange
+    void createUser_DefaultRoleNotFound_ThrowsException() {
         User newUser = new User();
         newUser.setUserName("newUser");
+
         when(userRepository.findByUserName("newUser")).thenReturn(null);
         when(roleRepository.findByRoleName("user")).thenReturn(null);
 
-        // Act
-        ResponseEntity<?> response = userService.createUser(newUser);
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
+                userService.createUser(newUser));
 
-        // Assert
-        assertEquals(400, response.getStatusCodeValue());
-        assertEquals("Default role 'user' not found", response.getBody());
+        assertEquals("Default role 'user' not found", exception.getMessage());
         verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
-    void createUser_ShouldCreateUserSuccessfully_WhenValid() {
-        // Arrange
+    void createUser_ValidUser_Success() {
         User newUser = new User();
         newUser.setUserName("newUser");
         newUser.setPassword("password");
@@ -84,25 +79,20 @@ class UserServiceTest {
         Role userRole = new Role();
         userRole.setRoleName("user");
 
-
         when(userRepository.findByUserName("newUser")).thenReturn(null);
         when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
         when(roleRepository.findByRoleName("user")).thenReturn(userRole);
 
-        // Act
-        ResponseEntity<?> response = userService.createUser(newUser);
+        String result = userService.createUser(newUser);
 
-        // Assert
-        assertEquals(200, response.getStatusCodeValue());
-        assertEquals("User registered successfully", response.getBody());
+        assertEquals("User registered successfully", result);
         assertEquals("encodedPassword", newUser.getPassword());
         assertEquals(userRole, newUser.getRole());
         verify(userRepository).save(newUser);
     }
 
     @Test
-    void getAllUsers_ShouldReturnListOfUsers() {
-        // Arrange
+    void getAllUsers_ReturnsUserList() {
         User user1 = new User();
         user1.setUserName("user1");
         User user2 = new User();
@@ -110,60 +100,50 @@ class UserServiceTest {
 
         when(userRepository.findAll()).thenReturn(Arrays.asList(user1, user2));
 
-        // Act
         List<User> users = userService.getAllUsers();
 
-        // Assert
         assertEquals(2, users.size());
         verify(userRepository, times(1)).findAll();
     }
 
     @Test
-    void getUserById_ShouldReturnUser_WhenUserExists() {
-        // Arrange
+    void getUserById_UserExists_ReturnsUser() {
         User user = new User();
         user.setUserName("user1");
+
         when(userRepository.findById(1)).thenReturn(Optional.of(user));
 
-        // Act
-        ResponseEntity<User> response = userService.getUserById(1);
+        User result = userService.getUserById(1);
 
-        // Assert
-        assertEquals(200, response.getStatusCodeValue());
-        assertEquals(user, response.getBody());
+        assertEquals(user, result);
     }
 
     @Test
-    void getUserById_ShouldReturnNotFound_WhenUserDoesNotExist() {
-        // Arrange
+    void getUserById_UserDoesNotExist_ThrowsException() {
         when(userRepository.findById(1)).thenReturn(Optional.empty());
 
-        // Act
-        ResponseEntity<User> response = userService.getUserById(1);
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
+                userService.getUserById(1));
 
-        // Assert
-        assertEquals(404, response.getStatusCodeValue());
+        assertEquals("User not found with ID: 1", exception.getMessage());
     }
 
     @Test
-    void updateUserRole_ShouldReturnBadRequest_WhenRoleNotFound() {
-        // Arrange
+    void updateUserRole_RoleNotFound_ThrowsException() {
         User user = new User();
         user.setUserName("user1");
+
         when(userRepository.findById(1)).thenReturn(Optional.of(user));
         when(roleRepository.findByRoleName("admin")).thenReturn(null);
 
-        // Act
-        ResponseEntity<?> response = userService.updateUserRole(1, "admin");
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
+                userService.updateUserRole(1, "admin"));
 
-        // Assert
-        assertEquals(400, response.getStatusCodeValue());
-        assertEquals("Role not found", response.getBody());
+        assertEquals("Role not found", exception.getMessage());
     }
 
     @Test
-    void updateUserRole_ShouldUpdateRoleSuccessfully_WhenValid() {
-        // Arrange
+    void updateUserRole_ValidRole_Success() {
         User user = new User();
         user.setUserName("user1");
 
@@ -173,48 +153,35 @@ class UserServiceTest {
         when(userRepository.findById(1)).thenReturn(Optional.of(user));
         when(roleRepository.findByRoleName("admin")).thenReturn(adminRole);
 
-        // Act
-        ResponseEntity<?> response = userService.updateUserRole(1, "admin");
+        String result = userService.updateUserRole(1, "admin");
 
-        // Assert
-        assertEquals(200, response.getStatusCodeValue());
-        assertEquals("User role updated successfully", response.getBody());
+        assertEquals("User role updated successfully", result);
         assertEquals(adminRole, user.getRole());
         verify(userRepository).save(user);
     }
 
     @Test
-    void deleteUser_ShouldReturnOk_WhenUserExists() {
-        // Arrange
+    void deleteUser_UserExists_Success() {
         User user = new User();
         user.setId(1);
         user.setUserName("testUser");
 
-        // Simuler la présence de l'utilisateur dans la base de données
         when(userRepository.findById(1)).thenReturn(Optional.of(user));
 
-        // Act
-        ResponseEntity<?> response = userService.deleteUser(1);
+        String result = userService.deleteUser(1);
 
-        // Assert
-        assertEquals(200, response.getStatusCodeValue());
-        assertEquals("User deleted successfully", response.getBody());
-
-        // Vérifier que la méthode delete a bien été appelée une fois
+        assertEquals("User deleted successfully", result);
         verify(userRepository, times(1)).delete(user);
     }
 
     @Test
-    void deleteUser_ShouldReturnNotFound_WhenUserDoesNotExist() {
-        // Arrange
-        // Simuler l'absence de l'utilisateur dans la base de données
+    void deleteUser_UserDoesNotExist_ThrowsException() {
         when(userRepository.findById(1)).thenReturn(Optional.empty());
 
-        // Act
-        ResponseEntity<?> response = userService.deleteUser(1);
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
+                userService.deleteUser(1));
 
-        // Assert
-        assertEquals(404, response.getStatusCodeValue());
-        verify(userRepository, never()).delete(any(User.class)); // S'assurer que la méthode delete n'est jamais appelée
+        assertEquals("User not found with ID: 1", exception.getMessage());
+        verify(userRepository, never()).delete(any(User.class));
     }
 }

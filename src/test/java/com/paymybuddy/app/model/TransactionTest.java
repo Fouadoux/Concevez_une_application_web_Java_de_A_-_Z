@@ -4,6 +4,8 @@ import com.paymybuddy.app.entity.Transaction;
 import com.paymybuddy.app.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -30,7 +32,7 @@ class TransactionTest {
         transaction = new Transaction();
         transaction.setUserSender(sender);
         transaction.setUserReceiver(receiver);
-        transaction.setAmount(100.0f);
+        transaction.setAmount(BigDecimal.valueOf(100.0f));
         transaction.setDescription("Test Transaction");
         transaction.setTransactionDate(LocalDateTime.now()); // Définir la date actuelle
 
@@ -41,7 +43,7 @@ class TransactionTest {
         assertNotNull(transaction);
         assertEquals(sender, transaction.getUserSender());
         assertEquals(receiver, transaction.getUserReceiver());
-        assertEquals(100.0f, transaction.getAmount());
+        assertEquals(BigDecimal.valueOf(100.0), transaction.getAmount());
         assertEquals("Test Transaction", transaction.getDescription());
         assertNotNull(transaction.getTransactionDate());
     }
@@ -50,7 +52,7 @@ class TransactionTest {
     @Test
     public void testTransactionAmountUpdate() {
         // Mise à jour du montant de la transaction
-        transaction.setAmount(150.0f);
-        assertEquals(150.0f, transaction.getAmount());
+        transaction.setAmount(BigDecimal.valueOf(150.0f));
+        assertEquals(BigDecimal.valueOf(150.0), transaction.getAmount());
     }
 }

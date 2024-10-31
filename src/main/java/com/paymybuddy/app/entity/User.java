@@ -45,7 +45,6 @@ public class User {
             orphanRemoval = true,
             fetch = FetchType.LAZY
     )
-
     @JoinColumn(name = "user_id")
     private List<UserRelation> userRelations = new ArrayList<>();
 
@@ -74,4 +73,14 @@ public class User {
         receiverTransactions.remove(transaction);
         transaction.setUserReceiver(null);
     }
+    public void addUserRelation(UserRelation userRelation) {
+        userRelations.add(userRelation);
+        userRelation.setUser(this);
+    }
+
+    public void removeUserRelation(UserRelation userRelation) {
+        userRelations.remove(userRelation);
+        userRelation.setUser(this);
+    }
+
 }
