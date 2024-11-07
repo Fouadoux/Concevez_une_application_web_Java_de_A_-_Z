@@ -1,1 +1,3 @@
-DAL fait + test des classes avec des relations
+back-end fini.
+test a 60% de covreage
+front en court.
