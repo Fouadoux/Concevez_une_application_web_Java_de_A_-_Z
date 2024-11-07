@@ -58,6 +58,8 @@ public class GlobalExceptionHandler {
         return ex.getMessage();
     }
 
+
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody

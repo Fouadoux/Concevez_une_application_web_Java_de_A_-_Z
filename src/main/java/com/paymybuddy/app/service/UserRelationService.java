@@ -128,6 +128,8 @@ public class UserRelationService {
      * @param userRelationId The ID of the user to check the relation with
      * @return True if the relation exists, otherwise false
      */
+
+    //modifier pour faire un double traitemant
     public boolean checkRelation(int userId, int userRelationId) {
         log.info("Checking relation between user with ID: {} and user relation ID: {}", userId, userRelationId);
         return userRelationRepository.findByUserIdAndUserRelationId(userId, userRelationId).isPresent();
@@ -139,6 +141,7 @@ public class UserRelationService {
         UserRelationDTO dto = new UserRelationDTO();
         dto.setUserId(userRelation.getUserId());
         dto.setUserRelationId(userRelation.getUserRelationId());
+        dto.setUserNameRelation(userService.findUsernameByUserId(userRelation.getUserRelationId()));
         dto.setStatus(userRelation.isStatus());
         dto.setCreatedAt(userRelation.getCreatedAt());
         return dto;

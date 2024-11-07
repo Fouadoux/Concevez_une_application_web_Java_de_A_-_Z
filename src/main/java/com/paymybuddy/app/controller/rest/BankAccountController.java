@@ -1,4 +1,4 @@
-package com.paymybuddy.app.controller;
+package com.paymybuddy.app.controller.rest;
 
 import com.paymybuddy.app.entity.BankAccount;
 import com.paymybuddy.app.entity.User;
@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/bankAccounts")

@@ -6,8 +6,6 @@ import com.paymybuddy.app.entity.User;
 import com.paymybuddy.app.exception.EntityNotFoundException;
 import com.paymybuddy.app.exception.EntitySaveException;
 import com.paymybuddy.app.repository.BankAccountRepository;
-import com.paymybuddy.app.repository.RoleRepository;
-import com.paymybuddy.app.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

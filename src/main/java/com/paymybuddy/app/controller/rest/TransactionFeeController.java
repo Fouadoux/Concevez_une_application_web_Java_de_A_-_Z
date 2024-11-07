@@ -1,9 +1,10 @@
-package com.paymybuddy.app.controller;
+package com.paymybuddy.app.controller.rest;
 
 import com.paymybuddy.app.entity.TransactionFee;
 import com.paymybuddy.app.service.TransactionFeeService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -23,6 +24,7 @@ public class TransactionFeeController {
      *
      * @return The active TransactionFee
      */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
     public ResponseEntity<TransactionFee> getActiveTransactionFee() {
         TransactionFee activeFee = transactionFeeService.getActiveTransactionFee();
@@ -35,6 +37,7 @@ public class TransactionFeeController {
      * @param fee The TransactionFee to create
      * @return The created TransactionFee with HTTP status 201 (CREATED)
      */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping
     public ResponseEntity<TransactionFee> createTransactionFee(@RequestBody TransactionFee fee) {
         TransactionFee newFee = transactionFeeService.createTransactionFee(fee);
@@ -48,6 +51,7 @@ public class TransactionFeeController {
      * @param newPercent The new percentage to set
      * @return The updated TransactionFee
      */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/update/id/{id}/percent/{newPercent}")
     public ResponseEntity<TransactionFee> updateTransactionFeePercentage(@PathVariable int id,
                                                                          @PathVariable BigDecimal newPercent) {
@@ -61,6 +65,7 @@ public class TransactionFeeController {
      * @param id The ID of the transaction fee to delete
      * @return A confirmation message
      */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/id/{id}")
     public ResponseEntity<String> deleteTransactionFee(@PathVariable int id) {
         transactionFeeService.deleteTransactionFee(id);

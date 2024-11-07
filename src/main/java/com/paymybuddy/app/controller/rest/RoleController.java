@@ -1,8 +1,6 @@
-package com.paymybuddy.app.controller;
+package com.paymybuddy.app.controller.rest;
 
 import com.paymybuddy.app.entity.Role;
-import com.paymybuddy.app.exception.EntityNotFoundException;
-import com.paymybuddy.app.exception.RoleAlreadyExistsException;
 import com.paymybuddy.app.service.RoleService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

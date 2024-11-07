@@ -1,4 +1,4 @@
-package com.paymybuddy.app.controller;
+package com.paymybuddy.app.controller.rest;
 
 import com.paymybuddy.app.dto.TransactionDTO;
 import com.paymybuddy.app.entity.Transaction;
@@ -30,7 +30,7 @@ public class  TransactionController {
      * Endpoint pour créer une nouvelle transaction entre deux utilisateurs.
      *
      * @param senderId     L'ID de l'utilisateur expéditeur
-     * @param receiverId   L'ID de l'utilisateur destinataire
+     * @param receiverId   le nom de l'utilisateur destinataire
      * @param amount       Le montant de la transaction
      * @param description  La description de la transaction
      * @return Un message de succès ou une erreur

@@ -1,5 +1,6 @@
 package com.paymybuddy.app.service;
 
+import com.paymybuddy.app.dto.AppAccountDTO;
 import com.paymybuddy.app.entity.AppAccount;
 import com.paymybuddy.app.exception.*;
 import com.paymybuddy.app.repository.AppAccountRepository;
@@ -22,7 +23,7 @@ public class AppAccountService {
     }
 
     // Méthode privée pour récupérer le compte d'un utilisateur via userId
-    private AppAccount findAccountByUserId(int userId) {
+    public AppAccount findAccountByUserId(int userId) {
         return appAccountRepository.findByUserId(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Account not found for user with ID: " + userId));
     }
@@ -51,14 +52,6 @@ public class AppAccountService {
         return updatedBalance;
     }
 
-    // Obtenir les informations du compte d'un utilisateur
-    public record AppAccountInfo(BigDecimal balance, LocalDateTime lastUpdate, LocalDateTime createdAt) {}
-
-    public AppAccountInfo getInfoAppAccountByUserId(int userId) {
-        AppAccount account = findAccountByUserId(userId);
-        return new AppAccountInfo(account.getBalance(), account.getLastUpdate(), account.getCreatedAt());
-    }
-
     // Obtenir le solde sous forme de BigDecimal
     public Optional<BigDecimal> getBalanceByIdInBigDecimal(int userId) {
         return Optional.of(getBalanceByUserId(userId));
@@ -74,7 +67,7 @@ public class AppAccountService {
         }
 
         AppAccount newAccount = new AppAccount();
-        newAccount.setUser(userRepository.getById(userId));
+      //  newAccount.setUser(userRepository.getById(userId));
         newAccount.setBalance(BigDecimal.ZERO);
 
         try {
@@ -98,4 +91,15 @@ public class AppAccountService {
         }
     }
 
+    public AppAccountDTO getInfoAppAccountByUserId(int userId) {
+        AppAccount account = findAccountByUserId(userId);
+        AppAccountDTO accountDTO = new AppAccountDTO();
+
+        // Mapper les informations de l'entité vers le DTO
+        accountDTO.setBalance(account.getBalance());
+        accountDTO.setLastUpdate(account.getLastUpdate());
+        accountDTO.setCreatedAt(account.getCreatedAt());
+
+        return accountDTO;
+    }
 }

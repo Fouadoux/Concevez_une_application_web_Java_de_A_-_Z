@@ -1,12 +1,18 @@
-package com.paymybuddy.app.controller;
+package com.paymybuddy.app.controller.rest;
 
 import com.paymybuddy.app.entity.User;
+import com.paymybuddy.app.exception.EntityNotFoundException;
 import com.paymybuddy.app.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -82,4 +88,21 @@ public class UserController {
     public String deleteUser(@PathVariable int id) {
         return userService.deleteUser(id);
     }
+
+
+    //-----------------------------------------------------------
+    @GetMapping("/currentUser")
+    public ResponseEntity<Map<String, Object>> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
+        // Rechercher par email si l'identifiant de connexion est l'email
+        Map<String, Object> response = new HashMap<>();
+        try {
+            int userId = userService.getUserIdByEmail(userDetails.getUsername());
+            response.put("id", userId);
+            response.put("username", userDetails.getUsername());
+            return ResponseEntity.ok(response);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Utilisateur non trouvé"));
+        }
+    }
+
 }

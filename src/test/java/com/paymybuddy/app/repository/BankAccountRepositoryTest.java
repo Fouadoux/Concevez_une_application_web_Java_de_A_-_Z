@@ -71,7 +71,7 @@ public class BankAccountRepositoryTest {
 
         assertNotNull(savedAccount);
         assertEquals("1234-5678-9101", savedAccount.getExternalBankAccountNumber());
-        assertEquals(500.0f, savedAccount.getAmount());
+        assertEquals(BigDecimal.valueOf(500.0), savedAccount.getAmount());
     }
 
     /**

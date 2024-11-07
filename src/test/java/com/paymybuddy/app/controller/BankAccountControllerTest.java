@@ -2,6 +2,7 @@ package com.paymybuddy.app.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.paymybuddy.app.controller.rest.BankAccountController;
 import com.paymybuddy.app.entity.BankAccount;
 import com.paymybuddy.app.entity.User;
 import com.paymybuddy.app.service.BankAccountService;

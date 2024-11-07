@@ -1,10 +1,12 @@
-package com.paymybuddy.app.controller;
+package com.paymybuddy.app.controller.rest;
 
+import com.paymybuddy.app.dto.AppAccountDTO;
 import com.paymybuddy.app.entity.AppAccount;
 import com.paymybuddy.app.service.AppAccountService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -26,20 +28,31 @@ public class AppAccountController {
      * @param userId The ID of the account
      * @return The account balance or an error response if not found
      */
+    @PreAuthorize("#userId == principal.id")
     @GetMapping("/{userId}/balance")
     public ResponseEntity<BigDecimal> getBalanceByUserId(@PathVariable int userId) {
         BigDecimal balance = appAccountService.getBalanceByUserId(userId);
         return ResponseEntity.ok(balance);
     }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/{userId}/balance/admin")
+    public ResponseEntity<BigDecimal> getBalanceByUserIdAdmin(@PathVariable int userId) {
+                BigDecimal balance = appAccountService.getBalanceByUserId(userId);
+        return ResponseEntity.ok(balance);
+    }
+
+
     /**
      * Endpoint to get full information of an account by its ID.
      *
-     * @param accountId The ID of the account
+     * @param userId The ID of the account
      * @return Account information or an error response if not found
      */
-    @GetMapping("/{accountId}")
-    public ResponseEntity<AppAccountService.AppAccountInfo> getInfoAppAccountById(@PathVariable int accountId) {
-        AppAccountService.AppAccountInfo accountInfo = appAccountService.getInfoAppAccountByUserId(accountId);
+    @PreAuthorize("#userId == principal.id")
+    @GetMapping("/{userId}")
+    public ResponseEntity<AppAccountDTO> getAccountInfo(@PathVariable int userId) {
+        AppAccountDTO accountInfo = appAccountService.getInfoAppAccountByUserId(userId);
         return ResponseEntity.ok(accountInfo);
     }
 
@@ -52,7 +65,7 @@ public class AppAccountController {
      */
     @PutMapping("/{accountId}/balance")
     public ResponseEntity<BigDecimal> updateBalanceById(@PathVariable int accountId,
-                                                        @RequestBody BigDecimal newBalance) { // Change to @RequestBody
+                                                        @RequestBody BigDecimal newBalance) {
         BigDecimal updatedBalance = appAccountService.updateBalanceByUserId(accountId, newBalance);
         return ResponseEntity.ok(updatedBalance);
     }
@@ -85,7 +98,5 @@ public class AppAccountController {
         appAccountService.deleteAccountByUserId(userId);
         return ResponseEntity.ok("Account deleted successfully");
     }
-
-
 
 }

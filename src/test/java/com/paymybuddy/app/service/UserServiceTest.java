@@ -43,7 +43,7 @@ class UserServiceTest {
         User existingUser = new User();
         existingUser.setUserName("existingUser");
 
-        when(userRepository.findByUserName("existingUser")).thenReturn(existingUser);
+    //    when(userRepository.findByUserName("existingUser")).thenReturn(existingUser);
 
         User newUser = new User();
         newUser.setUserName("existingUser");

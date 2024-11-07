@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <title>Register Page with SVG Input Fields</title>
+    <link th:href="@{/css/StyleLogginPage.css}" rel="stylesheet">
+    <style>
+        /* Styles généraux pour la page */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #FFFFFF;
+        }
+
+        /* Conteneur pour le cadre SVG */
+        .frame-container {
+            position: relative;
+            width: 500px;
+            height: 688px;
+        }
+
+        /* Position du logo dans le cadre */
+        .logo {
+            position: absolute;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 214px;
+            height: 64px;
+        }
+
+        /* Position du contenu du formulaire */
+        .content-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            text-align: center;
+        }
+
+        /* Styles des champs de formulaire */
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 15px;
+            margin-top: 5px;
+            border: 1px solid #E0E0E0;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            color: #000;
+            box-sizing: border-box;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            border: 2px solid #00ff00;
+        }
+
+        /* Styles du formulaire */
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 150px;
+        }
+
+        /* Style du bouton S'inscrire */
+        .register-button {
+            margin-top: 100px;
+            width: 205px;
+            height: 64px;
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+
+    </style>
+</head>
+<body>
+<!-- Le cadre SVG téléchargé -->
+<div class="frame-container">
+    <img th:src="@{/image/loginPage/Rectangle_1.svg}" alt="Cadre de connexion">
+
+    <!-- Logo placé au-dessus du formulaire -->
+    <img th:src="@{/image/loginPage/00_Button.svg}" alt="Logo" class="logo">
+
+    <!-- Contenu du formulaire -->
+    <div class="content-container">
+        <form th:action="@{/register}" method="post">
+            <div>
+                <input type="text" id="username" name="userName" placeholder="Nom d'utilisateur" required>
+            </div>
+            <div>
+                <input type="email" id="email" name="email" placeholder="Email" required>
+            </div>
+            <div>
+                <input type="password" id="password" name="password" placeholder="Mot de passe" required>
+            </div>
+            <div>
+                <button type="submit" class="register-button">
+                    <img th:src="@{/image/registerPage/02_Button.svg}" alt="S'inscrire">
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

@@ -36,7 +36,7 @@ public class UserService {
     public String createUser(User user) {
         log.info("Creating user with username: {}", user.getUserName());
 
-        if (userRepository.findByUserName(user.getUserName()) != null) {
+        if (findUserByUsername(user.getUserName()) != null) {
             log.error("Username already exists: {}", user.getUserName());
             throw new IllegalArgumentException("Username already exists");
         }
@@ -44,7 +44,7 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         log.info("Password encoded for user: {}", user.getUserName());
 
-        Role userRole = roleRepository.findByRoleName("user");
+        Role userRole = roleRepository.findByRoleName("USER");
         if (userRole == null) {
             log.error("Default role 'user' not found.");
             throw new EntityNotFoundException("Default role 'user' not found");
@@ -187,4 +187,36 @@ public class UserService {
                     return new EntityNotFoundException("User not found with email: " + email);
                 });
     }
+
+    public boolean existsByEmail(String email) {
+        return userRepository.findByEmail(email).isPresent();
+    }
+
+    public String findUsernameByUserId(Integer userId) {
+        User user = userRepository.findUserById(userId)
+                .orElseThrow(() -> {
+                    log.error("User not found with id: {}", userId);
+                    return new EntityNotFoundException("User not found with id: " + userId);
+                });
+        return user.getUserName();
+    }
+
+    public int getUserIdByUsername(String userName){
+        User user= findUserByUsername(userName);
+        if(user==null){
+            throw new EntityNotFoundException("User not found with name: "+ userName);
+        }
+        return user.getId();
+    }
+
+    public int getUserIdByEmail(String email) {
+        return userRepository.findIdByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
+    }
+
+    public User findUserByUsername(String userName) {
+        return userRepository.findByUserName(userName)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with username: " + userName));
+    }
+
 }

@@ -1,4 +1,4 @@
-package com.paymybuddy.app.service;
+package com.paymybuddy.app.security;
 
 import com.paymybuddy.app.entity.User;
 import com.paymybuddy.app.repository.UserRepository;
@@ -24,19 +24,15 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUserName(username);
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
-        if (user ==null){
-            throw new UsernameNotFoundException("User not found : "+ username);
-        }
+        GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + user.getRole().getRoleName());
 
-        GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_"+user.getRole().getRoleName());
-
-        return new org.springframework.security.core.userdetails.User(user.getUserName(),
-                user.getPassword(),
-                Collections.singleton(authority));
+        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), Collections.singleton(authority));
     }
+
 
 
 
