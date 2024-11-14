@@ -1,0 +1,298 @@
+/* Réinitialiser les marges et le padding par défaut */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Style du header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 40px 40px;
+    background: #FFFFFF;
+}
+
+/* Logo ou titre du site */
+h1 {
+    font-family: 'Inter', serif;
+    font-style: normal;
+
+    font-weight: 500;
+    font-size: 20px;
+    color: #000000;
+    line-height: 150%;
+
+}
+
+/* Style du conteneur de navigation */
+nav {
+    display: flex;
+    gap: 30px;
+}
+
+/* Style des liens de navigation */
+nav a {
+    font-family: 'Inter', serif;
+    font-weight: 500;
+    font-size: 20px;
+    color: #000000;
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+/* Styles spécifiques pour chaque lien */
+nav a[href="/transaction"] {
+    font-weight: 700;
+    color: #207FEE;
+}
+
+/* Effet de survol */
+nav a:hover {
+    background-color: #f0f0f0;
+}
+
+main {
+    display: flex;
+    flex-direction: column; /* Organise les enfants verticalement */
+    gap: 182px;             /* Espacement vertical entre les enfants */
+}
+
+.container-center {
+    display: flex;              /* Active le mode Flexbox */
+    justify-content: center;    /* Centre horizontalement */
+    padding: 0 20px;            /* Ajout d'un padding horizontal optionnel */
+    box-sizing: border-box;     /* Inclut le padding dans la hauteur totale */
+    margin-bottom: 182px;
+}
+
+/* Conteneur Flex pour aligner le dropdown et le champ de description */
+.dropdown-description-container {
+    display: flex;               /* Affiche les éléments en ligne */
+    align-items: center;         /* Aligne les éléments verticalement */
+    gap: 16px;                   /* Espacement entre les éléments */
+    padding: 20px;               /* Espace intérieur */
+    position: absolute;          /* Positionnement absolu si nécessaire */
+    top: 239px;                  /* Distance par rapport au haut */
+}
+
+
+
+.dropdown-select {
+    appearance: none;
+    width: 399px;
+    height: 81px;
+    padding: 16px;
+    font-size: 24px;
+    font-family: 'Inter', sans-serif;
+    color: #333;
+    background-color: #FFFFFF; /* Couleur de fond */
+    border: 1px solid #E0E0E0;
+    border-radius: 8px;
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1);
+    background-size: 24px 24px;
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    cursor: pointer;
+    background-image: url('/image/transactionPage/chevron-down.svg'); /* Chemin relatif depuis la racine */
+    margin-right: 42px;
+}
+
+/* Style du champ de description */
+.description-field {
+    width: 382px;
+    height: 81px;
+    padding: 24px 16px;
+    font-size: 24px;
+    font-family: 'Inter', sans-serif;
+    color: #000000;
+    background-color: #FFFFFF;
+    border: 1px solid #E0E0E0;
+    border-radius: 8px;
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
+    resize: none;
+    overflow-y: auto;
+    margin-right: 42px;
+}
+
+/* Style pour le champ de saisie du montant */
+.amount-input {
+    width: 189px;
+    height: 121px;
+    background: #FFFFFF;
+    border: 1px solid #E0E0E0;
+    border-radius: 8px;
+    padding: 16px;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+    position: relative; /* Pour positionner le chevron à l'intérieur */
+    display: flex;
+    align-items: center;
+    margin-right: 89px;
+}
+
+.amount-input input[type="number"] {
+    width: 157px;
+    height: 24px;
+    font-size: 24px;
+    color: #000000;
+    padding: 8px;
+    border: 0px solid #E0E0E0;
+    border-radius: 4px;
+    text-align: center;
+    background: #FFFFFF;
+
+}
+
+.amount-input .chevron-down {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    right: 16px; /* Positionnez le chevron à droite */
+    top: 70%;
+    transform: translateY(-50%) rotate(0deg); /* Centre verticalement et le fait pointer vers le bas */
+
+}
+
+.amount-input .chevron-up {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    right: 16px; /* Positionnez le chevron à droite */
+    top: 30%;
+    transform: translateY(-50%) rotate(180deg); /* Centre verticalement et le fait pointer vers le bas */
+
+}
+
+
+
+.amount-input input[type="number"]::-webkit-outer-spin-button,
+.amount-input input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.amount-input input[type="number"] {
+    -moz-appearance: textfield; /* Pour Firefox */
+}
+
+.icon-button {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Espace entre l'icône et le texte */
+    border: none;
+    background-color: #207FEE;
+    color: white;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.icon-button img {
+    width: 120px;          /* Ajustez la largeur de l'icône */
+    height: 88px;         /* Ajustez la hauteur de l'icône */
+    object-fit: contain;  /* Conserve les proportions de l'image */
+}
+
+
+.transTable
+{
+    display: flex;              /* Active le mode Flexbox */
+    justify-content: center;    /* Centre horizontalement */
+    width: 1311px;    /* Largeur fixe de la table */
+    border: 1px solid #E0E0E0;
+    border-radius: 8px;
+    filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.04));
+    margin-bottom: 25px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+caption {
+    caption-side: top; /* Assure que le caption est placé au-dessus du tableau */
+    font-family: 'Inter', serif;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 24px;
+    line-height: 36px; /* Ajuste la hauteur de la ligne */
+    color: #000000;
+    text-align: left; /* Alignement à gauche */
+    margin-top: 24px;
+    margin-left: 19px;
+}
+
+tr {
+    display: flex;
+    width: 1263px;
+
+}
+
+.table-relation {
+    width: 40%;
+    font-family: 'Inter', serif;
+    font-weight: 600;
+    font-size: 24px;
+    line-height: 36px;
+    color: #000000;
+    text-align: left; /* Alignement à droite pour les montants */
+    padding: 15px;
+}
+
+.table-description {
+    width: 40%;
+    font-family: 'Inter', serif;
+    font-weight: 600;
+    font-size: 24px;
+    line-height: 36px;
+    color: #000000;
+    text-align: justify; /* Alignement à droite pour les montants */
+    padding: 15px;
+}
+
+.table-montant {
+    width: 20%;
+    font-family: 'Inter', serif;
+    font-weight: 600;
+    font-size: 24px;
+    line-height: 36px;
+    color: #000000;
+    text-align: right; /* Alignement à droite pour les montants */
+    padding: 15px;
+}
+
+
+
+/* Colonnes alignées spécifiquement */
+#transactionsTable td:nth-child(1) {
+    font-family: 'Inter', serif;
+    width: 40%; /* Largeur pour Relation */
+    font-size: 24px;
+    border-top: 1px solid #E0E0E0;
+    height: 60px;
+
+    padding: 15px;
+}
+
+#transactionsTable td:nth-child(2) {
+    font-family: 'Inter', serif;
+    width: 40%; /* Largeur pour Description */
+    font-size: 24px;
+    border-top: 1px solid #E0E0E0;
+    height: 60px;
+    padding: 15px;
+}
+
+#transactionsTable td:nth-child(3) {
+    font-family: 'Inter', serif;
+    width: 20%; /* Largeur pour Montant */
+    text-align: right; /* Alignement à droite pour les montants */
+    font-size: 24px;
+    border-top: 1px solid #E0E0E0;
+    height: 60px;
+    padding: 15px;
+}

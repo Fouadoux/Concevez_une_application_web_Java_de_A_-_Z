@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/transactions")
@@ -36,15 +38,24 @@ public class  TransactionController {
      * @return Un message de succès ou une erreur
      */
     @PostMapping("/create")
-    public ResponseEntity<String> createTransaction(@RequestParam int senderId,
-                                                    @RequestParam int receiverId,
-                                                    @RequestParam BigDecimal amount,
-                                                    @RequestParam String description) {
+    public ResponseEntity<Map<String, Object>> createTransaction(@RequestParam int senderId,
+                                                                 @RequestParam int receiverId,
+                                                                 @RequestParam BigDecimal amount,
+                                                                 @RequestParam String description) {
         User sender = userService.getUserById(senderId);
         User receiver = userService.getUserById(receiverId);
 
         String transactionResult = transactionService.createTransaction(sender, receiver, amount, description);
-        return ResponseEntity.status(HttpStatus.CREATED).body(transactionResult);
+
+        // Créer une réponse structurée
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", transactionResult);
+        response.put("status", "success");
+        response.put("timestamp", System.currentTimeMillis());
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+
+      //  return ResponseEntity.status(HttpStatus.CREATED).body(transactionResult);
     }
 
     /**

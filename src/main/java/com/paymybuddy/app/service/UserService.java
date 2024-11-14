@@ -1,5 +1,6 @@
 package com.paymybuddy.app.service;
 
+import com.paymybuddy.app.dto.UpdateUserRequest;
 import com.paymybuddy.app.entity.Role;
 import com.paymybuddy.app.entity.User;
 import com.paymybuddy.app.exception.EntityDeleteException;
@@ -33,13 +34,8 @@ public class UserService {
      * @param user The user to be created
      * @return A success message if the user is created successfully
      */
-    public String createUser(User user) {
+    public void createUser(User user) {
         log.info("Creating user with username: {}", user.getUserName());
-
-        if (findUserByUsername(user.getUserName()) != null) {
-            log.error("Username already exists: {}", user.getUserName());
-            throw new IllegalArgumentException("Username already exists");
-        }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         log.info("Password encoded for user: {}", user.getUserName());
@@ -54,8 +50,6 @@ public class UserService {
 
         userRepository.save(user);
         log.info("User {} successfully registered.", user.getUserName());
-
-        return "User registered successfully";
     }
 
     /**
@@ -94,21 +88,29 @@ public class UserService {
      * @return A success message if the user is updated
      * @throws EntityNotFoundException if the user is not found
      */
-    public String updateUser(int id, User user) {
+    public void updateUser(int id, UpdateUserRequest request) {
         log.info("Updating user with ID: {}", id);
-        User existingUser = userRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.error("User not found with ID: {}", id);
-                    return new EntityNotFoundException("User not found with ID: " + id);
-                });
 
-        existingUser.setUserName(user.getUserName());
-        existingUser.setEmail(user.getEmail());
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(() ->
+                    new EntityNotFoundException("User not found with ID: " + id));
+
+
+        if (request.getUserName() != null && !request.getUserName().isBlank()) {
+            existingUser.setUserName(request.getUserName());
+        }
+        if (request.getEmail() != null && !request.getEmail().isBlank()) {
+            existingUser.setEmail(request.getEmail());
+        }
+        if (request.getPassword() != null && !request.getPassword().isBlank()) {
+            existingUser.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+
         userRepository.save(existingUser);
         log.info("User with ID: {} updated successfully", id);
-
-        return "User updated successfully";
     }
+
+
 
     /**
      * Deletes a user by ID.

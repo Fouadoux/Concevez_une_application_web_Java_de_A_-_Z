@@ -1,6 +1,5 @@
 package com.paymybuddy.app.service;
 
-import com.paymybuddy.app.dto.UserRelationDTO;
 import com.paymybuddy.app.entity.User;
 import com.paymybuddy.app.entity.UserRelation;
 import com.paymybuddy.app.exception.EntityNotFoundException;
@@ -61,7 +60,7 @@ class UserRelationServiceTest {
         String result = userRelationService.addRelation(user, "user2@example.com");
 
         assertEquals("User relation successfully added between user with ID: 1 and user with email: user2@example.com", result);
-        verify(userRelationRepository, times(2)).save(any(UserRelation.class));
+        verify(userRelationRepository, times(1)).save(any(UserRelation.class));
     }
 
     @Test
@@ -106,15 +105,7 @@ class UserRelationServiceTest {
         });
     }
 
-    @Test
-    void testGetAllRelations_ShouldReturnAllRelations() {
-        user.addUserRelation(userRelation);
 
-        List<UserRelation> relations = userRelationService.getAllRelations(user);
-
-        assertEquals(1, relations.size());
-        assertEquals(userRelation, relations.get(0));
-    }
 
     @Test
     void testCheckRelation_ShouldReturnTrue_WhenRelationExists() {
@@ -125,6 +116,15 @@ class UserRelationServiceTest {
     }
 
     @Test
+    void testCheckRelationInverse_ShouldReturnTrue_WhenRelationExists() {
+        when(userRelationRepository.findByUserIdAndUserRelationId(userToAdd.getId(), user.getId()))
+                .thenReturn(Optional.of(userRelation));
+
+        assertTrue(userRelationService.checkRelation(user.getId(), userToAdd.getId()));
+    }
+
+
+    @Test
     void testCheckRelation_ShouldReturnFalse_WhenRelationDoesNotExist() {
         when(userRelationRepository.findByUserIdAndUserRelationId(user.getId(), userToAdd.getId()))
                 .thenReturn(Optional.empty());
@@ -132,13 +132,5 @@ class UserRelationServiceTest {
         assertFalse(userRelationService.checkRelation(user.getId(), userToAdd.getId()));
     }
 
-    @Test
-    void testConvertToDTO_ShouldConvertUserRelationToDTO() {
-        UserRelationDTO dto = userRelationService.convertToDTO(userRelation);
 
-        assertEquals(userRelation.getUserId(), dto.getUserId());
-        assertEquals(userRelation.getUserRelationId(), dto.getUserRelationId());
-        assertEquals(userRelation.isStatus(), dto.isStatus());
-        assertEquals(userRelation.getCreatedAt(), dto.getCreatedAt());
-    }
 }

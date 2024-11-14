@@ -40,13 +40,21 @@ public class User {
         this.createdAt = LocalDateTime.now();
     }
 
-    @OneToMany(
+   /* @OneToMany(
             cascade = CascadeType.ALL,
             orphanRemoval = true,
             fetch = FetchType.LAZY
     )
+
     @JoinColumn(name = "user_id")
+    private List<UserRelation> userRelations = new ArrayList<>();*/
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserRelation> userRelations = new ArrayList<>();
+
+    @OneToMany(mappedBy = "relatedUser", cascade = CascadeType.ALL)
+    private List<UserRelation> relatedUserRelations = new ArrayList<>();
+
 
     @OneToMany(mappedBy = "userSender"
     )

@@ -67,8 +67,9 @@ public class AppAccountService {
         }
 
         AppAccount newAccount = new AppAccount();
-      //  newAccount.setUser(userRepository.getById(userId));
-        newAccount.setBalance(BigDecimal.ZERO);
+
+        // 100€ sur le compte pour les tests !! remettre BigDecimal.ZERO apres les tests
+        newAccount.setBalance(BigDecimal.valueOf(100));
 
         try {
             return appAccountRepository.save(newAccount);

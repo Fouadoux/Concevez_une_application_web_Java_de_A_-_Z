@@ -1,419 +1,86 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html" lang="fr">
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page avec Header de Navigation</title>
+    <title th:text="${pageTitle}">Pay My Buddy</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        /* Réinitialiser les marges et le padding par défaut */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        /* Style du header */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            padding: 20px 40px;
-            background: #FFFFFF;
-        }
-
-        /* Logo ou titre du site */
-        h1 {
-            font-family: 'Inter', serif;
-            font-weight: 500;
-            font-size: 24px;
-            color: #000000;
-        }
-
-        /* Style du conteneur de navigation */
-        nav {
-            display: flex;
-            gap: 20px;
-        }
-
-        /* Style des liens de navigation */
-        nav a {
-            font-family: 'Inter', serif;
-            font-weight: 500;
-            font-size: 18px;
-            color: #000000;
-            text-decoration: none;
-            padding: 8px 12px;
-            border-radius: 4px;
-            transition: background-color 0.3s;
-        }
-
-        /* Styles spécifiques pour chaque lien */
-        nav a[href="/transfere"] {
-            font-weight: 700;
-            color: #207FEE;
-        }
-
-        /* Effet de survol */
-        nav a:hover {
-            background-color: #f0f0f0;
-        }
-
-        /* Conteneur Flex pour aligner le dropdown et le champ de description */
-        .dropdown-description-container {
-            display: flex;
-            align-items: normal;
-            gap: 16px;
-            padding: 20px;
-            position: absolute;
-            top: 239px;
-            left: 98px;
-        }
-
-        /* Style du dropdown */
-        .dropdown-container {
-            width: 399px;
-            position: relative;
-        }
-
-        .dropdown-select {
-            appearance: none;
-            width: 100%;
-            height: 81px;
-            padding: 16px;
-            font-size: 24px;
-            font-family: 'Inter', sans-serif;
-            color: #333;
-            background-color: #FFFFFF; /* Couleur de fond */
-            border: 1px solid #E0E0E0;
-            border-radius: 8px;
-            box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1);
-            background-size: 24px 24px;
-            background-repeat: no-repeat;
-            background-position: right 16px center;
-            cursor: pointer;
-            background-image: url('/image/transactionPage/chevron-down.svg'); /* Chemin relatif depuis la racine */
-        }
-
-        /* Style du champ de description */
-        .description-field {
-            width: 382px;
-            height: 81px;
-            padding: 24px 16px;
-            font-size: 24px;
-            font-family: 'Inter', sans-serif;
-            color: #000000;
-            background-color: #FFFFFF;
-            border: 1px solid #E0E0E0;
-            border-radius: 8px;
-            box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
-            resize: none;
-            overflow-y: auto;
-        }
-
-        /* Conteneur Flex pour aligner les éléments */
-        .dropdown-description-container {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 20px;
-            position: relative;
-            left: 98px;
-            top: 239px;
-        }
-
-        /* Style pour le champ de saisie du montant */
-        .amount-input {
-            width: 189px;
-            height: 121px;
-            background: #FFFFFF;
-            border: 1px solid #E0E0E0;
-            border-radius: 8px;
-            padding: 16px;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-            position: relative; /* Pour positionner le chevron à l'intérieur */
-            display: flex;
-            align-items: center;
-        }
-
-        .amount-input input[type="number"] {
-            width: 100%;
-            height: 25px;
-            font-size: 24px;
-            color: #000000;
-            padding: 8px;
-            border: 0px solid #E0E0E0;
-            border-radius: 4px;
-            text-align: center;
-            background: #FFFFFF;
-
-        }
-
-        .amount-input .chevron-down {
-            position: absolute;
-            width: 24px;
-            height: 24px;
-            right: 16px; /* Positionnez le chevron à droite */
-            top: 70%;
-            transform: translateY(-50%) rotate(0deg); /* Centre verticalement et le fait pointer vers le bas */
-
-        }
-
-        .amount-input .chevron-up {
-            position: absolute;
-            width: 24px;
-            height: 24px;
-            right: 16px; /* Positionnez le chevron à droite */
-            top: 30%;
-            transform: translateY(-50%) rotate(180deg); /* Centre verticalement et le fait pointer vers le bas */
-
-        }
-
-        /* Style du dropdown pour la relation */
-        .dropdown-container {
-            width: 399px;
-            position: relative;
-        }
-
-        .amount-input input[type="number"]::-webkit-outer-spin-button,
-        .amount-input input[type="number"]::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
-        .amount-input input[type="number"] {
-            -moz-appearance: textfield; /* Pour Firefox */
-        }
-
-        .icon-button {
-            display: flex;
-            align-items: center;
-            gap: 8px; /* Espace entre l'icône et le texte */
-            padding: 10px 20px;
-            border: none;
-            background-color: #207FEE;
-            color: white;
-            font-size: 16px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-
-
-    </style>
+    <link rel="stylesheet" th:href="@{/css/transactions.css}">
 </head>
 <body>
-
 <header>
-    <h1>Pay my buddy</h1>
+    <h1>Pay My Buddy</h1>
     <nav>
-        <a href="/transfere">Transférer</a>
-        <a href="/profil">Profil</a>
-        <a href="/addRelation">Ajouter relation</a>
-        <a href="/logout">Se déconnecter</a>
+        <a th:href="@{/transaction}" th:classappend="${activePage == 'transfere' ? 'active' : ''}">Transférer</a>
+        <a th:href="@{/profil}" th:classappend="${activePage == 'profil' ? 'active' : ''}">Profil</a>
+        <a th:href="@{/addRelation}" th:classappend="${activePage == 'addRelation' ? 'active' : ''}">Ajouter
+            relation</a>
+        <a th:href="@{/logout}">Se déconnecter</a>
     </nav>
 </header>
 
 <main>
-    <div class="dropdown-description-container">
+    <form id="transactionForm" th:action="@{/api/transactions/create}" method="post">
+        <div class="container-center">
+            <div class="dropdown-description-container">
+                <!-- Formulaire principal -->
 
-        <!-- Dropdown pour la relation (à gauche) -->
-        <div class="dropdown-container">
-            <form id="transactionForm">
-            <select id="relationSelect"
-                    class="dropdown-select"
-            >
-                <option value="" disabled selected>Sélectionner une relation</option>
-                <!-- Options ajoutées dynamiquement via JavaScript -->
-            </select>
+                <!-- Dropdown pour la relation -->
+                <div class="dropdown-container">
+                    <select id="relationSelect" name="receiverId" class="dropdown-select" required>
+                        <option value="" disabled selected>Sélectionner une relation</option>
+                    </select>
+                </div>
+
+                <!-- Champ de description -->
+                <div class="description-container">
+                    <textarea id="description" name="description" class="description-field" placeholder="Description"
+                              maxlength="250"></textarea>
+                </div>
+
+                <!-- Champ pour le montant -->
+                <div class="amount-input">
+                    <input type="number" id="amount" name="amount" min="0" max="9999" step="1" placeholder="0" required>
+                    <img th:src="@{/image/transactionPage/chevron-down.svg}" alt="Chevron Down" class="chevron-down">
+                    <img th:src="@{/image/transactionPage/chevron-down.svg}" alt="Chevron Up" class="chevron-up">
+                </div>
+
+                <!-- Bouton de soumission -->
+                <div class="button-paye">
+                    <button type="submit" class="icon-button">
+                        <img th:src="@{/image/transactionPage/03_Button.svg}" alt="Payer">
+                    </button>
+                </div>
+            </div>
         </div>
-
-        <!-- Conteneur pour le champ de description (au centre) -->
-        <!--    <div class="description-container">-->
-        <textarea id="description" class="description-field" placeholder="Description" maxlength="250"></textarea>
-        <!--    </div>-->
-
-        <!-- Champ de saisie pour le montant (à droite) -->
-        <div class="amount-input">
-            <input type="number" id="amount" name="amount" min="0" max="9999" step="1" placeholder="0">
-            <img src="/image/transactionPage/chevron-down.svg" alt="Chevron Up" class="chevron-down">
-            <img src="/image/transactionPage/chevron-down.svg" alt="Chevron Down" class="chevron-up">
-
-        </div>
+    </form>
 
 
-        <div class="buttom-paye">
-                <button type="Payer" class="icon-button">
-                    <img src="/image/transactionPage/03_Button.svg" alt="03_Button" class="buttonPaye">
-                </button>
-        </div>
-        </form>
+
+    <!-- Table des transactions -->
+    <div class="transTable">
+
+        <table id="transactionsTable" >
+            <caption>Mes Transactions</caption>
+            <thead>
+            <tr>
+                <th class="table-relation"> Relations</th>
+                <th class="table-description">Description</th>
+                <th class="table-montant">Montant</th>
+
+            </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+
     </div>
 </main>
-
-<script>
-
-    document.addEventListener('DOMContentLoaded', () => {
-        console.log("Script chargé"); // Vérification initiale
-
-        // Code existant
-        const inputAmount = document.getElementById("amount");
-        const chevronUp = document.querySelector(".chevron-up");
-        const chevronDown = document.querySelector(".chevron-down");
-
-        if (!inputAmount || !chevronUp || !chevronDown) {
-            console.error("Les éléments nécessaires n'ont pas été trouvés dans le DOM.");
-            return;
-        }
-
-        function incrementAmount() {
-            console.log("Incrémentation");
-            let currentValue = parseInt(inputAmount.value) || 0;
-            const max = parseInt(inputAmount.max) || 9999;
-            if (currentValue < max) {
-                inputAmount.value = currentValue + 1;
-            }
-        }
-
-        function decrementAmount() {
-            console.log("Décrémentation");
-            let currentValue = parseInt(inputAmount.value) || 0;
-            const min = parseInt(inputAmount.min) || 0;
-            if (currentValue > min) {
-                inputAmount.value = currentValue - 1;
-            }
-        }
-
-        chevronUp.addEventListener("click", incrementAmount);
-        chevronDown.addEventListener("click", decrementAmount);
-    });
-</script>
-<script>
-    async function getCurrentUserId() {
-        try {
-            const response = await fetch('http://localhost:8080/api/currentUser', {
-                method: 'GET',
-                credentials: 'include' // Envoie les cookies avec la requête (nécessaire si l’authentification est basée sur les cookies)
-            });
-
-            console.log("Statut de la réponse:", response.status); // Pour voir le code de statut
-
-            if (!response.ok) {
-                throw new Error(`Erreur HTTP : ${response.status}`);
-            }
-
-            const data = await response.json();
-            return data.id; // Renvoyer l'ID utilisateur
-        } catch (error) {
-            console.error("Erreur lors de la récupération de l'utilisateur actuel :", error);
-            alert("Impossible de récupérer l'utilisateur actuel.");
-            return null;
-        }
-    }
-
-    // Fonction pour remplir le dropdown des relations
-    async function populateDropdown(userId) {
-        if (!userId) return; // Si l'ID est null, ne pas exécuter la fonction
-
-        try {
-            const response = await fetch(`http://localhost:8080/api/relation/all/${userId}`);
-            if (!response.ok) {
-                throw new Error(`Erreur HTTP : ${response.status}`);
-            }
-            const relations = await response.json();
-
-            const dropdown = document.getElementById('relationSelect');
-            dropdown.innerHTML = "";
-
-            const defaultOption = document.createElement('option');
-            defaultOption.value = "";
-            defaultOption.textContent = "Sélectionner une relation";
-            defaultOption.disabled = true;
-            defaultOption.selected = true;
-            dropdown.appendChild(defaultOption);
-
-            relations.forEach(relation => {
-                const optionElement = document.createElement('option');
-                optionElement.value = relation.userRelationId;
-                optionElement.textContent = relation.userNameRelation;
-                dropdown.appendChild(optionElement);
-            });
-        } catch (error) {
-            console.error('Erreur lors de la récupération des relations utilisateur :', error);
-            alert('Une erreur est survenue lors de la récupération des relations. Veuillez réessayer.');
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', async () => {
-        // Récupérer l'ID de l'utilisateur actuel
-        const userId = await getCurrentUserId();
-        if (userId) {
-            populateDropdown(userId); // Charger les relations pour l'utilisateur actuel
-        }
-
-        // Écouter les changements de sélection dans le dropdown
-        const dropdown = document.getElementById('relationSelect');
-        dropdown.addEventListener('change', (event) => {
-            const selectedUserId = event.target.value;
-            const selectedUserName = event.target.options[event.target.selectedIndex].textContent;
-            alert(`Relation sélectionnée : ${selectedUserName} (ID: ${selectedUserId})`);
-        });
-    });
-</script>
-
-
-<script>
-    document.getElementById("transactionForm").addEventListener("submit", async (event) => {
-        event.preventDefault(); // Empêche le rechargement de la page lors de la soumission du formulaire
-
-        try {
-// Étape 1 : Récupérer `senderId` depuis `/api/currentUser`
-            const currentUserResponse = await fetch("http://localhost:8080/api/currentUser", {
-                method: "GET",
-                credentials: "include" // Inclut les cookies pour l'authentification si nécessaire
-            });
-
-            if (!currentUserResponse.ok) {
-                throw new Error("Impossible de récupérer l'utilisateur actuel");
-            }
-
-            const currentUser = await currentUserResponse.json();
-            const senderId = currentUser.id; // ID de l'utilisateur actuel
-
-// Étape 2 : Récupérer les autres valeurs du formulaire
-            const userNameReceiver = document.getElementById("relationSelect").value;
-            const amount = document.getElementById("amount").value;
-            const description = document.getElementById("description").value;
-
-// Étape 3 : Envoyer la requête POST à `/create`
-            const response = await fetch("http://localhost:8080/api/transactions/create", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
-                },
-                body: new URLSearchParams({
-                    senderId: senderId,
-                    receiverId: userNameReceiver,
-                    amount: amount,
-                    description: description
-                })
-            });
-
-            if (response.ok) {
-                const result = await response.text();
-                alert("Transaction créée avec succès : " + result);
-            } else {
-                const errorText = await response.text();
-                alert("Erreur lors de la création de la transaction : " + errorText);
-            }
-        } catch (error) {
-            console.error("Erreur lors de la requête :", error);
-            alert("Une erreur est survenue lors de la requête. Veuillez réessayer.");
-        }
-    });
-</script>
-
-
+<script type="module" th:src="@{/js/transactionHistory.js}"></script>
+<script type="module" th:src="@{/js/utils.js}"></script>
+<script type="module" th:src="@{/js/transaction.js}"></script>
+<script type="module" th:src="@{/js/dropdown.js}"></script>
+<script th:src="@{/js/chevron.js}"></script>
 </body>
 </html>

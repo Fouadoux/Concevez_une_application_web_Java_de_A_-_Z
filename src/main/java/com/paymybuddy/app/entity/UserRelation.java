@@ -25,6 +25,10 @@ public class UserRelation {
     @JoinColumn(name = "user_id", referencedColumnName = "id", insertable = false, updatable = false)
     private User user;
 
+    @ManyToOne
+    @JoinColumn(name = "user_relation_id", nullable = false)
+    private User relatedUser;
+
     @Column(name = "status")
     private boolean status;
 

@@ -209,7 +209,9 @@ public class TransactionService {
     public TransactionDTO convertToDTO(Transaction transaction) {
         TransactionDTO dto = new TransactionDTO();
         dto.setSenderId(transaction.getUserSender().getId());
+        dto.setSenderName(userService.findUsernameByUserId(transaction.getUserSender().getId()));
         dto.setReceiverId(transaction.getUserReceiver().getId());
+        dto.setReceiverName(userService.findUsernameByUserId(transaction.getUserReceiver().getId()));
         dto.setAmount(transaction.getAmount());
         dto.setAmountWithFee(transaction.getAmountWithFee());
         dto.setDescription(transaction.getDescription());

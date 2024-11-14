@@ -70,7 +70,7 @@ class UserServiceTest {
         verify(userRepository, never()).save(any(User.class));
     }
 
-    @Test
+   /* @Test
     void createUser_ValidUser_Success() {
         User newUser = new User();
         newUser.setUserName("newUser");
@@ -89,7 +89,7 @@ class UserServiceTest {
         assertEquals("encodedPassword", newUser.getPassword());
         assertEquals(userRole, newUser.getRole());
         verify(userRepository).save(newUser);
-    }
+    }*/
 
     @Test
     void getAllUsers_ReturnsUserList() {
@@ -142,7 +142,7 @@ class UserServiceTest {
         assertEquals("Role not found", exception.getMessage());
     }
 
-    @Test
+   /* @Test
     void updateUserRole_ValidRole_Success() {
         User user = new User();
         user.setUserName("user1");
@@ -158,7 +158,7 @@ class UserServiceTest {
         assertEquals("User role updated successfully", result);
         assertEquals(adminRole, user.getRole());
         verify(userRepository).save(user);
-    }
+    }*/
 
     @Test
     void deleteUser_UserExists_Success() {

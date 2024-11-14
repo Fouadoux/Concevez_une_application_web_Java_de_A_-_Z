@@ -1,6 +1,6 @@
 package com.paymybuddy.app.service;
 
-import com.paymybuddy.app.dto.UserRelationDTO;
+import com.paymybuddy.app.dto.RelatedUserDTO;
 import com.paymybuddy.app.entity.User;
 import com.paymybuddy.app.entity.UserRelation;
 import com.paymybuddy.app.exception.EntityDeleteException;
@@ -11,9 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -57,24 +56,16 @@ public class UserRelationService {
         newRelation.setStatus(true);
         newRelation.setCreatedAt(LocalDateTime.now());
 
-        UserRelation newRelation2 = new UserRelation();
-        newRelation2.setUserId(userToAdd.getId());
-        newRelation2.setUserRelationId(user.getId());
-        newRelation2.setStatus(true);
-        newRelation2.setCreatedAt(LocalDateTime.now());
-
-      //
-
         try {
             userRelationRepository.save(newRelation);
-            userRelationRepository.save(newRelation2);
+
             log.info("User relation successfully added between user with ID: {} and user with email: {}", user.getId(), email);
         } catch (Exception e) {
             log.error("Failed to save the new user relation", e);
             throw new EntitySaveException("Failed to save the new user relation", e);
         }
         user.addUserRelation(newRelation);
-        userToAdd.addUserRelation(newRelation2);
+        //userToAdd.addUserRelation(newRelation);
         return "User relation successfully added between user with ID: " + user.getId() + " and user with email: " + email;
     }
 
@@ -116,9 +107,45 @@ public class UserRelationService {
      * @param user The user whose relations are to be retrieved
      * @return An unmodifiable list of user relations
      */
-    public List<UserRelation> getAllRelations(User user) {
-        log.info("Retrieving all relations for user with ID: {}", user.getId());
-        return Collections.unmodifiableList(user.getUserRelations());
+    public List<RelatedUserDTO> getAllRelatedUsers(User user) {
+        log.info("Retrieving all related users for user with ID: {}", user.getId());
+
+        // Relations où l'utilisateur est user_id
+        List<UserRelation> relationsAsUser = user.getUserRelations();
+
+        // Relations où l'utilisateur est user_relation_id
+        List<UserRelation> relationsAsRelatedUser = user.getRelatedUserRelations();
+
+        // Liste des utilisateurs liés
+        List<RelatedUserDTO> relatedUsers = new ArrayList<>();
+
+        // Ajouter les relations où l'utilisateur est user_id
+        for (UserRelation relation : relationsAsUser) {
+            relatedUsers.add(new RelatedUserDTO(
+                    relation.getRelatedUser().getId(),
+                    relation.getRelatedUser().getUserName()
+            ));
+        }
+
+        // Ajouter les relations où l'utilisateur est user_relation_id
+        for (UserRelation relation : relationsAsRelatedUser) {
+            relatedUsers.add(new RelatedUserDTO(
+                    relation.getUser().getId(),
+                    relation.getUser().getUserName()
+            ));
+        }
+
+        log.info("Total related users found: {}", relatedUsers.size());
+        return relatedUsers;
+    }
+
+    public List<RelatedUserDTO> findRelatedUsers(int userId) {
+        User user = userService.getUserById(userId);
+        if (user == null) {
+            throw new EntityNotFoundException("User not found with ID: " + userId);
+        }
+
+        return getAllRelatedUsers(user);
     }
 
     /**
@@ -128,29 +155,16 @@ public class UserRelationService {
      * @param userRelationId The ID of the user to check the relation with
      * @return True if the relation exists, otherwise false
      */
-
-    //modifier pour faire un double traitemant
     public boolean checkRelation(int userId, int userRelationId) {
         log.info("Checking relation between user with ID: {} and user relation ID: {}", userId, userRelationId);
-        return userRelationRepository.findByUserIdAndUserRelationId(userId, userRelationId).isPresent();
+
+        boolean relationExists =userRelationRepository.findByUserIdAndUserRelationId(userId, userRelationId).isPresent() ||
+                userRelationRepository.findByUserIdAndUserRelationId(userRelationId,userId).isPresent();
+
+        log.info("Relation exists: {}", relationExists);
+        return relationExists;
     }
 
 
-
-    public UserRelationDTO convertToDTO(UserRelation userRelation) {
-        UserRelationDTO dto = new UserRelationDTO();
-        dto.setUserId(userRelation.getUserId());
-        dto.setUserRelationId(userRelation.getUserRelationId());
-        dto.setUserNameRelation(userService.findUsernameByUserId(userRelation.getUserRelationId()));
-        dto.setStatus(userRelation.isStatus());
-        dto.setCreatedAt(userRelation.getCreatedAt());
-        return dto;
-    }
-
-    public List<UserRelationDTO> convertToDTOList(List<UserRelation> userRelations) {
-        return userRelations.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-    }
 
 }

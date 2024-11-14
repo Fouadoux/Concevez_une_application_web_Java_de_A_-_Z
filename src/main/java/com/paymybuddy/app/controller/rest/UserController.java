@@ -1,25 +1,40 @@
 package com.paymybuddy.app.controller.rest;
 
+import com.paymybuddy.app.dto.UpdateUserRequest;
 import com.paymybuddy.app.entity.User;
 import com.paymybuddy.app.exception.EntityNotFoundException;
 import com.paymybuddy.app.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
+
+
+
+ @PutMapping("/users/update/{id}")
+    public ResponseEntity<String> updateUser(
+            @PathVariable int id,
+            @RequestBody UpdateUserRequest request) {
+        userService.updateUser(id, request);
+        return ResponseEntity.ok("Vos informations ont été mises à jour avec succès !");
+    }
 
     /**
      * Register a new user
@@ -28,8 +43,8 @@ public class UserController {
      * @return A success message if the user is registered successfully
      */
     @PostMapping("/users/register")
-    public String registerUser(@RequestBody User user) {
-        return userService.createUser(user);
+    public void registerUser(@RequestBody User user) {
+        userService.createUser(user);
     }
 
     /**
@@ -54,17 +69,6 @@ public class UserController {
         return userService.getUserById(id);
     }
 
-    /**
-     * Update a user’s username and email
-     *
-     * @param id   The ID of the user to update
-     * @param user The user data to update
-     * @return A success message if the user is updated successfully
-     */
-    @PutMapping("/users/{id}")
-    public String updateUser(@PathVariable int id, @RequestBody User user) {
-        return userService.updateUser(id, user);
-    }
 
     /**
      * Update a user's role

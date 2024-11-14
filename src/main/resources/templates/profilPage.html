@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">Pay My Buddy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/page.css}">
+</head>
+
+<header>
+    <h1>Pay My Buddy</h1>
+    <nav>
+        <a th:href="@{/transaction}" th:classappend="${activePage == 'transfere' ? 'active' : ''}">Transférer</a>
+        <a th:href="@{/profil}" th:classappend="${activePage == 'profil' ? 'active' : ''}">Profil</a>
+        <a th:href="@{/addRelation}" th:classappend="${activePage == 'addRelation' ? 'active' : ''}">Ajouter
+            relation</a>
+        <a th:href="@{/logout}">Se déconnecter</a>
+    </nav>
+</header>
+<div id="userId" th:data-user-id="${userId}"></div>
+<body>
+<main>
+    <div class="profile-container">
+        <form id="updateForm">
+            <!-- Username -->
+            <div class="profile-item">
+                <label for="userName" class="label">Username</label>
+                <input type="text" id="userName" name="userName" placeholder="@username">
+                <img th:src="@{/image/profilePage/Chevron_Right.svg}" alt="Chevron Right" class="chevron-right">
+            </div>
+
+            <!-- Mail -->
+            <div class="profile-item">
+                <label for="email" class="label">Mail</label>
+                <input type="email" id="email" name="email" placeholder="nom@domain.com">
+                <img th:src="@{/image/profilePage/Chevron_Right.svg}" alt="Chevron Right" class="chevron-right">
+            </div>
+
+            <!-- Password + Bouton -->
+            <div class="profile-item">
+                <label for="password" class="label">Mot de passe</label>
+                <input type="password" id="password" name="password" placeholder="Mot de passe">
+                <img th:src="@{/image/profilePage/Chevron_Right.svg}" alt="Chevron Right" class="chevron-right">
+                <!-- Bouton placé ici -->
+                <img th:src="@{/image/profilePage/modif_Button.svg}"
+                     alt="Modifier"
+                     class="modif-button"
+                     id="submitButton">
+            </div>
+
+            <!-- Message de confirmation -->
+            <div id="successMessage" class="alert alert-success" style="display: none;"></div>
+        </form>
+    </div>
+
+
+</main>
+<script>
+    document.getElementById("submitButton").addEventListener("click", () => {
+        // Ajoutez ici la logique que vous souhaitez déclencher lors du clic
+        document.getElementById("updateForm").submit(); // Soumet le formulaire
+    });
+</script>
+<script type="module" th:src="@{/js/update.js}"></script>
+
+
+
+
+

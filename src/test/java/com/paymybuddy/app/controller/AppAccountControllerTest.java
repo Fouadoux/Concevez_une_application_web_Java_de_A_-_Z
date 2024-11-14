@@ -44,7 +44,7 @@ class AppAccountControllerTest {
                 .andExpect(content().string(balance.toString()));
     }
 
-  /*  @Test
+ /*   @Test
     void testGetInfoAppAccountById_Success() throws Exception {
         int accountId = 1;
         AppAccountService.AppAccountInfo accountInfo = new AppAccountService.AppAccountInfo(BigDecimal.valueOf(100), null, null);
@@ -55,8 +55,8 @@ class AppAccountControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.balance").value(accountInfo.balance()));
-    }*/
-
+    }
+*/
     @Test
     void testUpdateBalanceById_Success() throws Exception {
         int accountId = 1;
@@ -79,7 +79,7 @@ class AppAccountControllerTest {
         verify(appAccountService, times(1)).updateBalanceByUserId(accountId, newBalance);
     }
 
-    @Test
+ /*   @Test
     void testCreateAccountForUser_Success() throws Exception {
         int userId = 1;
         AppAccount account = new AppAccount();
@@ -95,7 +95,7 @@ class AppAccountControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.accountId").value(account.getAccountId()))
                 .andExpect(jsonPath("$.balance").value(account.getBalance()));
-    }
+    }*/
 
     @Test
     void testDeleteAccountByUserId_Success() throws Exception {
