@@ -50,7 +50,7 @@ public class AppAccountIT {
         // Créer un compte utilisateur
         AppAccount account = new AppAccount();
         account.setUser(user);
-        account.setBalance(BigDecimal.valueOf(100));
+        account.setBalance(100);
 
         // Sauvegarder le compte dans la base de données
         AppAccount savedAccount = appAccountRepository.save(account);
@@ -63,7 +63,7 @@ public class AppAccountIT {
         LocalDateTime initialLastUpdate = account.getLastUpdate();
 
         // Mettre à jour le compte
-        savedAccount.setBalance(BigDecimal.valueOf(200.0f));
+        savedAccount.setBalance(200);
         appAccountRepository.save(savedAccount);
         appAccountRepository.flush();
 

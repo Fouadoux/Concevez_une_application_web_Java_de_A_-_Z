@@ -33,7 +33,7 @@ class UserTest {
         receiver.setUserName("Receiver");
 
         transaction = new Transaction();
-        transaction.setAmount(BigDecimal.valueOf(100));
+        transaction.setAmount(100);
         transaction.setDescription("Test Transaction");
     }
 

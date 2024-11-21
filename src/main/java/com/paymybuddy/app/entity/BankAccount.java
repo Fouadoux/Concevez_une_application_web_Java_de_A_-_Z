@@ -5,7 +5,6 @@ import jakarta.validation.constraints.Min;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Setter
@@ -24,7 +23,7 @@ public class BankAccount {
 
     @Column(name = "amount",nullable = false)
     @Min(value = 0, message = "The amount must be positive")
-    private BigDecimal amount;
+    private long amount;
 
     @Column(name = "bank_account",nullable = false)
     private String externalBankAccountNumber;

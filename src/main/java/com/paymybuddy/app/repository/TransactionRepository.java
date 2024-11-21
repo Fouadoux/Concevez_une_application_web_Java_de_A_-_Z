@@ -12,12 +12,20 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface TransactionRepository extends JpaRepository<Transaction,Integer> {
+public interface TransactionRepository extends JpaRepository<Transaction, Integer> {
     List<Transaction> findByUserSenderOrUserReceiverAndTransactionDateBetween(User userSender, User userReceiver, LocalDateTime transactionDate, LocalDateTime transactionDate2);
-    List<Transaction> findByUserSender(User user);
 
-    List<Transaction> findByUserReceiver(User user);
+    //Total des montants envoyés
+    @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t WHERE t.userSender = :user AND t.transactionDate BETWEEN :startDate AND :endDate")
+    Long calculateTotalSentByUserAndDateRange(@Param("user") User user,
+                                                    @Param("startDate") LocalDateTime startDate,
+                                                    @Param("endDate") LocalDateTime endDate);
 
-    @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t WHERE t.userSender = :user OR t.userReceiver = :user")
-    BigDecimal calculateTotalTransactionAmountByUser(@Param("user") User user);
+    //Total des montants reçus
+    @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t WHERE t.userReceiver = :user AND t.transactionDate BETWEEN :startDate AND :endDate")
+    Long calculateTotalReceivedByUserAndDateRange(@Param("user") User user,
+                                                        @Param("startDate") LocalDateTime startDate,
+                                                        @Param("endDate") LocalDateTime endDate);
+
+
 }

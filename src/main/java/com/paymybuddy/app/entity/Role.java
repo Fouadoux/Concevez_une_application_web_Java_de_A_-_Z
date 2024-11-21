@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Setter
 @Getter
 @Entity
@@ -18,5 +20,8 @@ public class Role {
 
     @Column(name = "role_name", nullable = false)
     private String roleName;
+
+    @Column(name = "daily_limit",nullable = false)
+    private long dailyLimit;
 
 }

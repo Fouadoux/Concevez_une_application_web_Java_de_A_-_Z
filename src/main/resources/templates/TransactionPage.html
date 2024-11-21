@@ -6,6 +6,7 @@
     <title th:text="${pageTitle}">Pay My Buddy</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/transactions.css}">
+
 </head>
 <body>
 <header>
@@ -18,6 +19,7 @@
         <a th:href="@{/logout}">Se déconnecter</a>
     </nav>
 </header>
+<div id="userId" th:data-user-id="${userId}"></div>
 
 <main>
     <form id="transactionForm" th:action="@{/api/transactions/create}" method="post">
@@ -29,6 +31,10 @@
                 <div class="dropdown-container">
                     <select id="relationSelect" name="receiverId" class="dropdown-select" required>
                         <option value="" disabled selected>Sélectionner une relation</option>
+                        <option th:each="p : ${relationUserList}"
+                                th:value="${p.id}"
+                                th:text="${p.name}">
+                        </option>
                     </select>
                 </div>
 
@@ -55,8 +61,6 @@
         </div>
     </form>
 
-
-
     <!-- Table des transactions -->
     <div class="transTable">
 
@@ -71,16 +75,22 @@
             </tr>
             </thead>
             <tbody>
+            <tr th:each="transaction : ${transactionList}">
+                <!-- Colonne Relations -->
+                <td th:text="${transaction.receiverName == currentUsername ? transaction.senderName : transaction.receiverName}"></td>
 
+                <!-- Colonne Description -->
+                <td th:text="${transaction.description}"></td>
+
+                <!-- Colonne Montant -->
+                <td th:text="${transaction.amount/100} + ' €'"></td>
+            </tr>
             </tbody>
         </table>
 
     </div>
 </main>
-<script type="module" th:src="@{/js/transactionHistory.js}"></script>
-<script type="module" th:src="@{/js/utils.js}"></script>
 <script type="module" th:src="@{/js/transaction.js}"></script>
-<script type="module" th:src="@{/js/dropdown.js}"></script>
 <script th:src="@{/js/chevron.js}"></script>
 </body>
 </html>

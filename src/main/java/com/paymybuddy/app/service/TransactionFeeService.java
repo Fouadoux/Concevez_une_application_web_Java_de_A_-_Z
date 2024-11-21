@@ -23,7 +23,7 @@ public class TransactionFeeService {
     }
 
     public TransactionFee createTransactionFee(TransactionFee fee) {
-        if (fee.getPercentage() == null || fee.getPercentage().compareTo(BigDecimal.ZERO) <= 0) {
+        if (fee.getPercentage() == 0) {
             throw new InvalidTransactionFeeException("The transaction fee percentage must be greater than zero.");
         }
 
@@ -41,8 +41,8 @@ public class TransactionFeeService {
                 .orElseThrow(() -> new EntityNotFoundException("No active transaction fee found."));
     }
 
-    public TransactionFee updateTransactionFeePercentage(int id, BigDecimal newPercentage) {
-        if (newPercentage == null || newPercentage.compareTo(BigDecimal.ZERO) <= 0) {
+    public TransactionFee updateTransactionFeePercentage(int id, long newPercentage) {
+        if (newPercentage ==  0) {
             throw new InvalidTransactionFeeException("The transaction fee percentage must be greater than zero.");
         }
 
@@ -64,15 +64,17 @@ public class TransactionFeeService {
 
     }
 
-    public BigDecimal calculateFeeForTransaction(BigDecimal transactionAmount) {
+    public long calculateFeeForTransaction(long transactionAmount) {
         TransactionFee activeFee = getActiveTransactionFee();
 
-        if (transactionAmount == null || transactionAmount.compareTo(BigDecimal.ZERO) <= 0) {
+        if (transactionAmount <= 0) {
             throw new IllegalArgumentException("Transaction amount must be greater than zero.");
         }
 
-        BigDecimal feePercentage = activeFee.getPercentage();
-        return transactionAmount.multiply(feePercentage)
-                .divide(BigDecimal.valueOf(100), new MathContext(10, RoundingMode.HALF_UP));
+        // Récupérer le pourcentage des frais (par exemple, 2.5 pour 2.5%)
+        double feePercentage = activeFee.getPercentage();
+
+        // Calcul des frais (en centimes)
+        return Math.round(transactionAmount * (feePercentage / 100.0));
     }
 }

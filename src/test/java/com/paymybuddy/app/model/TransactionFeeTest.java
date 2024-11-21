@@ -15,12 +15,12 @@ public class TransactionFeeTest {
         // Création d'une instance de TransactionFee
         TransactionFee fee = new TransactionFee();
         fee.setFeeId(1);
-        fee.setPercentage(BigDecimal.valueOf(0.5));
+        fee.setPercentage(5);
         fee.setEffectiveDate(LocalDateTime.now());
 
         // Vérification que les valeurs sont correctement définies
         assertEquals(1, fee.getFeeId());
-        assertEquals(BigDecimal.valueOf(0.5), fee.getPercentage());
+        assertEquals(5, fee.getPercentage());
         assertNotNull(fee.getEffectiveDate());
     }
 
@@ -28,13 +28,13 @@ public class TransactionFeeTest {
     public void testUpdatePercentage() {
         // Création d'une instance de TransactionFee
         TransactionFee fee = new TransactionFee();
-        fee.setPercentage(BigDecimal.valueOf(0.5));
+        fee.setPercentage(5);
 
         // Mise à jour du pourcentage
-        fee.setPercentage(BigDecimal.valueOf(0.6));
+        fee.setPercentage(6);
 
         // Vérification que le pourcentage a été mis à jour
-        assertEquals(BigDecimal.valueOf(0.6), fee.getPercentage());
+        assertEquals(6, fee.getPercentage());
     }
 
     @Test

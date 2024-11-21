@@ -54,7 +54,7 @@ public class TransactionFeeController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/update/id/{id}/percent/{newPercent}")
     public ResponseEntity<TransactionFee> updateTransactionFeePercentage(@PathVariable int id,
-                                                                         @PathVariable BigDecimal newPercent) {
+                                                                         @PathVariable long newPercent) {
         TransactionFee updatedFee = transactionFeeService.updateTransactionFeePercentage(id, newPercent);
         return ResponseEntity.ok(updatedFee);
     }

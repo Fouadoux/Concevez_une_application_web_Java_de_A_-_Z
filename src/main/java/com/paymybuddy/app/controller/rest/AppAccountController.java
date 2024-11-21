@@ -30,15 +30,15 @@ public class AppAccountController {
      */
     @PreAuthorize("#userId == principal.id")
     @GetMapping("/{userId}/balance")
-    public ResponseEntity<BigDecimal> getBalanceByUserId(@PathVariable int userId) {
-        BigDecimal balance = appAccountService.getBalanceByUserId(userId);
+    public ResponseEntity<Long> getBalanceByUserId(@PathVariable int userId) {
+        long balance = appAccountService.getBalanceByUserId(userId);
         return ResponseEntity.ok(balance);
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/{userId}/balance/admin")
-    public ResponseEntity<BigDecimal> getBalanceByUserIdAdmin(@PathVariable int userId) {
-                BigDecimal balance = appAccountService.getBalanceByUserId(userId);
+    public ResponseEntity<Long> getBalanceByUserIdAdmin(@PathVariable int userId) {
+        long balance = appAccountService.getBalanceByUserId(userId);
         return ResponseEntity.ok(balance);
     }
 
@@ -64,9 +64,9 @@ public class AppAccountController {
      * @return The updated balance or an error response if the account does not exist or if the balance is negative
      */
     @PutMapping("/{accountId}/balance")
-    public ResponseEntity<BigDecimal> updateBalanceById(@PathVariable int accountId,
-                                                        @RequestBody BigDecimal newBalance) {
-        BigDecimal updatedBalance = appAccountService.updateBalanceByUserId(accountId, newBalance);
+    public ResponseEntity<Long> updateBalanceById(@PathVariable int accountId,
+                                                        @RequestBody long newBalance) {
+        long updatedBalance = appAccountService.updateBalanceByUserId(accountId, newBalance);
         return ResponseEntity.ok(updatedBalance);
     }
 

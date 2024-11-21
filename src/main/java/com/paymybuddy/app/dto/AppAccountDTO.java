@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 public class AppAccountDTO {
     // Getters and setters
-    private BigDecimal balance;
+    private long balance;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime lastUpdate;

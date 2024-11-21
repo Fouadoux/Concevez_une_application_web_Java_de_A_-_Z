@@ -11,8 +11,8 @@ public class TransactionDTO {
     String senderName;
     private int receiverId;
     String receiverName;
-    private BigDecimal amount;
-    private BigDecimal amountWithFee;
+    private long amount;
+    private long amountWithFee;
     private String description;
     private LocalDateTime transactionDate;
 }

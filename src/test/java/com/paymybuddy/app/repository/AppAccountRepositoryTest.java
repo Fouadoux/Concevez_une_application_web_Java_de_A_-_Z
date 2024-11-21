@@ -49,7 +49,7 @@ public class AppAccountRepositoryTest {
 
         appAccount = new AppAccount();
         appAccount.setUser(user);
-        appAccount.setBalance(BigDecimal.valueOf(200.0f));
+        appAccount.setBalance(200);
         appAccount.setLastUpdate(LocalDateTime.now());
 
         User savedUser = userRepository.save(appAccount.getUser());
@@ -66,7 +66,7 @@ public class AppAccountRepositoryTest {
         AppAccount savedAccount = appAccountRepository.save(appAccount);
 
         assertNotNull(savedAccount);
-        assertEquals(BigDecimal.valueOf(200.0), savedAccount.getBalance());
+        assertEquals(200, savedAccount.getBalance());
         assertEquals("TestUser", savedAccount.getUser().getUserName());
     }
 
@@ -90,10 +90,10 @@ public class AppAccountRepositoryTest {
     @Test
     public void testUpdateAppAccount() {
         AppAccount savedAccount = appAccountRepository.save(appAccount);
-        savedAccount.setBalance(BigDecimal.valueOf(500.0f));
+        savedAccount.setBalance(500);
         AppAccount updatedAccount = appAccountRepository.save(savedAccount);
 
-        assertEquals(BigDecimal.valueOf(500.0), updatedAccount.getBalance());
+        assertEquals(500, updatedAccount.getBalance());
     }
 
     /**

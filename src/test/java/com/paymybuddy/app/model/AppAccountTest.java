@@ -30,11 +30,11 @@ class AppAccountTest {
 
         AppAccount account = new AppAccount();
         account.setUser(user);
-        account.setBalance(BigDecimal.valueOf(100.0f));
+        account.setBalance(100);
         account.setLastUpdate(LocalDateTime.now());
 
         assertNotNull(account, "Account should not be null");
-        assertEquals(BigDecimal.valueOf(100.0), account.getBalance(), "Balance should be 100.0");
+        assertEquals(100, account.getBalance(), "Balance should be 100.0");
         assertEquals(user, account.getUser(), "User should match the one assigned to the account");
         assertNotNull(account.getLastUpdate(), "Last update should not be null");
     }
@@ -46,11 +46,11 @@ class AppAccountTest {
     @Test
     public void testUpdateBalance() {
         AppAccount account = new AppAccount();
-        account.setBalance(BigDecimal.valueOf(100.0f));
+        account.setBalance(100);
 
-        account.setBalance(BigDecimal.valueOf(150.0f));  // Update the balance to 150.0
+        account.setBalance(150);  // Update the balance to 150.0
 
-        assertEquals(BigDecimal.valueOf(150.0), account.getBalance(), "Balance should be updated to 150.0");
+        assertEquals(150.0, account.getBalance(), "Balance should be updated to 150.0");
     }
 
     /**
@@ -89,7 +89,7 @@ class AppAccountTest {
         Validator validator = factory.getValidator();
 
         AppAccount account = new AppAccount();
-        account.setBalance(BigDecimal.valueOf(-5f));
+        account.setBalance(-5);
 
 
         Set<ConstraintViolation<AppAccount>> violations = validator.validate(account);

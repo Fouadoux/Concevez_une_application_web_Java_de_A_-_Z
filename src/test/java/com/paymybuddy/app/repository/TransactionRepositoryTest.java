@@ -53,8 +53,8 @@ public class TransactionRepositoryTest {
         transaction = new Transaction();
         transaction.setUserSender(sender);
         transaction.setUserReceiver(receiver);
-        transaction.setAmount(BigDecimal.valueOf(100.0f));
-        transaction.setAmountWithFee(BigDecimal.valueOf(105.0f));
+        transaction.setAmount(100);
+        transaction.setAmountWithFee(105);
         transaction.setDescription("Initial Transaction");
         transaction.setTransactionDate(LocalDateTime.now());
     }
@@ -75,13 +75,13 @@ public class TransactionRepositoryTest {
         Transaction savedTransaction = transactionRepository.save(transaction);
 
         // Update the amount
-        savedTransaction.setAmount(BigDecimal.valueOf(200.0f));
+        savedTransaction.setAmount(200);
         Transaction updatedTransaction = transactionRepository.save(savedTransaction);
 
         // Check that the amount is updated
         Optional<Transaction> retrievedTransaction = transactionRepository.findById(updatedTransaction.getId());
         assertTrue(retrievedTransaction.isPresent());
-        assertEquals(BigDecimal.valueOf(200.0f), retrievedTransaction.get().getAmount());
+        assertEquals(200, retrievedTransaction.get().getAmount());
     }
 
     @Test

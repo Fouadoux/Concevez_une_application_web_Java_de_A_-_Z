@@ -32,10 +32,10 @@ public class Transaction {
     private String description;
 
     @Column(name = "amount", nullable = false)
-    private BigDecimal amount;
+    private long amount;
 
     @Column(name = "amount_with_fee", nullable = false)
-    private BigDecimal amountWithFee;
+    private long amountWithFee;
 
     @Column(name = "transaction_date", nullable = false, updatable = false)
     private LocalDateTime transactionDate;

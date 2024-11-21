@@ -30,7 +30,7 @@ class BankAccountTest {
         // Create a sample bank account
         bankAccount = new BankAccount();
         bankAccount.setUser(user);
-        bankAccount.setAmount(BigDecimal.valueOf(500.0));
+        bankAccount.setAmount(500);
         bankAccount.setExternalBankAccountNumber("1234-5678-9101");
         bankAccount.setTransferDate(LocalDateTime.now());
         bankAccount.setStatus(true);
@@ -42,7 +42,7 @@ class BankAccountTest {
     @Test
     public void testCreateBankAccount() {
         assertNotNull(bankAccount);
-        assertEquals(BigDecimal.valueOf(500.0), bankAccount.getAmount());
+        assertEquals(500, bankAccount.getAmount());
         assertEquals("1234-5678-9101", bankAccount.getExternalBankAccountNumber());
         assertNotNull(bankAccount.getTransferDate());
         assertTrue(bankAccount.isStatus());
@@ -54,8 +54,8 @@ class BankAccountTest {
      */
     @Test
     public void testUpdateAmount() {
-        bankAccount.setAmount(BigDecimal.valueOf(750.0));
-        assertEquals(BigDecimal.valueOf(750.0), bankAccount.getAmount());
+        bankAccount.setAmount(750);
+        assertEquals(750, bankAccount.getAmount());
     }
 
     /**

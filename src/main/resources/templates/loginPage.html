@@ -2,84 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="fr">
 <head>
     <title>Login Page with SVG Input Fields</title>
-    <link th:href="@{/css/transactions.css}" rel="stylesheet">
-    <style>
-        /* Styles généraux pour la page */
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #FFFFFF;
-        }
+    <link th:href="@{/css/login.css}" rel="stylesheet">
 
-        /* Conteneur pour le cadre SVG */
-        .frame-container {
-            position: relative;
-            width: 500px; /* Dimensions correspondant à votre SVG */
-            height: 688px;
-        }
-
-        /* Position du logo dans le cadre */
-        .logo {
-            position: absolute; /* Positionner par rapport au conteneur */
-            top: 100px;           /* Ajustez cette valeur pour placer le logo au-dessus du formulaire */
-            left: 50%;
-            transform: translateX(-50%);
-            width: 214px;        /* Largeur du logo */
-            height: 64px;        /* Hauteur du logo */
-        }
-
-        /* Position du contenu du formulaire */
-        .content-container {
-            position: absolute;
-            top: 50%; /* Ajusté pour placer le formulaire au centre inférieur */
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 80%;
-            text-align: center;
-        }
-
-        /* Styles des champs de formulaire */
-        input[type="email"],
-        input[type="password"] {
-            width: 100%;
-            padding: 15px;
-            margin-top: 5px;
-            border: 1px solid #E0E0E0;
-            border-radius: 8px;
-            background-size: cover;
-            font-size: 16px;
-            outline: none;
-            color: #000;
-            box-sizing: border-box;
-        }
-
-        input[type="text"]:focus,
-        input[type="password"]:focus {
-            border: 2px solid #00ff00; /* Couleur verte au focus */
-        }
-
-        /* Styles du formulaire */
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            margin-top: 150px;
-        }
-
-        /* Style du bouton Se connecter */
-        .login-button {
-            margin-top: 100px; /* Ajustez cette valeur pour descendre le bouton */
-            width: 205px; /* Optionnel: Ajustez la largeur du bouton SVG */
-            height: 64px; /* Optionnel: Maintenir le ratio du SVG */
-            cursor: pointer; /* Affiche un curseur pointer lorsqu'on survole le bouton */
-            border: none;
-            background: none;
-        }
-
-    </style>
 </head>
 <body>
 <!-- Le cadre SVG téléchargé -->

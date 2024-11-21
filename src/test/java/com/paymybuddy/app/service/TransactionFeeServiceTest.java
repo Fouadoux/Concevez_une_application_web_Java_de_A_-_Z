@@ -35,7 +35,7 @@ class TransactionFeeServiceTest {
     @Test
     void createTransactionFee_InvalidPercentage_ThrowsException() {
         TransactionFee fee = new TransactionFee();
-        fee.setPercentage(BigDecimal.ZERO);
+        fee.setPercentage(0);
 
         InvalidTransactionFeeException exception = assertThrows(InvalidTransactionFeeException.class, () ->
                 transactionFeeService.createTransactionFee(fee));
@@ -47,14 +47,14 @@ class TransactionFeeServiceTest {
     @Test
     void createTransactionFee_ValidFee_Success() {
         TransactionFee fee = new TransactionFee();
-        fee.setPercentage(BigDecimal.valueOf(5));
+        fee.setPercentage(5);
 
         when(transactionFeeRepository.save(any(TransactionFee.class))).thenReturn(fee);
 
         TransactionFee savedFee = transactionFeeService.createTransactionFee(fee);
 
         assertNotNull(savedFee);
-        assertEquals(BigDecimal.valueOf(5), savedFee.getPercentage());
+        assertEquals(5, savedFee.getPercentage());
         verify(transactionFeeRepository).save(fee);
     }
 
@@ -71,20 +71,20 @@ class TransactionFeeServiceTest {
     @Test
     void getActiveTransactionFee_ValidFee_ReturnsFee() {
         TransactionFee fee = new TransactionFee();
-        fee.setPercentage(BigDecimal.valueOf(5));
+        fee.setPercentage(5);
 
         when(transactionFeeRepository.findTopByOrderByEffectiveDateDesc()).thenReturn(Optional.of(fee));
 
         TransactionFee activeFee = transactionFeeService.getActiveTransactionFee();
 
         assertNotNull(activeFee);
-        assertEquals(BigDecimal.valueOf(5), activeFee.getPercentage());
+        assertEquals(5, activeFee.getPercentage());
     }
 
     @Test
     void updateTransactionFeePercentage_InvalidPercentage_ThrowsException() {
         InvalidTransactionFeeException exception = assertThrows(InvalidTransactionFeeException.class, () ->
-                transactionFeeService.updateTransactionFeePercentage(1, BigDecimal.ZERO));
+                transactionFeeService.updateTransactionFeePercentage(1, 0));
 
         assertEquals("The transaction fee percentage must be greater than zero.", exception.getMessage());
         verify(transactionFeeRepository, never()).save(any(TransactionFee.class));
@@ -95,7 +95,7 @@ class TransactionFeeServiceTest {
         when(transactionFeeRepository.findById(1)).thenReturn(Optional.empty());
 
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
-                transactionFeeService.updateTransactionFeePercentage(1, BigDecimal.valueOf(10)));
+                transactionFeeService.updateTransactionFeePercentage(1, 10));
 
         assertEquals("Transaction fee not found with ID: 1", exception.getMessage());
     }
@@ -103,15 +103,15 @@ class TransactionFeeServiceTest {
     @Test
     void updateTransactionFeePercentage_ValidFee_Success() {
         TransactionFee fee = new TransactionFee();
-        fee.setPercentage(BigDecimal.valueOf(5));
+        fee.setPercentage(5);
 
         when(transactionFeeRepository.findById(1)).thenReturn(Optional.of(fee));
         when(transactionFeeRepository.save(any(TransactionFee.class))).thenReturn(fee);
 
-        TransactionFee updatedFee = transactionFeeService.updateTransactionFeePercentage(1, BigDecimal.valueOf(10));
+        TransactionFee updatedFee = transactionFeeService.updateTransactionFeePercentage(1, 10);
 
         assertNotNull(updatedFee);
-        assertEquals(BigDecimal.valueOf(10), updatedFee.getPercentage());
+        assertEquals(10, updatedFee.getPercentage());
         verify(transactionFeeRepository).save(fee);
     }
 
@@ -142,12 +142,12 @@ class TransactionFeeServiceTest {
     void calculateFeeForTransaction_InvalidAmount_ThrowsException() {
         // Arrange: Configure un frais de transaction valide afin que getActiveTransactionFee() ne lève pas une exception.
         TransactionFee fee = new TransactionFee();
-        fee.setPercentage(BigDecimal.valueOf(5));
+        fee.setPercentage(5);
         when(transactionFeeRepository.findTopByOrderByEffectiveDateDesc()).thenReturn(Optional.of(fee));
 
         // Act & Assert: Maintenant, vous pouvez tester l'argument invalide pour calculateFeeForTransaction.
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                transactionFeeService.calculateFeeForTransaction(BigDecimal.ZERO));
+                transactionFeeService.calculateFeeForTransaction(0));
 
         assertEquals("Transaction amount must be greater than zero.", exception.getMessage());
     }
@@ -155,15 +155,19 @@ class TransactionFeeServiceTest {
 
     @Test
     void calculateFeeForTransaction_ValidAmount_Success() {
+        // Arrange
         TransactionFee fee = new TransactionFee();
-        fee.setPercentage(BigDecimal.valueOf(5));
+        fee.setPercentage(5); // 5%
 
         when(transactionFeeRepository.findTopByOrderByEffectiveDateDesc()).thenReturn(Optional.of(fee));
 
-        BigDecimal transactionAmount = BigDecimal.valueOf(100);
-        BigDecimal calculatedFee = transactionFeeService.calculateFeeForTransaction(transactionAmount);
+        long transactionAmount = 10000; // 100.00 unités en centimes
 
-        assertNotNull(calculatedFee);
-        assertEquals(BigDecimal.valueOf(5.0).setScale(1), calculatedFee.setScale(1));
+        // Act
+        long calculatedFee = transactionFeeService.calculateFeeForTransaction(transactionAmount);
+
+        // Assert
+        assertEquals(500, calculatedFee, "The calculated fee should be 500 (5% of 10000).");
     }
+
 }

@@ -1,7 +1,9 @@
 package com.paymybuddy.app.service;
 
 import com.paymybuddy.app.entity.Role;
+import com.paymybuddy.app.entity.User;
 import com.paymybuddy.app.exception.EntityNotFoundException;
+import com.paymybuddy.app.exception.EntitySaveException;
 import com.paymybuddy.app.exception.RoleAlreadyExistsException;
 import com.paymybuddy.app.repository.RoleRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +24,9 @@ class RoleServiceTest {
     @Mock
     private RoleRepository roleRepository;
 
+    @Mock
+    UserService userService;
+
     @InjectMocks
     private RoleService roleService;
 
@@ -36,7 +41,7 @@ class RoleServiceTest {
         Role role = new Role();
         role.setRoleName("TestRole");
 
-        when(roleRepository.findByRoleName(role.getRoleName())).thenReturn(null);
+        when(roleRepository.findByRoleName(role.getRoleName())).thenReturn(Optional.empty());
         when(roleRepository.save(role)).thenReturn(role);
 
         Role createdRole = roleService.createRole(role);
@@ -50,7 +55,7 @@ class RoleServiceTest {
         Role existingRole = new Role();
         existingRole.setRoleName("admin");
 
-        when(roleRepository.findByRoleName("admin")).thenReturn(existingRole);
+        when(roleRepository.findByRoleName("admin")).thenReturn(Optional.of(existingRole));
 
         Role newRole = new Role();
         newRole.setRoleName("admin");
@@ -146,4 +151,100 @@ class RoleServiceTest {
         assertThrows(EntityNotFoundException.class, () -> roleService.deleteRole(1));
         verify(roleRepository, never()).delete(any(Role.class));
     }
+
+    @Test
+    void testGetTransactionLimitForUser() {
+        Role role = new Role();
+        role.setId(1);
+        role.setRoleName("user");
+        role.setDailyLimit(200000);
+
+        User user = new User();
+        user.setId(1);
+        user.setUserName("test");
+        user.setRole(role);
+
+        when(userService.getUserById(1)).thenReturn(user);
+
+        long limit = roleService.getTransactionLimitForUser(1);
+
+        assertEquals(limit, role.getDailyLimit());
+    }
+
+    @Test
+    void changeDailyLimit_success() {
+        // Arrange
+        String roleName = "user";
+        long newDailyLimit = 300000;
+
+        Role role = new Role();
+        role.setId(1);
+        role.setRoleName(roleName);
+        role.setDailyLimit(200000);
+
+        when(roleRepository.findByRoleName(roleName)).thenReturn(Optional.of(role));
+
+        // Act
+        roleService.changeDailyLimit(roleName, newDailyLimit);
+
+        // Assert
+        assertEquals(newDailyLimit, role.getDailyLimit());
+        verify(roleRepository, times(1)).save(role);
+    }
+
+    @Test
+    void changeDailyLimit_roleNotFound() {
+        // Arrange
+        String roleName = "nonexistent";
+        long newDailyLimit = 300000;
+
+        when(roleRepository.findByRoleName(roleName)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(EntityNotFoundException.class, () ->
+                roleService.changeDailyLimit(roleName, newDailyLimit));
+    }
+
+    @Test
+    void changeDailyLimit_invalidRoleName() {
+        // Arrange
+        String roleName = " ";
+        long newDailyLimit = 300000;
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () ->
+                roleService.changeDailyLimit(roleName, newDailyLimit));
+    }
+
+    @Test
+    void changeDailyLimit_invalidDailyLimit() {
+        // Arrange
+        String roleName = "user";
+        long newDailyLimit = 0;
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () ->
+                roleService.changeDailyLimit(roleName, newDailyLimit));
+    }
+
+    @Test
+    void changeDailyLimit_saveException() {
+        // Arrange
+        String roleName = "user";
+        long newDailyLimit = 300000;
+
+        Role role = new Role();
+        role.setId(1);
+        role.setRoleName(roleName);
+        role.setDailyLimit(200000);
+
+        when(roleRepository.findByRoleName(roleName)).thenReturn(Optional.of(role));
+        doThrow(new RuntimeException()).when(roleRepository).save(role);
+
+        // Act & Assert
+        assertThrows(EntitySaveException.class, () ->
+                roleService.changeDailyLimit(roleName, newDailyLimit));
+    }
+
+
 }

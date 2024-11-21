@@ -2,13 +2,13 @@ package com.paymybuddy.app.service;
 
 import com.paymybuddy.app.dto.AppAccountDTO;
 import com.paymybuddy.app.entity.AppAccount;
+import com.paymybuddy.app.entity.User;
 import com.paymybuddy.app.exception.*;
 import com.paymybuddy.app.repository.AppAccountRepository;
 import com.paymybuddy.app.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -29,16 +29,16 @@ public class AppAccountService {
     }
 
     // Obtenir le solde par ID de l'utilisateur
-    public BigDecimal getBalanceByUserId(int userId) {
+    public long getBalanceByUserId(int userId) {
         return findAccountByUserId(userId).getBalance();
     }
 
     // Mettre à jour le solde par ID de l'utilisateur
-    public BigDecimal updateBalanceByUserId(int userId, BigDecimal newBalance) {
+    public long updateBalanceByUserId(int userId, long newBalance) {
         AppAccount account = findAccountByUserId(userId);
 
-        BigDecimal updatedBalance = account.getBalance().add(newBalance);
-        if (updatedBalance.compareTo(BigDecimal.ZERO) < 0) {
+        long updatedBalance = account.getBalance()+ newBalance;
+        if (updatedBalance < 0) {
             throw new InvalidBalanceException("Balance can't be negative. Current balance: " + account.getBalance());
         }
 
@@ -53,13 +53,14 @@ public class AppAccountService {
     }
 
     // Obtenir le solde sous forme de BigDecimal
-    public Optional<BigDecimal> getBalanceByIdInBigDecimal(int userId) {
+    public Optional<Long> getBalanceById(int userId) {
         return Optional.of(getBalanceByUserId(userId));
     }
 
     // Créer un compte pour un utilisateur
+    @Transactional
     public AppAccount createAccountForUser(int userId) {
-        userRepository.findById(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + userId));
 
         if (appAccountRepository.findByUserId(userId).isPresent()) {
@@ -67,9 +68,8 @@ public class AppAccountService {
         }
 
         AppAccount newAccount = new AppAccount();
-
-        // 100€ sur le compte pour les tests !! remettre BigDecimal.ZERO apres les tests
-        newAccount.setBalance(BigDecimal.valueOf(100));
+        newAccount.setUser(user); // Associez l'utilisateur au compte
+        newAccount.setBalance(100); // Pour les tests
 
         try {
             return appAccountRepository.save(newAccount);
@@ -77,6 +77,7 @@ public class AppAccountService {
             throw new EntitySaveException("Failed to save new account.", e);
         }
     }
+
 
     public void deleteAccountByUserId(int userId) {
         userRepository.findById(userId)

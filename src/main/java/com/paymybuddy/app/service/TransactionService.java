@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.math.BigDecimal.*;
+
 
 @Service
 public class TransactionService {
@@ -26,45 +28,54 @@ public class TransactionService {
     private final AppAccountService appAccountService;
     private final UserService userService;
     private final UserRelationService userRelationService;
+    private final RoleService roleService;
 
     @Autowired
     public TransactionService(TransactionRepository transactionRepository, TransactionFeeService transactionFeeService,
-                              AppAccountService appAccountService, UserService userService,UserRelationService userRelationService) {
+                              AppAccountService appAccountService, UserService userService, UserRelationService userRelationService, RoleService roleService) {
         this.transactionRepository = transactionRepository;
         this.transactionFeeService = transactionFeeService;
         this.appAccountService = appAccountService;
         this.userService = userService;
-        this.userRelationService=userRelationService;
+        this.userRelationService = userRelationService;
+        this.roleService = roleService;
     }
 
     /**
      * Creates a transaction between a sender and receiver with a specified amount and description.
      *
-     * @param sender      The user sending the transaction
-     * @param receiver    The user receiving the transaction
+     * @param senderId    The user sending the transaction
+     * @param receiverId  The user receiving the transaction
      * @param amount      The amount being transferred
      * @param description A description of the transaction
      * @return A success message if the transaction is created successfully
      */
-    public String createTransaction(User sender, User receiver, BigDecimal amount, String description) {
+    public String createTransaction(int senderId, int receiverId, long amount, String description) {
 
-        //vérifier la relation entre sender et receiver
+        long amountCent=amount*100;
+
+        User sender = userService.getUserById(senderId);
+        User receiver = userService.getUserById(receiverId);
+
+        // Vérifier la relation entre sender et receiver
         if (!userRelationService.checkRelation(sender.getId(), receiver.getId())) {
             throw new EntityNotFoundException("No relation exists between the sender and receiver.");
         }
 
         // Vérifier la limite de transaction quotidienne
-        checkTransactionLimit(sender, amount);
+        if (!checkTransactionLimit(senderId, amountCent)) {
+            throw new IllegalStateException("Transaction limit exceeded for the day.");
+        }
 
         // Vérifier le solde de l'expéditeur
-        BigDecimal senderBalance = appAccountService.getBalanceByIdInBigDecimal(sender.getId())
+        long senderBalance = appAccountService.getBalanceById(sender.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Sender account not found with ID: " + sender.getId()));
 
         // Calculer les frais et le montant total à déduire
-        BigDecimal feeAmount = transactionFeeService.calculateFeeForTransaction(amount);
-        BigDecimal amountWithFee = amount.add(feeAmount);
+        long feeAmount = transactionFeeService.calculateFeeForTransaction(amountCent);
+        long amountWithFee = amountCent + feeAmount;
 
-        if (senderBalance.compareTo(amountWithFee) < 0) {
+        if (senderBalance < amountWithFee) {
             throw new InsufficientBalanceException("Insufficient balance for user ID: " + sender.getId());
         }
 
@@ -72,7 +83,7 @@ public class TransactionService {
         Transaction transaction = new Transaction();
         transaction.setUserSender(sender);
         transaction.setUserReceiver(receiver);
-        transaction.setAmount(amount);
+        transaction.setAmount(amountCent);
         transaction.setAmountWithFee(amountWithFee);
         transaction.setDescription(description);
         transaction.setTransactionDate(LocalDateTime.now());
@@ -89,19 +100,21 @@ public class TransactionService {
         }
 
         // Mettre à jour les soldes des comptes
-        appAccountService.updateBalanceByUserId(sender.getId(), amountWithFee.negate());
-        appAccountService.updateBalanceByUserId(receiver.getId(), amount);
+        appAccountService.updateBalanceByUserId(sender.getId(), -amountWithFee);
+        appAccountService.updateBalanceByUserId(receiver.getId(), amountCent);
 
         return "Transaction successful";
     }
 
+
     /**
      * Retrieves the transaction history for a given user, including both sent and received transactions.
      *
-     * @param user The user whose transaction history is to be retrieved
+     * @param userId The user whose transaction history is to be retrieved
      * @return A list of all transactions where the user is either the sender or receiver
      */
-    public List<Transaction> getTransactionHistory(User user) {
+    public List<Transaction> getTransactionHistory(int userId) {
+        User user = userService.getUserById(userId);
         List<Transaction> transactionHistory = new ArrayList<>();
 
         // Ajouter toutes les transactions envoyées et reçues en utilisant les getters
@@ -122,19 +135,9 @@ public class TransactionService {
      * @param endDate   The end date of the range
      * @return A list of transactions within the specified date range
      */
-    public List<Transaction> getTransactionsByDateRange(User user, LocalDateTime startDate, LocalDateTime endDate) {
+ /*   public List<Transaction> getTransactionsByDateRange(User user, LocalDateTime startDate, LocalDateTime endDate) {
         return transactionRepository.findByUserSenderOrUserReceiverAndTransactionDateBetween(user, user, startDate, endDate);
-    }
-
-    /**
-     * Calculates the total amount of transactions for a given user.
-     *
-     * @param user The user for whom the total amount is calculated
-     * @return The total amount of transactions
-     */
-    public BigDecimal calculateTotalTransactions(User user) {
-        return transactionRepository.calculateTotalTransactionAmountByUser(user);
-    }
+    }*/
 
     /**
      * Cancels a transaction by its ID, updating the balances of both the sender and receiver.
@@ -158,7 +161,7 @@ public class TransactionService {
 
         // Mise à jour des soldes : ajouter le montant avec les frais pour l'expéditeur, soustraire pour le destinataire
         appAccountService.updateBalanceByUserId(sender.getId(), transaction.getAmountWithFee());
-        appAccountService.updateBalanceByUserId(receiver.getId(), transaction.getAmount().negate());
+        appAccountService.updateBalanceByUserId(receiver.getId(), -transaction.getAmount());
 
         // Retirer la transaction des listes de l'expéditeur et du destinataire
         sender.removeSenderTransactions(transaction);
@@ -174,36 +177,38 @@ public class TransactionService {
         return "Transaction canceled successfully";
     }
 
+
     /**
      * Calculates the total transaction fees across all transactions.
      *
      * @return The total fees from all transactions
      */
-    public BigDecimal calculateTotalFees() {
+    public long calculateTotalFees() {
         List<Transaction> allTransactions = transactionRepository.findAll();
+
         return allTransactions.stream()
-                .map(transaction -> transaction.getAmountWithFee().subtract(transaction.getAmount()))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .mapToLong(transaction -> transaction.getAmountWithFee() - transaction.getAmount())
+                .sum();
     }
+
 
     /**
      * Checks if a transaction amount exceeds the daily limit for a given user.
      *
-     * @param user             The user for whom the limit is checked
+     * @param userId              The user for whom the limit is checked
      * @param transactionAmount The transaction amount to check
      */
-    public void checkTransactionLimit(User user, BigDecimal transactionAmount) {
-        BigDecimal dailyLimit = BigDecimal.valueOf(5000);
+    public boolean checkTransactionLimit(int userId, long transactionAmount) {
+        long dailyLimit = roleService.getTransactionLimitForUser(userId);
 
         LocalDateTime startOfDay = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0);
         LocalDateTime endOfDay = startOfDay.plusDays(1).minusSeconds(1);
-        BigDecimal dailyTotal = getTransactionsByDateRange(user, startOfDay, endOfDay).stream()
-                .map(Transaction::getAmountWithFee)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        if (dailyTotal.add(transactionAmount).compareTo(dailyLimit) > 0) {
-            throw new IllegalStateException("Transaction limit exceeded for the day.");
-        }
+        long dailyTransactionBySender = getTotalSentByUser(userId, startOfDay, endOfDay);
+
+        long remainingLimit = dailyLimit-dailyTransactionBySender;
+
+        return (remainingLimit-transactionAmount) >= 0;
     }
 
     public TransactionDTO convertToDTO(Transaction transaction) {
@@ -224,4 +229,19 @@ public class TransactionService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
+
+    public long getTotalSentByUser(int userId, LocalDateTime startDate, LocalDateTime endDate) {
+        User user = userService.getUserById(userId);
+        return transactionRepository.calculateTotalSentByUserAndDateRange(user, startDate, endDate);
+
+    }
+
+
+    public long getTotalReceivedByUser(int userId, LocalDateTime startDate, LocalDateTime endDate) {
+        User user=userService.getUserById(userId);
+        return transactionRepository.calculateTotalReceivedByUserAndDateRange(user, startDate, endDate);
+    }
+
+
+
 }

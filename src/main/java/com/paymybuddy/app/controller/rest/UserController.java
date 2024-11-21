@@ -8,12 +8,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,24 +27,24 @@ public class UserController {
 
 
 
- @PutMapping("/users/update/{id}")
-    public ResponseEntity<String> updateUser(
-            @PathVariable int id,
+ @PutMapping("/users/update/{userId}")
+ @PreAuthorize("#userId == principal.id")
+    public ResponseEntity<String> updateUser(@PathVariable int userId,
             @RequestBody UpdateUserRequest request) {
-        userService.updateUser(id, request);
+        userService.updateUser(userId, request);
         return ResponseEntity.ok("Vos informations ont été mises à jour avec succès !");
     }
 
     /**
      * Register a new user
      *
-     * @param user The user to be registered
+     * @param //user The user to be registered
      * @return A success message if the user is registered successfully
      */
     @PostMapping("/users/register")
-    public void registerUser(@RequestBody User user) {
+  /*  public void registerUser(@RequestBody User user) {
         userService.createUser(user);
-    }
+    }*/
 
     /**
      * Get a list of all users
@@ -94,19 +93,6 @@ public class UserController {
     }
 
 
-    //-----------------------------------------------------------
-    @GetMapping("/currentUser")
-    public ResponseEntity<Map<String, Object>> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
-        // Rechercher par email si l'identifiant de connexion est l'email
-        Map<String, Object> response = new HashMap<>();
-        try {
-            int userId = userService.getUserIdByEmail(userDetails.getUsername());
-            response.put("id", userId);
-            response.put("username", userDetails.getUsername());
-            return ResponseEntity.ok(response);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Utilisateur non trouvé"));
-        }
-    }
+
 
 }

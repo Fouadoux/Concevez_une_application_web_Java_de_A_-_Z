@@ -19,7 +19,7 @@ public class TransactionFee {
     private int feeId;
 
     @Column(name = "percentage",nullable = false)
-    private BigDecimal percentage;
+    private long percentage;
 
     @Column(name = "effective_date")
     private LocalDateTime effectiveDate;

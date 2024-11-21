@@ -8,8 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,9 +27,10 @@ public class UserRelationController {
      * @param email  The email of the user to add as a relation
      * @return A success message if the relation is added successfully
      */
-    @PreAuthorize("isAuthenticated()")
+
     @PostMapping("/add")
-    public ResponseEntity<String> addRelation(@AuthenticationPrincipal UserDetails userDetails, @RequestParam int userId, @RequestParam String email) {
+   // @PreAuthorize("#userId == principal.id")
+    public ResponseEntity<String> addRelation( @RequestParam int userId, @RequestParam String email) {
         User user = userService.getUserById(userId);
         String result = userRelationService.addRelation(user, email);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
@@ -44,9 +43,9 @@ public class UserRelationController {
      * @param userRelationId The ID of the user to remove from relations
      * @return A success message if the relation is deleted successfully
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/delete")
-    public ResponseEntity<String> deleteRelation(@AuthenticationPrincipal UserDetails userDetails,@RequestParam int userId, @RequestParam int userRelationId) {
+    public ResponseEntity<String> deleteRelation(@RequestParam int userId, @RequestParam int userRelationId) {
         String result = userRelationService.deleteRelation(userId, userRelationId);
         return ResponseEntity.ok(result);
     }
@@ -57,9 +56,11 @@ public class UserRelationController {
      * @param userId The ID of the user whose relations are to be retrieved
      * @return A list of user relations
      */
-    @PreAuthorize("isAuthenticated()")
+
+
     @GetMapping("/all/{userId}")
-    public ResponseEntity<List<RelatedUserDTO>> getAllRelations(@AuthenticationPrincipal UserDetails userDetails,@PathVariable int userId) {
+    @PreAuthorize("#userId == principal.id")
+    public ResponseEntity<List<RelatedUserDTO>> getAllRelations(@PathVariable int userId) {
         List<RelatedUserDTO> relatedUsers = userRelationService.findRelatedUsers(userId);
         return ResponseEntity.ok(relatedUsers);
     }
@@ -72,8 +73,9 @@ public class UserRelationController {
      * @param userRelationId The ID of the user to check the relation with
      * @return A boolean indicating whether the relation exists or not
      */
-    @PreAuthorize("isAuthenticated()")    @GetMapping("/check")
-    public ResponseEntity<Boolean> checkRelation(@AuthenticationPrincipal UserDetails userDetails,@RequestParam int userId, @RequestParam int userRelationId) {
+    @PreAuthorize("#userId == principal.id")
+    @GetMapping("/check")
+    public ResponseEntity<Boolean> checkRelation(@RequestParam int userId, @RequestParam int userRelationId) {
         boolean relationExists = userRelationService.checkRelation(userId, userRelationId);
         return ResponseEntity.ok(relationExists);
     }

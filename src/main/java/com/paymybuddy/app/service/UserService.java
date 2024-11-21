@@ -11,8 +11,10 @@ import com.paymybuddy.app.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Service
@@ -21,11 +23,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AppAccountService appAccountService;
 
-    public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, AppAccountService appAccountService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.appAccountService = appAccountService;
     }
 
     /**
@@ -34,23 +38,27 @@ public class UserService {
      * @param user The user to be created
      * @return A success message if the user is created successfully
      */
-    public void createUser(User user) {
+    @Transactional
+    public User createUser(User user) {
         log.info("Creating user with username: {}", user.getUserName());
+
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("Email already exists: " + user.getEmail());
+        }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         log.info("Password encoded for user: {}", user.getUserName());
 
-        Role userRole = roleRepository.findByRoleName("USER");
-        if (userRole == null) {
-            log.error("Default role 'user' not found.");
-            throw new EntityNotFoundException("Default role 'user' not found");
-        }
-        user.setRole(userRole);
-        log.info("Assigned default role 'user' to user: {}", user.getUserName());
+        Role userRole = roleRepository.findByRoleName("USER").orElseThrow(() ->
+                new EntityNotFoundException("Default role 'user' not found"));
 
-        userRepository.save(user);
+        user.setRole(userRole);
+
+        User newUser = userRepository.save(user);
         log.info("User {} successfully registered.", user.getUserName());
+        return newUser;
     }
+
 
     /**
      * Fetches all users in the system.
@@ -59,7 +67,7 @@ public class UserService {
      */
     public List<User> getAllUsers() {
         log.info("Fetching all users.");
-        List<User> users = (List<User>) userRepository.findAll();
+        List<User> users = userRepository.findAll();
         log.info("Found {} users.", users.size());
         return users;
     }
@@ -83,23 +91,27 @@ public class UserService {
     /**
      * Updates the username and email of an existing user.
      *
-     * @param id   The ID of the user to update
-     * @param user The user details to update
+     * @param userId   The ID of the user to update
+
      * @return A success message if the user is updated
      * @throws EntityNotFoundException if the user is not found
      */
-    public void updateUser(int id, UpdateUserRequest request) {
-        log.info("Updating user with ID: {}", id);
+    public void updateUser(int userId, UpdateUserRequest request) {
+        log.info("Updating user with ID: {}", userId);
 
-        User existingUser = userRepository.findById(id)
+        User existingUser = userRepository.findById(userId)
                 .orElseThrow(() ->
-                    new EntityNotFoundException("User not found with ID: " + id));
+                    new EntityNotFoundException("User not found with ID: " + userId));
 
 
         if (request.getUserName() != null && !request.getUserName().isBlank()) {
             existingUser.setUserName(request.getUserName());
         }
         if (request.getEmail() != null && !request.getEmail().isBlank()) {
+            // Validation de l'email
+            if (!EmailValidationService.isValidEmail(request.getEmail())) {
+                throw new IllegalArgumentException("Invalid email format: " + request.getEmail());
+            }
             existingUser.setEmail(request.getEmail());
         }
         if (request.getPassword() != null && !request.getPassword().isBlank()) {
@@ -107,8 +119,9 @@ public class UserService {
         }
 
         userRepository.save(existingUser);
-        log.info("User with ID: {} updated successfully", id);
+        log.info("User with ID: {} updated successfully", userId);
     }
+
 
 
 
@@ -157,11 +170,9 @@ public class UserService {
                     return new EntityNotFoundException("User not found with ID: " + id);
                 });
 
-        Role newRole = roleRepository.findByRoleName(role);
-        if (newRole == null) {
-            log.error("Role not found: {}", role);
-            throw new EntityNotFoundException("Role not found");
-        }
+        Role newRole = roleRepository.findByRoleName(role).orElseThrow(() ->
+                new EntityNotFoundException("Role not found with role: " + role));
+
 
         user.setRole(newRole);
 
@@ -190,9 +201,7 @@ public class UserService {
                 });
     }
 
-    public boolean existsByEmail(String email) {
-        return userRepository.findByEmail(email).isPresent();
-    }
+//        return userRepository.findByEmail(email)
 
     public String findUsernameByUserId(Integer userId) {
         User user = userRepository.findUserById(userId)
@@ -203,22 +212,17 @@ public class UserService {
         return user.getUserName();
     }
 
-    public int getUserIdByUsername(String userName){
-        User user= findUserByUsername(userName);
-        if(user==null){
-            throw new EntityNotFoundException("User not found with name: "+ userName);
-        }
-        return user.getId();
+    @Transactional
+    public void registerAndCreateAccount(User user) {
+        log.info("Saving user to database...");
+        User savedUser = createUser(user);
+
+        log.info("Creating account for user with ID: {}", savedUser.getId());
+        appAccountService.createAccountForUser(savedUser.getId());
     }
 
-    public int getUserIdByEmail(String email) {
-        return userRepository.findIdByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
-    }
-
-    public User findUserByUsername(String userName) {
-        return userRepository.findByUserName(userName)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with username: " + userName));
+    public boolean existsByEmail(String email) {
+        return userRepository.findByEmail(email).isPresent();
     }
 
 }

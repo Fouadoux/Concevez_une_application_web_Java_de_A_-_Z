@@ -11,5 +11,5 @@ import java.util.Optional;
 @Repository
 public interface BankAccountRepository extends CrudRepository<BankAccount,Integer> {
     Optional<BankAccount> findByUser(User user);
-    List<BankAccount> findAllBankAccountByUser (User user);
+   Optional< List<BankAccount>>findAllBankAccountByUser (User user);
 }

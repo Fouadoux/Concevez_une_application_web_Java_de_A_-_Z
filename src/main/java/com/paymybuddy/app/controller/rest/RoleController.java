@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -76,6 +77,12 @@ public class RoleController {
     public ResponseEntity<String> deleteRole(@PathVariable int roleId) {
         roleService.deleteRole(roleId);
         return ResponseEntity.ok("Role deleted successfully");
+    }
+
+    @PutMapping("/dailyLimit/role/{roleName}/limit/{dailyLimit}")
+    public ResponseEntity<String> updateDailyLimit(@PathVariable String roleName, @PathVariable long dailyLimit) {
+        roleService.changeDailyLimit(roleName, dailyLimit);
+        return ResponseEntity.ok("Daily limit updated successfully");
     }
 
 }

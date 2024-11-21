@@ -1,6 +1,6 @@
 package com.paymybuddy.app.security;
 
-import lombok.Data;
+
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
@@ -13,13 +13,13 @@ import java.util.Collection;
 public class CustomUserDetails extends User {
 
     private final int id;
+    private final String nameUser;
 
-    public CustomUserDetails(String username, String password, Collection<? extends GrantedAuthority> authorities, int id) {
+    public CustomUserDetails(String username, String password, Collection<? extends GrantedAuthority> authorities, int id, String nameUser) {
         super(username, password, authorities);
         this.id = id;
+        this.nameUser = nameUser;
     }
 
-    public int getId() {
-        return id;
-    }
 }
+

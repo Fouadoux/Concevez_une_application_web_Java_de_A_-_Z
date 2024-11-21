@@ -2,6 +2,7 @@ package com.paymybuddy.app.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.paymybuddy.app.dto.AppAccountDTO;
 import com.paymybuddy.app.entity.AppAccount;
 import com.paymybuddy.app.entity.Role;
 import com.paymybuddy.app.entity.User;
@@ -57,7 +58,7 @@ class AppAccountServiceTest {
         account = new AppAccount();
         account.setAccountId(1);
         account.setUser(user);
-        account.setBalance(BigDecimal.valueOf(100));
+        account.setBalance(100);
         account.setCreatedAt(LocalDateTime.now());
         account.setLastUpdate(LocalDateTime.now());
 
@@ -72,10 +73,10 @@ class AppAccountServiceTest {
         when(appAccountRepository.findByUserId(user.getId())).thenReturn(Optional.of(account));
 
         // Appel de la méthode à tester
-        BigDecimal balance = appAccountService.getBalanceByUserId(user.getId());
+        long balance = appAccountService.getBalanceByUserId(user.getId());
 
         // Vérifications
-        assertEquals(BigDecimal.valueOf(100), balance);
+        assertEquals(100, balance);
         verify(appAccountRepository, times(1)).findByUserId(user.getId());
         verify(userRepository, times(0)).findById(anyInt()); // Aucun appel attendu à userRepository
     }
@@ -92,9 +93,9 @@ class AppAccountServiceTest {
     void testUpdateBalanceByUserId_Success() {
         when(appAccountRepository.findByUserId(user.getId())).thenReturn(Optional.of(account));
 
-        BigDecimal updatedBalance = appAccountService.updateBalanceByUserId(user.getId(), BigDecimal.valueOf(50));
+        long updatedBalance = appAccountService.updateBalanceByUserId(user.getId(), 50);
 
-        assertEquals(BigDecimal.valueOf(150), updatedBalance);
+        assertEquals(150, updatedBalance);
         verify(appAccountRepository, times(1)).findByUserId(user.getId());
         verify(appAccountRepository, times(1)).save(account);
     }
@@ -103,7 +104,7 @@ class AppAccountServiceTest {
     void testUpdateBalanceByUserId_AccountNotFound() {
         when(appAccountRepository.findByUserId(user.getId())).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> appAccountService.updateBalanceByUserId(user.getId(), BigDecimal.valueOf(50)));
+        assertThrows(EntityNotFoundException.class, () -> appAccountService.updateBalanceByUserId(user.getId(), 50));
         verify(appAccountRepository, times(1)).findByUserId(user.getId());
     }
 
@@ -111,22 +112,22 @@ class AppAccountServiceTest {
     void testUpdateBalanceByUserId_NegativeBalance() {
         when(appAccountRepository.findByUserId(user.getId())).thenReturn(Optional.of(account));
 
-        assertThrows(InvalidBalanceException.class, () -> appAccountService.updateBalanceByUserId(user.getId(), BigDecimal.valueOf(-200)));
+        assertThrows(InvalidBalanceException.class, () -> appAccountService.updateBalanceByUserId(user.getId(), -200));
         verify(appAccountRepository, times(1)).findByUserId(user.getId());
     }
 
-   /* @Test
+    @Test
     void testGetInfoAppAccountByUserId_Success() {
         when(appAccountRepository.findByUserId(user.getId())).thenReturn(Optional.of(account));
 
-        AppAccountService.AppAccountInfo accountInfo = appAccountService.getInfoAppAccountByUserId(user.getId());
+        AppAccountDTO accountDTO = appAccountService.getInfoAppAccountByUserId(user.getId());
 
-        assertNotNull(accountInfo);
-        assertEquals(BigDecimal.valueOf(100), accountInfo.balance());
-        assertNotNull(accountInfo.lastUpdate());
-        assertNotNull(accountInfo.createdAt());
+        assertNotNull(accountDTO);
+        assertEquals(100, accountDTO.getBalance());
+        assertNotNull(accountDTO.getLastUpdate());
+        assertNotNull(accountDTO.getLastUpdate());
         verify(appAccountRepository, times(1)).findByUserId(user.getId());
-    }*/
+    }
 
     @Test
     void testGetInfoAppAccountByUserId_AccountNotFound() {

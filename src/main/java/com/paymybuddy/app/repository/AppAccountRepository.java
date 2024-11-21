@@ -10,8 +10,5 @@ import java.util.Optional;
 @Repository
 public interface AppAccountRepository extends CrudRepository<AppAccount, Integer> {
     void flush();
-
-    Optional<AppAccount> findByUser(User user);
-
     Optional<AppAccount> findByUserId(int userId);
 }

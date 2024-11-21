@@ -2,6 +2,8 @@ package com.paymybuddy.app.controller.rest;
 
 import com.paymybuddy.app.entity.BankAccount;
 import com.paymybuddy.app.entity.User;
+import com.paymybuddy.app.exception.EntityNotFoundException;
+import com.paymybuddy.app.exception.EntitySaveException;
 import com.paymybuddy.app.service.BankAccountService;
 import com.paymybuddy.app.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -9,7 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/bankAccounts")
@@ -91,13 +95,23 @@ public class BankAccountController {
      * @param appAccountId The ID of the AppAccount
      * @param bankAccountId The ID of the BankAccount
      * @param amount The amount to transfer
-     * @param toBankAccount True if transferring from AppAccount to BankAccount, false otherwise
      * @return The updated BankAccount or AppAccount
      */
-    @PostMapping("/transferFunds")
-    public ResponseEntity<Object> transferFunds(@RequestParam int appAccountId, @RequestParam int bankAccountId,
-                                                @RequestParam BigDecimal amount, @RequestParam boolean toBankAccount) {
-        Object result = bankAccountService.transferFunds(appAccountId, bankAccountId, amount, toBankAccount);
+    @PostMapping("/transferToBankAccount")
+    public ResponseEntity<Object> transferToBankAccount(@RequestParam int appAccountId, @RequestParam int bankAccountId,
+                                                @RequestParam long amount) {
+        Object result = bankAccountService.transferToBankAccount(appAccountId, bankAccountId, amount);
         return ResponseEntity.ok(result);
     }
+
+    @PostMapping("/transferFromBankAccount")
+    public ResponseEntity<Object> transferFromBankAccount(@RequestParam int appAccountId, @RequestParam int bankAccountId,
+                                                        @RequestParam long amount) {
+        Object result = bankAccountService.transferFromBankAccount(appAccountId, bankAccountId, amount);
+        return ResponseEntity.ok(result);
+    }
+
+
+
+
 }

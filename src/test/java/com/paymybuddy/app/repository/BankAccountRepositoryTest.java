@@ -55,7 +55,7 @@ public class BankAccountRepositoryTest {
         bankAccount = new BankAccount();
         bankAccount.setTransferId(1);
         bankAccount.setUser(user);
-        bankAccount.setAmount(BigDecimal.valueOf(500.0));
+        bankAccount.setAmount(500);
         bankAccount.setExternalBankAccountNumber("1234-5678-9101");
         bankAccount.setTransferDate(LocalDateTime.now());
         bankAccount.setStatus(true);
@@ -71,7 +71,7 @@ public class BankAccountRepositoryTest {
 
         assertNotNull(savedAccount);
         assertEquals("1234-5678-9101", savedAccount.getExternalBankAccountNumber());
-        assertEquals(BigDecimal.valueOf(500.0), savedAccount.getAmount());
+        assertEquals(500, savedAccount.getAmount());
     }
 
     /**
@@ -92,10 +92,10 @@ public class BankAccountRepositoryTest {
     @Test
     public void testUpdateBankAccountAmount() {
         BankAccount savedAccount = bankAccountRepository.save(bankAccount);
-        savedAccount.setAmount(BigDecimal.valueOf(750.0));
+        savedAccount.setAmount(750);
 
         BankAccount updatedAccount = bankAccountRepository.save(savedAccount);
-        assertEquals(BigDecimal.valueOf(750.0), updatedAccount.getAmount());
+        assertEquals(750, updatedAccount.getAmount());
     }
 
     /**
@@ -116,7 +116,7 @@ public class BankAccountRepositoryTest {
     @Test
     public void testSaveBankAccountWithoutUser() {
         BankAccount invalidAccount = new BankAccount();
-        invalidAccount.setAmount(BigDecimal.valueOf(500.0));
+        invalidAccount.setAmount(500);
         invalidAccount.setExternalBankAccountNumber("5678-9101-1121");
         invalidAccount.setTransferDate(LocalDateTime.now());
 

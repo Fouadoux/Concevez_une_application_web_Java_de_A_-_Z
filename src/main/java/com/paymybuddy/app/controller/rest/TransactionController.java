@@ -40,12 +40,11 @@ public class  TransactionController {
     @PostMapping("/create")
     public ResponseEntity<Map<String, Object>> createTransaction(@RequestParam int senderId,
                                                                  @RequestParam int receiverId,
-                                                                 @RequestParam BigDecimal amount,
+                                                                 @RequestParam long amount,
                                                                  @RequestParam String description) {
-        User sender = userService.getUserById(senderId);
-        User receiver = userService.getUserById(receiverId);
 
-        String transactionResult = transactionService.createTransaction(sender, receiver, amount, description);
+
+        String transactionResult = transactionService.createTransaction(senderId, receiverId, amount, description);
 
         // Créer une réponse structurée
         Map<String, Object> response = new HashMap<>();
@@ -55,7 +54,6 @@ public class  TransactionController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
 
-      //  return ResponseEntity.status(HttpStatus.CREATED).body(transactionResult);
     }
 
     /**
@@ -66,8 +64,7 @@ public class  TransactionController {
      */
     @GetMapping("/allByUser/{userId}")
     public ResponseEntity<List<TransactionDTO>> getTransactionHistory(@PathVariable int userId) {
-        User user = userService.getUserById(userId);
-        List<Transaction> transactionList = transactionService.getTransactionHistory(user);
+        List<Transaction> transactionList = transactionService.getTransactionHistory(userId);
         List<TransactionDTO> transactionDTOs = transactionService.convertToDTOList(transactionList);
         return ResponseEntity.ok(transactionDTOs);
     }
@@ -80,7 +77,7 @@ public class  TransactionController {
      * @param endDate   La date de fin (format ISO)
      * @return La liste des transactions dans la plage spécifiée
      */
-    @GetMapping("/byDateRange")
+   /* @GetMapping("/byDateRange")
     public ResponseEntity<List<Transaction>> getTransactionsByDateRange(
             @RequestParam int userId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
@@ -89,7 +86,7 @@ public class  TransactionController {
         User user = userService.getUserById(userId);
         List<Transaction> transactionList = transactionService.getTransactionsByDateRange(user, startDate, endDate);
         return ResponseEntity.ok(transactionList);
-    }
+    }*/
 
     /**
      * Endpoint pour calculer le montant total des transactions d'un utilisateur.
@@ -97,12 +94,15 @@ public class  TransactionController {
      * @param userId L'ID de l'utilisateur
      * @return Le montant total des transactions de l'utilisateur
      */
-    @GetMapping("/total/{userId}")
+
+    //todo faire 2 methodde, une pour afficher tout l'argent envoyer et un autre pour tout l'argent recu
+
+  /*  @GetMapping("/total/{userId}")
     public ResponseEntity<BigDecimal> calculateTotalTransactions(@PathVariable int userId) {
         User user = userService.getUserById(userId);
         BigDecimal totalTransactions = transactionService.calculateTotalTransactions(user);
         return ResponseEntity.ok(totalTransactions);
-    }
+    }*/
 
     /**
      * Endpoint pour annuler une transaction existante.
@@ -122,8 +122,8 @@ public class  TransactionController {
      * @return Le montant total des frais
      */
     @GetMapping("/fee")
-    public ResponseEntity<BigDecimal> calculateTotalFees() {
-        BigDecimal totalFees = transactionService.calculateTotalFees();
+    public ResponseEntity<Long> calculateTotalFees() {
+        long totalFees = transactionService.calculateTotalFees();
         return ResponseEntity.ok(totalFees);
     }
 }

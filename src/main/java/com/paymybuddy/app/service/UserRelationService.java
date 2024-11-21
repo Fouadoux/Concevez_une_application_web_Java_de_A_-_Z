@@ -65,7 +65,6 @@ public class UserRelationService {
             throw new EntitySaveException("Failed to save the new user relation", e);
         }
         user.addUserRelation(newRelation);
-        //userToAdd.addUserRelation(newRelation);
         return "User relation successfully added between user with ID: " + user.getId() + " and user with email: " + email;
     }
 

@@ -27,7 +27,7 @@ public class AppAccount {
 
     @Column(name = "balance")
     @Min(0)
-    private BigDecimal balance;
+    private long balance;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

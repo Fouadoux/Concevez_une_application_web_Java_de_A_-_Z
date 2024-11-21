@@ -1,5 +1,6 @@
 package com.paymybuddy.app.security;
 
+import com.paymybuddy.app.dto.LoginDTO;
 import com.paymybuddy.app.entity.User;
 import com.paymybuddy.app.repository.UserRepository;
 import org.springframework.security.core.GrantedAuthority;
@@ -30,7 +31,16 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + user.getRole().getRoleName());
 
-        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), Collections.singleton(authority));
+        return new CustomUserDetails(
+                user.getEmail(),
+                user.getPassword(),
+                Collections.singleton(authority),
+                user.getId(),
+                user.getUserName()
+        );
+
+
+
     }
 
 
