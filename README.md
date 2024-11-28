@@ -1,4 +1,3 @@
-Voici le README corrigé, avec quelques ajustements pour améliorer la clarté et la structure. J'ai également pris en compte la mention du script SQL pour l'initialisation des données, y compris la création d'un utilisateur ADMIN.
 PayMyBuddy
 
 PayMyBuddy est une application de transfert d'argent permettant aux utilisateurs de gérer leurs transactions, leurs relations et leurs frais de transaction. L'application fournit une interface sécurisée pour l'ajout de relations entre utilisateurs, la gestion des informations des utilisateurs, et l'application des frais sur les transactions.
