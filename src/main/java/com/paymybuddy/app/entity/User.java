@@ -34,20 +34,21 @@ public class User {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    // Cette méthode sera appelée juste avant de persister l'entité
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
     }
 
-   /* @OneToMany(
-            cascade = CascadeType.ALL,
-            orphanRemoval = true,
-            fetch = FetchType.LAZY
-    )
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private AppAccount appAccount;
 
-    @JoinColumn(name = "user_id")
-    private List<UserRelation> userRelations = new ArrayList<>();*/
+    public void setAppAccount(AppAccount appAccount) {
+        this.appAccount = appAccount;
+        if (appAccount != null) {
+            appAccount.setUser(this);
+        }
+    }
+
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserRelation> userRelations = new ArrayList<>();

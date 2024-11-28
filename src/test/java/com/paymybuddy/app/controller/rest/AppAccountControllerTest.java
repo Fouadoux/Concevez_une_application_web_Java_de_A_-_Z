@@ -18,7 +18,6 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import static org.mockito.Mockito.*;
@@ -43,7 +42,6 @@ class AppAccountControllerTest {
         objectMapper.findAndRegisterModules(); // Supporte JavaTimeModule pour les formats de date
     }
 
-    // Test 1: GET /balance (Succès)
     @Test
     void testGetBalanceByUserId_Success() throws Exception {
         int userId = 1;
@@ -57,7 +55,6 @@ class AppAccountControllerTest {
                 .andExpect(content().string(String.valueOf(balance)));
     }
 
-    // Test 2: GET /balance (User introuvable)
     @Test
     void testGetBalanceByUserId_UserNotFound() throws Exception {
         int userId = 1;
@@ -68,10 +65,9 @@ class AppAccountControllerTest {
         mockMvc.perform(get("/api/appAccounts/{userId}/balance", userId))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value("Account not found for user with ID: " + userId));
+                .andExpect(jsonPath("$.details").value("Account not found for user with ID: " + userId));
     }
 
-    // Test 3: GET /balance/admin (Succès avec ADMIN)
     @Test
     void testGetBalanceByUserIdAdmin_Success() throws Exception {
         int userId = 1;
@@ -85,7 +81,6 @@ class AppAccountControllerTest {
                 .andExpect(content().string(String.valueOf(balance)));
     }
 
-    // Test 4: GET /api/appAccounts/{userId} (Succès)
     @Test
     void testGetAccountInfo_Success() throws Exception {
         int userId = 1;
@@ -104,7 +99,6 @@ class AppAccountControllerTest {
                 .andExpect(jsonPath("$.createdAt").exists());
     }
 
-    // Test 5: PUT /balance (Succès)
     @Test
     void testUpdateBalanceById_Success() throws Exception {
         int userId = 1;
@@ -124,7 +118,6 @@ class AppAccountControllerTest {
                 .andExpect(content().string(String.valueOf(updatedBalance)));
     }
 
-    // Test 6: PUT /balance (Solde négatif)
     @Test
     void testUpdateBalanceById_NegativeBalance() throws Exception {
         int userId = 1;
@@ -141,15 +134,14 @@ class AppAccountControllerTest {
                         .with(csrf()))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value("Balance can't be negative."));
+                .andExpect(jsonPath("$.details").value("Balance can't be negative."));
     }
 
-    // Test 7: POST /user/{userId} (Succès)
     @Test
     void testCreateAccountForUser_Success() throws Exception {
         int userId = 1;
         AppAccount account = new AppAccount();
-        account.setAccountId(1);
+        account.setId(1);
         account.setBalance(100);
 
         when(appAccountService.createAccountForUser(userId)).thenReturn(account);
@@ -159,11 +151,10 @@ class AppAccountControllerTest {
                         .with(csrf()))
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.accountId").value(account.getAccountId()))
+                .andExpect(jsonPath("$.id").value(account.getId()))
                 .andExpect(jsonPath("$.balance").value(account.getBalance()));
     }
 
-    // Test 8: POST /user/{userId} (Compte existant)
     @Test
     void testCreateAccountForUser_AccountAlreadyExists() throws Exception {
         int userId = 1;
@@ -176,10 +167,9 @@ class AppAccountControllerTest {
                         .with(csrf()))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value("User already has an account."));
+                .andExpect(jsonPath("$.details").value("User already has an account."));
     }
 
-    // Test 9: DELETE /user/{userId} (Succès)
     @Test
     void testDeleteAccountByUserId_Success() throws Exception {
         int userId = 1;
@@ -192,7 +182,6 @@ class AppAccountControllerTest {
                 .andExpect(content().string("Account deleted successfully"));
     }
 
-    // Test 10: DELETE /user/{userId} (Compte introuvable)
     @Test
     void testDeleteAccountByUserId_AccountNotFound() throws Exception {
         int userId = 1;
@@ -204,7 +193,7 @@ class AppAccountControllerTest {
                         .with(csrf()))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value("Account not found for user with ID: " + userId));
+                .andExpect(jsonPath("$.details").value("Account not found for user with ID: " + userId));
     }
 }
 

@@ -5,7 +5,6 @@ import com.paymybuddy.app.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,7 +16,6 @@ class TransactionTest {
 
     @BeforeEach
     public void setUp() {
-        // Création d'un utilisateur "sender" et "receiver"
         sender = new User();
         sender.setUserName("Sender");
         sender.setEmail("sender@example.com");
@@ -28,7 +26,6 @@ class TransactionTest {
         receiver.setEmail("receiver@example.com");
         receiver.setPassword("password456");
 
-        // Création d'une transaction avec une date de transaction initiale
         transaction = new Transaction();
         transaction.setUserSender(sender);
         transaction.setUserReceiver(receiver);
@@ -51,7 +48,6 @@ class TransactionTest {
 
     @Test
     public void testTransactionAmountUpdate() {
-        // Mise à jour du montant de la transaction
         transaction.setAmount(150);
         assertEquals(150, transaction.getAmount());
     }

@@ -1,4 +1,4 @@
-package com.paymybuddy.app.model;
+package com.paymybuddy.app.integration;
 
 
 import com.paymybuddy.app.entity.AppAccount;
@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -32,7 +31,6 @@ public class AppAccountIT {
     @Test
     @Transactional
     public void testCreationTimestamps() {
-        // Créer un utilisateur associé au compte
         User user = new User();
         user.setUserName("testUser");
         user.setEmail("test@example.fr");
@@ -44,15 +42,12 @@ public class AppAccountIT {
 
         user.setRole(userRole);
 
-        // Sauvegarder l'utilisateur avant de sauvegarder le compte
         userRepository.save(user);
 
-        // Créer un compte utilisateur
         AppAccount account = new AppAccount();
         account.setUser(user);
         account.setBalance(100);
 
-        // Sauvegarder le compte dans la base de données
         AppAccount savedAccount = appAccountRepository.save(account);
 
         // Vérifier que le champ createdAt est automatiquement rempli
@@ -68,7 +63,7 @@ public class AppAccountIT {
         appAccountRepository.flush();
 
         // Recharger l'entité pour vérifier la mise à jour du timestamp
-        AppAccount updatedAccount = appAccountRepository.findById(account.getAccountId()).orElseThrow();
+        AppAccount updatedAccount = appAccountRepository.findById(account.getId()).orElseThrow();
 
         // Vérifier que le champ lastUpdate a bien été mis à jour
         assertTrue(updatedAccount.getLastUpdate().isAfter(initialLastUpdate), "The last_update timestamp should be updated");

@@ -18,7 +18,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -56,11 +55,12 @@ class AppAccountServiceTest {
         user.setRole(role);
 
         account = new AppAccount();
-        account.setAccountId(1);
+        account.setId(1);
         account.setUser(user);
         account.setBalance(100);
         account.setCreatedAt(LocalDateTime.now());
         account.setLastUpdate(LocalDateTime.now());
+
 
         // Mock pour les méthodes findById et findByUserId
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
@@ -165,6 +165,9 @@ class AppAccountServiceTest {
 
     @Test
     void testCreateAccountForUser_AccountAlreadyExists() {
+
+        user.setAppAccount(account);
+
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(appAccountRepository.findByUserId(user.getId())).thenReturn(Optional.of(account));
 
@@ -183,16 +186,14 @@ class AppAccountServiceTest {
 
     @Test
     void testDeleteAccountByUserId_UserNotFound() {
-        // Configurer le mock pour simuler l'absence de l'utilisateur
-        when(userRepository.findById(user.getId())).thenReturn(Optional.empty());
 
-        // Vérifier que l'exception est levée
-        assertThrows(EntityNotFoundException.class, () -> appAccountService.deleteAccountByUserId(user.getId()));
+        int userId = 123;
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        // Vérifie que findById est bien appelé une fois
-        verify(userRepository, times(1)).findById(user.getId());
-        // Vérifie que findByUserId n'est jamais appelé car l'utilisateur n'existe pas
-        verify(appAccountRepository, times(0)).findByUserId(anyInt());
+        assertThrows(EntityNotFoundException.class, () -> appAccountService.deleteAccountByUserId(userId));
+
+        verify(userRepository, times(1)).findById(userId);
+        verify(appAccountRepository, never()).findByUserId(anyInt());
     }
 
 

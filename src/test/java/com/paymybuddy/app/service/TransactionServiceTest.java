@@ -3,10 +3,10 @@ package com.paymybuddy.app.service;
 import com.paymybuddy.app.dto.TransactionDTO;
 import com.paymybuddy.app.entity.Transaction;
 import com.paymybuddy.app.entity.User;
-import com.paymybuddy.app.exception.EntityDeleteException;
 import com.paymybuddy.app.exception.EntityNotFoundException;
 import com.paymybuddy.app.exception.InsufficientBalanceException;
 import com.paymybuddy.app.repository.TransactionRepository;
+import com.paymybuddy.app.service.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -14,7 +14,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,6 +21,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class TransactionServiceTest {
+
+    @Mock
+    private MonetizationService monetizationService;
 
     @Mock
     private TransactionRepository transactionRepository;
@@ -71,6 +73,7 @@ class TransactionServiceTest {
         when(transactionFeeService.calculateFeeForTransaction(amountCent)).thenReturn(500L);
         when(roleService.getTransactionLimitForUser(senderId)).thenReturn(50000L);
         when(transactionRepository.save(any(Transaction.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        doNothing().when(monetizationService).saveMonetization(any(Transaction.class));
 
         // Act
         String result = transactionService.createTransaction(senderId, receiverId, amount, description);
@@ -160,7 +163,7 @@ class TransactionServiceTest {
     }
 
     @Test
-    void getTransactionHistory_success() {
+    void getTransactionHistory_ByUserId_success() {
         // Arrange
         int userId = 1;
         User user = new User();
@@ -178,7 +181,7 @@ class TransactionServiceTest {
         when(userService.getUserById(userId)).thenReturn(user);
 
         // Act
-        List<Transaction> result = transactionService.getTransactionHistory(userId);
+        List<Transaction> result = transactionService.getTransactionHistoryByUserId(userId);
 
         // Assert
         assertEquals(2, result.size());

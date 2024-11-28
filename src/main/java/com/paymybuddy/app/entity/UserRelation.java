@@ -12,7 +12,6 @@ import java.util.Date;
 @IdClass(UserRelationId.class)
 public class UserRelation {
 
-    // Clé primaire composite
     @Id
     @Column(name = "user_id", nullable = false)
     private int userId;
@@ -21,12 +20,10 @@ public class UserRelation {
     @Column(name = "user_relation_id", nullable = false)
     private int userRelationId;
 
-    // Association vers l'utilisateur principal
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id", insertable = false, updatable = false)
     private User user;
 
-    // Association vers l'utilisateur lié
     @ManyToOne
     @JoinColumn(name = "user_relation_id", referencedColumnName = "id", insertable = false, updatable = false)
     private User relatedUser;

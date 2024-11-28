@@ -49,7 +49,7 @@ public class WebPageController {
         String userName=userDetails.getNameUser();
 
         List<RelatedUserDTO> relatedUsers = userRelationService.findRelatedUsers(userId);
-        List<Transaction> transactionList=transactionService.getTransactionHistory(userId);
+        List<Transaction> transactionList=transactionService.getTransactionHistoryByUserId(userId);
         List<TransactionDTO> transactionDTOs = transactionService.convertToDTOList(transactionList);
         model.addAttribute("relationUserList",relatedUsers);
         model.addAttribute("transactionList",transactionDTOs);

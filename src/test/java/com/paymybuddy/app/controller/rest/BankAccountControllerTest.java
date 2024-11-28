@@ -5,7 +5,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.paymybuddy.app.entity.AppAccount;
 import com.paymybuddy.app.entity.BankAccount;
 import com.paymybuddy.app.entity.User;
-import com.paymybuddy.app.exception.EntityDeleteException;
 import com.paymybuddy.app.exception.EntityNotFoundException;
 import com.paymybuddy.app.exception.EntitySaveException;
 import com.paymybuddy.app.service.BankAccountService;
@@ -21,7 +20,6 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -55,12 +53,21 @@ class BankAccountControllerTest {
 
     @Test
     void testCreateBankAccount_Success() throws Exception {
+        User user=new User();
+        user.setUserName("test");
+        user.setCreatedAt(LocalDateTime.now());
+        user.setEmail("test@example.fr");
+        user.setPassword("password");
+
+
         BankAccount bankAccount = new BankAccount();
-        bankAccount.setTransferId(1);
+        bankAccount.setId(1);
         bankAccount.setAmount(100);
         bankAccount.setExternalBankAccountNumber("123456789");
         bankAccount.setTransferDate(LocalDateTime.now());
         bankAccount.setStatus(true);
+        bankAccount.setUser(user);
+
 
         when(bankAccountService.createBankAccount(any(BankAccount.class))).thenReturn(bankAccount);
 
@@ -72,15 +79,23 @@ class BankAccountControllerTest {
                         .with(csrf())) // Ajout du jeton CSRF
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.transferId").value(bankAccount.getTransferId()));
+                .andExpect(jsonPath("$.id").value(bankAccount.getId()));
     }
 
     @Test
     void testCreateBankAccount_fail()throws Exception{
 
+        User user=new User();
+        user.setUserName("test");
+        user.setCreatedAt(LocalDateTime.now());
+        user.setEmail("test@example.fr");
+        user.setPassword("password");
+
+
         BankAccount bankAccount = new BankAccount();
         bankAccount.setAmount(0);
         bankAccount.setExternalBankAccountNumber("123456789");
+        bankAccount.setUser(user);
 
         String jsonContent= objectMapper.writeValueAsString(bankAccount);
 
@@ -93,20 +108,18 @@ class BankAccountControllerTest {
                 .with(csrf()))
                 .andExpect(status().isInternalServerError())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value("Failed to save bank account."));
+                .andExpect(jsonPath("$.details").value("Failed to save bank account."));
 
         verify(bankAccountService,times(1)).createBankAccount(any(BankAccount.class));
 
 
     }
 
-
-
     @Test
     void testGetBankAccountById_Success() throws Exception {
         int transferId = 1;
         BankAccount bankAccount = new BankAccount();
-        bankAccount.setTransferId(transferId);
+        bankAccount.setId(transferId);
         bankAccount.setAmount(100);
         bankAccount.setExternalBankAccountNumber("123456789");
         bankAccount.setTransferDate(LocalDateTime.now());
@@ -117,8 +130,9 @@ class BankAccountControllerTest {
         mockMvc.perform(get("/api/bankAccounts/{transferId}", transferId))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.transferId").value(transferId));
+                .andExpect(jsonPath("$.id").value(transferId));
     }
+
     @Test
     void testGetBankAccountById_NotFound()throws Exception{
         int transferId=1;
@@ -130,10 +144,8 @@ class BankAccountControllerTest {
         mockMvc.perform(get("/api/bankAccounts/{transferId}", 1))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value("Bank account not found with ID: " + transferId));
+                .andExpect(jsonPath("$.details").value("Bank account not found with ID: " + transferId));
     }
-
-
 
     @Test
     void testGetBankAccountsByUser_Success() throws Exception {
@@ -142,7 +154,7 @@ class BankAccountControllerTest {
         user.setId(userId);
 
         BankAccount bankAccount = new BankAccount();
-        bankAccount.setTransferId(1);
+        bankAccount.setId(1);
         bankAccount.setAmount(100);
         bankAccount.setExternalBankAccountNumber("123456789");
         bankAccount.setTransferDate(LocalDateTime.now());
@@ -154,7 +166,7 @@ class BankAccountControllerTest {
         mockMvc.perform(get("/api/bankAccounts/user/{userId}", userId))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].transferId").value(bankAccount.getTransferId()));
+                .andExpect(jsonPath("$[0].id").value(bankAccount.getId()));
     }
 
     @Test
@@ -170,7 +182,7 @@ class BankAccountControllerTest {
         mockMvc.perform(get("/api/bankAccounts/user/{userId}", userId))
                 .andExpect(status().isNotFound()) // Vérifie que le statut HTTP est 404
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)) // Vérifie le type de contenu
-                .andExpect(jsonPath("$.message").value("User not found with ID: " + userId)); // Vérifie le message d'erreur
+                .andExpect(jsonPath("$.details").value("User not found with ID: " + userId)); // Vérifie le message d'erreur
     }
 
     @Test
@@ -179,7 +191,7 @@ class BankAccountControllerTest {
         boolean newStatus = true;
 
         BankAccount bankAccount = new BankAccount();
-        bankAccount.setTransferId(transferId);
+        bankAccount.setId(transferId);
         bankAccount.setStatus(newStatus);
 
         when(bankAccountService.updateBankAccountStatus(transferId, newStatus)).thenReturn(bankAccount);
@@ -189,7 +201,7 @@ class BankAccountControllerTest {
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.transferId").value(transferId))
+                .andExpect(jsonPath("$.id").value(transferId))
                 .andExpect(jsonPath("$.status").value(newStatus));
     }
 
@@ -209,10 +221,8 @@ class BankAccountControllerTest {
                         .with(csrf()))
                 .andExpect(status().isNotFound()) // Vérifie que le statut HTTP est 404
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)) // Vérifie le type de contenu
-                .andExpect(jsonPath("$.message").value("Bank account not found with ID: " + transferId)); // Vérifie le message d'erreur
+                .andExpect(jsonPath("$.details").value("Bank account not found with ID: " + transferId)); // Vérifie le message d'erreur
     }
-
-
 
     @Test
     void testDeleteBankAccount_Success() throws Exception {
@@ -240,7 +250,7 @@ class BankAccountControllerTest {
                         .with(csrf()))
                 .andExpect(status().isNotFound()) // Vérifie que le statut HTTP est 404
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)) // Vérifie le type de contenu
-                .andExpect(jsonPath("$.message").value("Bank account not found with ID: " + transferId)); // Vérifie le message d'erreur
+                .andExpect(jsonPath("$.details").value("Bank account not found with ID: " + transferId)); // Vérifie le message d'erreur
     }
 
 
@@ -252,7 +262,7 @@ class BankAccountControllerTest {
         boolean toBankAccount = true;
 
         BankAccount bankAccount = new BankAccount();
-        bankAccount.setTransferId(bankAccountId);
+        bankAccount.setId(bankAccountId);
         bankAccount.setAmount(amount);
         bankAccount.setExternalBankAccountNumber("123456789");
         bankAccount.setTransferDate(LocalDateTime.now());
@@ -268,7 +278,7 @@ class BankAccountControllerTest {
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.transferId").value(bankAccountId));
+                .andExpect(jsonPath("$.id").value(bankAccountId));
     }
 
     @Test
@@ -289,7 +299,7 @@ class BankAccountControllerTest {
                         .with(csrf()))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value("App account not found with ID: " + appAccountId));
+                .andExpect(jsonPath("$.details").value("App account not found with ID: " + appAccountId));
     }
 
     @Test
@@ -310,7 +320,7 @@ class BankAccountControllerTest {
                         .with(csrf()))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value("Bank account not found with ID: " + bankAccountId));
+                .andExpect(jsonPath("$.details").value("Bank account not found with ID: " + bankAccountId));
     }
 
 
@@ -332,7 +342,7 @@ class BankAccountControllerTest {
                         .with(csrf()))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value("Transfer amount must be greater than zero."));
+                .andExpect(jsonPath("$.details").value("Transfer amount must be greater than zero."));
     }
 
     @Test
@@ -343,14 +353,14 @@ class BankAccountControllerTest {
         boolean toBankAccount = true;
 
         BankAccount bankAccount = new BankAccount();
-        bankAccount.setTransferId(bankAccountId);
+        bankAccount.setId(bankAccountId);
         bankAccount.setAmount(0);
         bankAccount.setExternalBankAccountNumber("123456789");
         bankAccount.setTransferDate(LocalDateTime.now());
         bankAccount.setStatus(true);
 
         AppAccount account=new AppAccount();
-        account.setAccountId(1);
+        account.setId(1);
         account.setBalance(amount);
 
 
@@ -364,7 +374,7 @@ class BankAccountControllerTest {
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.accountId").value(1));
+                .andExpect(jsonPath("$.id").value(1));
     }
 
     @Test
@@ -385,7 +395,7 @@ class BankAccountControllerTest {
                         .with(csrf()))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value("App account not found with ID: " + appAccountId));
+                .andExpect(jsonPath("$.details").value("App account not found with ID: " + appAccountId));
     }
 
 
@@ -407,7 +417,7 @@ class BankAccountControllerTest {
                         .with(csrf()))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value("Bank account not found with ID: " + bankAccountId));
+                .andExpect(jsonPath("$.details").value("Bank account not found with ID: " + bankAccountId));
     }
 
 
@@ -429,9 +439,7 @@ class BankAccountControllerTest {
                         .with(csrf()))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value("Transfer amount must be greater than zero."));
+                .andExpect(jsonPath("$.details").value("Transfer amount must be greater than zero."));
     }
-
-
 
 }

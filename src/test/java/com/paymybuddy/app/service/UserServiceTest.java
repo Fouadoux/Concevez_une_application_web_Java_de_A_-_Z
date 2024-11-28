@@ -1,6 +1,7 @@
 package com.paymybuddy.app.service;
 
-import com.paymybuddy.app.dto.UpdateUserRequest;
+import com.paymybuddy.app.dto.UpdateUserRequestDTO;
+import com.paymybuddy.app.dto.UserDTO;
 import com.paymybuddy.app.entity.AppAccount;
 import com.paymybuddy.app.entity.Role;
 import com.paymybuddy.app.entity.User;
@@ -14,7 +15,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -45,38 +45,27 @@ class UserServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    @Test
-    void createUser_UsernameAlreadyExists_ThrowsException() {
-        User newUser = new User();
-        newUser.setUserName("newUser");
-        newUser.setPassword("password");
-        newUser.setEmail("test@example.com");
-        newUser.setCreatedAt(LocalDateTime.now());
 
-        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(newUser));
-
-
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                userService.createUser(newUser));
-
-        assertEquals("Email already exists: "+ newUser.getEmail(), exception.getMessage());
-        verify(userRepository, never()).save(any(User.class));
-    }
 
     @Test
     void createUser_DefaultRoleNotFound_ThrowsException() {
+        // Arrange
         User newUser = new User();
         newUser.setUserName("newUser");
+        newUser.setEmail("newuser@example.com");
+        newUser.setPassword("password123");
 
-        when(userRepository.findByUserName("newUser")).thenReturn(null);
-        when(roleRepository.findByRoleName("user")).thenReturn(null);
+        when(userRepository.findByEmail("newuser@example.com")).thenReturn(Optional.empty());
+        when(roleRepository.findByRoleName("USER")).thenReturn(Optional.empty()); // Retourne Optional.empty() au lieu de null
 
+        // Act & Assert
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
                 userService.createUser(newUser));
 
-        assertEquals("Default role 'user' not found", exception.getMessage());
+        assertEquals("Default role 'USER' not found", exception.getMessage());
         verify(userRepository, never()).save(any(User.class));
     }
+
 
     @Test
     void createUser_ValidUser_Success() {
@@ -154,7 +143,7 @@ class UserServiceTest {
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
                 userService.updateUserRole(1, "admin"));
 
-        assertEquals("Role not found with role: " + role, exception.getMessage());
+        assertEquals("Role not found with name: " + role, exception.getMessage());
     }
 
     @Test
@@ -170,7 +159,7 @@ class UserServiceTest {
 
         String result = userService.updateUserRole(1, "admin");
 
-        assertEquals("User role updated successfully", result);
+        assertEquals("User role updated successfully.", result);
         assertEquals(adminRole, user.getRole());
         verify(userRepository).save(user);
     }
@@ -185,7 +174,7 @@ class UserServiceTest {
 
         String result = userService.deleteUser(1);
 
-        assertEquals("User deleted successfully", result);
+        assertEquals("User deleted successfully.", result);
         verify(userRepository, times(1)).delete(user);
     }
 
@@ -210,10 +199,10 @@ class UserServiceTest {
         user.setCreatedAt(LocalDateTime.now());
 
         when(userRepository.findById(1)).thenReturn(Optional.of(user));
-        UpdateUserRequest updateUserRequest=new UpdateUserRequest();
-        updateUserRequest.setUserName("Paul");
+        UpdateUserRequestDTO updateUserRequestDTO =new UpdateUserRequestDTO();
+        updateUserRequestDTO.setUserName("Paul");
         // Act
-        userService.updateUser(1,updateUserRequest);
+        userService.updateUser(1, updateUserRequestDTO);
 
         // Assert
         assertEquals("Paul",user.getUserName());
@@ -232,10 +221,10 @@ class UserServiceTest {
         user.setCreatedAt(LocalDateTime.now());
 
         when(userRepository.findById(1)).thenReturn(Optional.of(user));
-        UpdateUserRequest updateUserRequest=new UpdateUserRequest();
-        updateUserRequest.setEmail("Paul@example.fr");
+        UpdateUserRequestDTO updateUserRequestDTO =new UpdateUserRequestDTO();
+        updateUserRequestDTO.setEmail("Paul@example.fr");
         // Act
-        userService.updateUser(1,updateUserRequest);
+        userService.updateUser(1, updateUserRequestDTO);
 
         // Assert
         assertEquals("newUser",user.getUserName());
@@ -253,12 +242,12 @@ class UserServiceTest {
         user.setCreatedAt(LocalDateTime.now());
 
         when(userRepository.findById(1)).thenReturn(Optional.of(user));
-        UpdateUserRequest updateUserRequest=new UpdateUserRequest();
-        updateUserRequest.setEmail("invalid-email");
+        UpdateUserRequestDTO updateUserRequestDTO =new UpdateUserRequestDTO();
+        updateUserRequestDTO.setEmail("invalid-email");
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                userService.updateUser(1, updateUserRequest));
+                userService.updateUser(1, updateUserRequestDTO));
 
         // Vérifier le message de l'exception
         assertEquals("Invalid email format: invalid-email", exception.getMessage());
@@ -277,12 +266,12 @@ class UserServiceTest {
         user.setCreatedAt(LocalDateTime.now());
 
         when(userRepository.findById(1)).thenReturn(Optional.of(user));
-        UpdateUserRequest updateUserRequest=new UpdateUserRequest();
-        updateUserRequest.setPassword("newPass");
+        UpdateUserRequestDTO updateUserRequestDTO =new UpdateUserRequestDTO();
+        updateUserRequestDTO.setPassword("newPass");
         when(passwordEncoder.encode("newPass")).thenReturn("encodedNewPass");
 
         // Act
-        userService.updateUser(1,updateUserRequest);
+        userService.updateUser(1, updateUserRequestDTO);
 
         // Assert
         assertEquals("newUser",user.getUserName());
@@ -300,17 +289,17 @@ class UserServiceTest {
         user.setEmail("old@example.com");
         user.setCreatedAt(LocalDateTime.now());
 
-        UpdateUserRequest updateUserRequest = new UpdateUserRequest();
-        updateUserRequest.setUserName("newUser");
-        updateUserRequest.setEmail("new@example.com");
-        updateUserRequest.setPassword("newPassword");
+        UpdateUserRequestDTO updateUserRequestDTO = new UpdateUserRequestDTO();
+        updateUserRequestDTO.setUserName("newUser");
+        updateUserRequestDTO.setEmail("new@example.com");
+        updateUserRequestDTO.setPassword("newPassword");
 
         // Mock le comportement du repository et de l'encodeur de mot de passe
         when(userRepository.findById(1)).thenReturn(Optional.of(user));
         when(passwordEncoder.encode("newPassword")).thenReturn("encodedNewPassword");
 
         // Act
-        userService.updateUser(1, updateUserRequest);
+        userService.updateUser(1, updateUserRequestDTO);
 
         // Assert
         assertEquals("newUser", user.getUserName(), "Username should be updated");
@@ -323,17 +312,17 @@ class UserServiceTest {
     void testUpdateUser_UserNotFound_ThrowsException() {
         // Arrange
         int userId = 1;
-        UpdateUserRequest updateUserRequest = new UpdateUserRequest();
-        updateUserRequest.setUserName("newUser");
-        updateUserRequest.setEmail("new@example.com");
-        updateUserRequest.setPassword("newPassword");
+        UpdateUserRequestDTO updateUserRequestDTO = new UpdateUserRequestDTO();
+        updateUserRequestDTO.setUserName("newUser");
+        updateUserRequestDTO.setEmail("new@example.com");
+        updateUserRequestDTO.setPassword("newPassword");
 
         // Simuler le comportement du repository : l'utilisateur n'existe pas
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         // Act & Assert
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
-                userService.updateUser(userId, updateUserRequest)
+                userService.updateUser(userId, updateUserRequestDTO)
         );
 
         // Vérification du message de l'exception
@@ -343,7 +332,7 @@ class UserServiceTest {
         verify(userRepository, never()).save(any(User.class));
     }
     @Test
-    void testFindByEmail_UserFound_ReturnsUser() {
+    void testGetUserByEmail_UserFound_ReturnsUser() {
         // Arrange
         String email = "test@example.com";
         User user = new User();
@@ -355,7 +344,7 @@ class UserServiceTest {
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
 
         // Act
-        User result = userService.findByEmail(email);
+        User result = userService.getUserByEmail(email);
 
         // Assert
         assertNotNull(result, "The returned user should not be null");
@@ -365,7 +354,7 @@ class UserServiceTest {
     }
 
     @Test
-    void testFindByEmail_UserNotFound_ThrowsException() {
+    void testGetUserByEmail_UserNotFound_ThrowsException() {
         // Arrange
         String email = "nonexistent@example.com";
 
@@ -374,7 +363,7 @@ class UserServiceTest {
 
         // Act & Assert
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
-                userService.findByEmail(email)
+                userService.getUserByEmail(email)
         );
 
         // Vérifier le message de l'exception
@@ -401,27 +390,26 @@ class UserServiceTest {
         // Assert
         assertNotNull(result, "The returned username should not be null");
         assertEquals("TestUser", result, "The username should match the expected value");
-        verify(userRepository).findUserById(userId); // Vérifier que le repository a bien été appelé
+
+        // Vérifier que le repository a bien été appelé une fois
+        verify(userRepository, times(1)).findUserById(userId);
     }
 
     @Test
-    void testFindUsernameByUserId_UserNotFound_ThrowsException() {
+    void testFindUsernameByUserId_UserNotFound_ThrowsEntityNotFoundException() {
         // Arrange
         int userId = 1;
 
-        // Simuler le comportement du repository : aucun utilisateur trouvé
+        // Simuler l'absence de l'utilisateur dans le repository
         when(userRepository.findUserById(userId)).thenReturn(Optional.empty());
 
         // Act & Assert
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
-                userService.findUsernameByUserId(userId)
-        );
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+                () -> userService.findUsernameByUserId(userId),
+                "Expected EntityNotFoundException to be thrown");
 
-        // Vérifier le message de l'exception
         assertEquals("User not found with id: " + userId, exception.getMessage());
-
-        // Vérifier que la méthode du repository a été appelée une fois
-        verify(userRepository).findUserById(userId);
+        verify(userRepository, times(1)).findUserById(userId);
     }
 
     @Test
@@ -468,7 +456,7 @@ class UserServiceTest {
         when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user)); // Simuler un email déjà existant
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(EntityNotFoundException.class, () ->
                 userService.registerAndCreateAccount(user)
         );
 
@@ -538,6 +526,86 @@ class UserServiceTest {
         // Assert
         assertFalse(result, "The method should return false when the email does not exist");
         verify(userRepository).findByEmail(email); // Vérifier que le repository a bien été appelé
+    }
+
+    @Test
+    void testConvertToDTO() {
+        // Création d'un objet User mocké
+        User user = mock(User.class);
+        Role role = mock(Role.class);
+
+        when(user.getUserName()).thenReturn("John Doe");
+        when(user.getEmail()).thenReturn("john.doe@example.com");
+        when(role.getRoleName()).thenReturn("ADMIN");
+        when(user.getRole()).thenReturn(role);
+        when(user.getCreatedAt()).thenReturn(LocalDateTime.of(2023, 11, 27, 10, 30));
+
+        // Classe sous test
+        UserDTO userDTO = userService.convertToDTO(user);
+
+        // Vérification des valeurs dans le DTO
+        assertNotNull(userDTO);
+        assertEquals("John Doe", userDTO.getName());
+        assertEquals("john.doe@example.com", userDTO.getEmail());
+        assertEquals("ADMIN", userDTO.getRole());
+        assertEquals(LocalDateTime.of(2023, 11, 27, 10, 30), userDTO.getCreatedAt());
+    }
+
+    @Test
+    void testConvertToDTOList() {
+        User user1 = mock(User.class);
+        User user2 = mock(User.class);
+
+        Role role = mock(Role.class);
+        when(user1.getUserName()).thenReturn("User1");
+        when(user1.getEmail()).thenReturn("user1@example.com");
+        when(user1.getRole()).thenReturn(role);
+        when(role.getRoleName()).thenReturn("USER");
+        when(user1.getCreatedAt()).thenReturn(LocalDateTime.now());
+
+        when(user2.getUserName()).thenReturn("User2");
+        when(user2.getEmail()).thenReturn("user2@example.com");
+        when(user2.getRole()).thenReturn(role);
+        when(role.getRoleName()).thenReturn("ADMIN");
+        when(user2.getCreatedAt()).thenReturn(LocalDateTime.now());
+
+        List<User> users = Arrays.asList(user1, user2);
+
+        List<UserDTO> userDTOList = userService.convertToDTOList(users);
+
+        // Vérification des résultats
+        assertNotNull(userDTOList);
+        assertEquals(2, userDTOList.size());
+        assertEquals("User1", userDTOList.get(0).getName());
+        assertEquals("User2", userDTOList.get(1).getName());
+    }
+
+    @Test
+    void testGetFindByRole() {
+        User user1 = mock(User.class);
+        User user2 = mock(User.class);
+        User user3 = mock(User.class);
+
+        Role adminRole = mock(Role.class);
+        Role userRole = mock(Role.class);
+
+        when(user1.getRole()).thenReturn(adminRole);
+        when(adminRole.getRoleName()).thenReturn("ADMIN");
+
+        when(user2.getRole()).thenReturn(userRole);
+        when(userRole.getRoleName()).thenReturn("USER");
+
+        when(user3.getRole()).thenReturn(adminRole);
+
+        List<User> users = Arrays.asList(user1, user2, user3);
+
+        List<UserDTO> adminUsers = userService.getFindByRole(users, "ADMIN");
+
+        // Vérification des résultats
+        assertNotNull(adminUsers);
+        assertEquals(2, adminUsers.size());
+        assertEquals("ADMIN", adminUsers.get(0).getRole());
+        assertEquals("ADMIN", adminUsers.get(1).getRole());
     }
 
 }

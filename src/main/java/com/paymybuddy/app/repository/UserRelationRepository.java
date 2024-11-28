@@ -9,6 +9,5 @@ import java.util.Optional;
 
 @Repository
 public interface UserRelationRepository extends JpaRepository<UserRelation, UserRelationId> {
-
     Optional<UserRelation> findByUserIdAndUserRelationId(int userId,int userRelationId);
 }

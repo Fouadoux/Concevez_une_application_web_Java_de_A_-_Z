@@ -30,25 +30,19 @@
         <!-- Image à droite -->
         <div class="add-button">
             <img th:src="@{/image/addRelationPage/Button-New.svg}"
-                 alt="Modifier"
-                 class="modif-button"
+                 alt="Ajouter une relation"
+                 class="add-button"
                  id="addButton">
         </div>
+
+
     </div>
 
 </form>
 <!-- Message de confirmation ou d'erreur -->
+
+
 <div id="message" class="alert" style="display: none;"></div>
-
-
-<script>
-    document.getElementById("addButton").addEventListener("click", () => {
-        // Ajoutez ici la logique que vous souhaitez déclencher lors du clic
-        document.getElementById("addRelationForm").submit(); // Soumet le formulaire
-    });
-</script>
-
-
 <script type="module" th:src="@{/js/addRelation.js}"></script>
 
 

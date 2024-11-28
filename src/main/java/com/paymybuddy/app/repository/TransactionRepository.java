@@ -22,10 +22,10 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
                                                     @Param("endDate") LocalDateTime endDate);
 
     //Total des montants reçus
-    @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t WHERE t.userReceiver = :user AND t.transactionDate BETWEEN :startDate AND :endDate")
+ /*   @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t WHERE t.userReceiver = :user AND t.transactionDate BETWEEN :startDate AND :endDate")
     Long calculateTotalReceivedByUserAndDateRange(@Param("user") User user,
                                                         @Param("startDate") LocalDateTime startDate,
-                                                        @Param("endDate") LocalDateTime endDate);
+                                                        @Param("endDate") LocalDateTime endDate);*/
 
 
 }

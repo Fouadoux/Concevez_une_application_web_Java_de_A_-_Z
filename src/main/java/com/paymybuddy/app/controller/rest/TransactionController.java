@@ -2,128 +2,122 @@ package com.paymybuddy.app.controller.rest;
 
 import com.paymybuddy.app.dto.TransactionDTO;
 import com.paymybuddy.app.entity.Transaction;
-import com.paymybuddy.app.entity.User;
 import com.paymybuddy.app.service.TransactionService;
 import com.paymybuddy.app.service.UserService;
-import org.springframework.format.annotation.DateTimeFormat;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Controller for handling transaction-related operations.
+ * Provides endpoints for creating, retrieving, canceling transactions, and calculating transaction fees.
+ */
+@Slf4j
 @RestController
 @RequestMapping("/api/transactions")
-public class  TransactionController {
+public class TransactionController {
 
     private final TransactionService transactionService;
     private final UserService userService;
 
+    /**
+     * Constructs an instance of TransactionController.
+     *
+     * @param transactionService Service to manage Transaction operations
+     * @param userService        Service to manage User operations
+     */
     public TransactionController(TransactionService transactionService, UserService userService) {
         this.transactionService = transactionService;
         this.userService = userService;
     }
 
     /**
-     * Endpoint pour créer une nouvelle transaction entre deux utilisateurs.
+     * Endpoint to create a new transaction between two users.
+     * This method processes the transaction and returns a success message with the result.
      *
-     * @param senderId     L'ID de l'utilisateur expéditeur
-     * @param receiverId   le nom de l'utilisateur destinataire
-     * @param amount       Le montant de la transaction
-     * @param description  La description de la transaction
-     * @return Un message de succès ou une erreur
+     * @param senderId    The ID of the sender user
+     * @param receiverId  The ID of the receiver user
+     * @param amount      The transaction amount
+     * @param description The description of the transaction
+     * @return A response message indicating the transaction status
      */
     @PostMapping("/create")
     public ResponseEntity<Map<String, Object>> createTransaction(@RequestParam int senderId,
                                                                  @RequestParam int receiverId,
                                                                  @RequestParam long amount,
                                                                  @RequestParam String description) {
-
+        log.info("Creating transaction from user {} to user {} for amount {} with description: {}",
+                senderId, receiverId, amount, description);
 
         String transactionResult = transactionService.createTransaction(senderId, receiverId, amount, description);
 
-        // Créer une réponse structurée
+        // Creating a structured response
         Map<String, Object> response = new HashMap<>();
         response.put("message", transactionResult);
         response.put("status", "success");
         response.put("timestamp", System.currentTimeMillis());
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        log.info("Transaction created successfully: {}", transactionResult);
 
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     /**
-     * Endpoint pour obtenir l'historique des transactions d'un utilisateur.
+     * Endpoint to retrieve the transaction history of a user.
+     * This method returns a list of transactions sent and received by the user.
      *
-     * @param userId L'ID de l'utilisateur
-     * @return La liste des transactions envoyées et reçues par l'utilisateur
+     * @param userId The ID of the user
+     * @return A list of transaction history for the user
      */
     @GetMapping("/allByUser/{userId}")
     public ResponseEntity<List<TransactionDTO>> getTransactionHistory(@PathVariable int userId) {
-        List<Transaction> transactionList = transactionService.getTransactionHistory(userId);
+        log.info("Fetching transaction history for user with ID: {}", userId);
+
+        List<Transaction> transactionList = transactionService.getTransactionHistoryByUserId(userId);
         List<TransactionDTO> transactionDTOs = transactionService.convertToDTOList(transactionList);
+
+        log.info("Found {} transactions for user {}", transactionDTOs.size(), userId);
+
         return ResponseEntity.ok(transactionDTOs);
     }
 
     /**
-     * Endpoint pour obtenir les transactions d'un utilisateur sur une plage de dates.
+     * Endpoint to cancel an existing transaction.
+     * This method cancels the specified transaction and returns a success message.
      *
-     * @param userId    L'ID de l'utilisateur
-     * @param startDate La date de début (format ISO)
-     * @param endDate   La date de fin (format ISO)
-     * @return La liste des transactions dans la plage spécifiée
-     */
-   /* @GetMapping("/byDateRange")
-    public ResponseEntity<List<Transaction>> getTransactionsByDateRange(
-            @RequestParam int userId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
-
-        User user = userService.getUserById(userId);
-        List<Transaction> transactionList = transactionService.getTransactionsByDateRange(user, startDate, endDate);
-        return ResponseEntity.ok(transactionList);
-    }*/
-
-    /**
-     * Endpoint pour calculer le montant total des transactions d'un utilisateur.
-     *
-     * @param userId L'ID de l'utilisateur
-     * @return Le montant total des transactions de l'utilisateur
-     */
-
-    //todo faire 2 methodde, une pour afficher tout l'argent envoyer et un autre pour tout l'argent recu
-
-  /*  @GetMapping("/total/{userId}")
-    public ResponseEntity<BigDecimal> calculateTotalTransactions(@PathVariable int userId) {
-        User user = userService.getUserById(userId);
-        BigDecimal totalTransactions = transactionService.calculateTotalTransactions(user);
-        return ResponseEntity.ok(totalTransactions);
-    }*/
-
-    /**
-     * Endpoint pour annuler une transaction existante.
-     *
-     * @param transactionId L'ID de la transaction à annuler
-     * @return Un message de succès ou une erreur
+     * @param transactionId The ID of the transaction to cancel
+     * @return A response message indicating the cancellation result
      */
     @DeleteMapping("/cancel/{transactionId}")
     public ResponseEntity<String> cancelTransaction(@PathVariable int transactionId) {
+        log.info("Attempting to cancel transaction with ID: {}", transactionId);
+
         String cancelMessage = transactionService.cancelTransaction(transactionId);
+
+        log.info("Transaction cancellation result for ID {}: {}", transactionId, cancelMessage);
+
         return ResponseEntity.ok(cancelMessage);
     }
 
     /**
-     * Endpoint pour calculer le montant total des frais de transaction.
+     * Endpoint to calculate the total fees for all transactions.
+     * This method calculates and returns the total amount of transaction fees.
      *
-     * @return Le montant total des frais
+     * @return The total transaction fees
      */
     @GetMapping("/fee")
     public ResponseEntity<Long> calculateTotalFees() {
+        log.info("Calculating total transaction fees");
+
         long totalFees = transactionService.calculateTotalFees();
+
+        log.info("Total transaction fees calculated: {}", totalFees);
+
         return ResponseEntity.ok(totalFees);
     }
 }

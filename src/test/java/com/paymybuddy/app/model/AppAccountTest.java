@@ -3,6 +3,7 @@ package com.paymybuddy.app.model;
 import com.paymybuddy.app.entity.AppAccount;
 import com.paymybuddy.app.entity.User;
 import jakarta.validation.*;
+import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -11,18 +12,9 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Test class for the {@link AppAccount} entity.
- * This class contains unit tests to verify the creation, update, and relationship between
- * {@link AppAccount} and {@link User}.
- */
+
 class AppAccountTest {
 
-    /**
-     * Tests the creation of an {@link AppAccount} and verifies that all fields are set correctly.
-     * Specifically checks that the account has been created, the balance is correctly set,
-     * the associated {@link User} is set, and the last update date is not null.
-     */
     @Test
     public void testCreateAppAccount() {
         User user = new User();
@@ -39,10 +31,6 @@ class AppAccountTest {
         assertNotNull(account.getLastUpdate(), "Last update should not be null");
     }
 
-    /**
-     * Tests the balance update functionality of {@link AppAccount}.
-     * Verifies that the balance is updated correctly.
-     */
     @Test
     public void testUpdateBalance() {
         AppAccount account = new AppAccount();
@@ -53,10 +41,6 @@ class AppAccountTest {
         assertEquals(150.0, account.getBalance(), "Balance should be updated to 150.0");
     }
 
-    /**
-     * Tests the update of the last update timestamp in {@link AppAccount}.
-     * Verifies that the last update date is set correctly.
-     */
     @Test
     public void testUpdateLastUpdate() {
         AppAccount account = new AppAccount();
@@ -67,10 +51,6 @@ class AppAccountTest {
         assertEquals(now, account.getLastUpdate(), "Last update should match the provided value");
     }
 
-    /**
-     * Tests the relationship between {@link AppAccount} and {@link User}.
-     * Verifies that the user assigned to the account is correctly retrieved.
-     */
     @Test
     public void testAppAccountUserRelation() {
         User user = new User();
@@ -83,14 +63,15 @@ class AppAccountTest {
     }
 
     @Test
-    void testBalanceValidation(){
-
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+    void testBalanceValidation() {
+        ValidatorFactory factory = Validation.byDefaultProvider()
+                .configure()
+                .messageInterpolator(new ParameterMessageInterpolator())
+                .buildValidatorFactory();
         Validator validator = factory.getValidator();
 
         AppAccount account = new AppAccount();
         account.setBalance(-5);
-
 
         Set<ConstraintViolation<AppAccount>> violations = validator.validate(account);
 

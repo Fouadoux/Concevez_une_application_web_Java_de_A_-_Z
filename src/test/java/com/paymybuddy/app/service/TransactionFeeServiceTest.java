@@ -1,10 +1,8 @@
 package com.paymybuddy.app.service;
 
 import com.paymybuddy.app.entity.TransactionFee;
-import com.paymybuddy.app.exception.EntityDeleteException;
 import com.paymybuddy.app.exception.EntityNotFoundException;
 import com.paymybuddy.app.exception.InvalidTransactionFeeException;
-import com.paymybuddy.app.exception.EntitySaveException;
 import com.paymybuddy.app.repository.TransactionFeeRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,8 +10,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -33,7 +29,7 @@ class TransactionFeeServiceTest {
     }
 
     @Test
-    void createTransactionFee_InvalidPercentage_ThrowsException() {
+    void testCreateTransactionFee_InvalidPercentage_ThrowsException() {
         TransactionFee fee = new TransactionFee();
         fee.setPercentage(0);
 
@@ -45,7 +41,7 @@ class TransactionFeeServiceTest {
     }
 
     @Test
-    void createTransactionFee_ValidFee_Success() {
+    void testCreateTransactionFee_ValidFee_Success() {
         TransactionFee fee = new TransactionFee();
         fee.setPercentage(5);
 
@@ -59,7 +55,7 @@ class TransactionFeeServiceTest {
     }
 
     @Test
-    void getActiveTransactionFee_NoActiveFee_ThrowsException() {
+    void testGetActiveTransactionFee_NoActiveFee_ThrowsException() {
         when(transactionFeeRepository.findTopByOrderByEffectiveDateDesc()).thenReturn(Optional.empty());
 
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
@@ -69,7 +65,7 @@ class TransactionFeeServiceTest {
     }
 
     @Test
-    void getActiveTransactionFee_ValidFee_ReturnsFee() {
+    void testGetActiveTransactionFee_ValidFee_ReturnsFee() {
         TransactionFee fee = new TransactionFee();
         fee.setPercentage(5);
 
@@ -82,7 +78,7 @@ class TransactionFeeServiceTest {
     }
 
     @Test
-    void updateTransactionFeePercentage_InvalidPercentage_ThrowsException() {
+    void testUpdateTransactionFeePercentage_InvalidPercentage_ThrowsException() {
         InvalidTransactionFeeException exception = assertThrows(InvalidTransactionFeeException.class, () ->
                 transactionFeeService.updateTransactionFeePercentage(1, 0));
 
@@ -91,7 +87,7 @@ class TransactionFeeServiceTest {
     }
 
     @Test
-    void updateTransactionFeePercentage_FeeNotFound_ThrowsException() {
+    void testUpdateTransactionFeePercentage_FeeNotFound_ThrowsException() {
         when(transactionFeeRepository.findById(1)).thenReturn(Optional.empty());
 
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
@@ -101,7 +97,7 @@ class TransactionFeeServiceTest {
     }
 
     @Test
-    void updateTransactionFeePercentage_ValidFee_Success() {
+    void testUpdateTransactionFeePercentage_ValidFee_Success() {
         TransactionFee fee = new TransactionFee();
         fee.setPercentage(5);
 
@@ -116,7 +112,7 @@ class TransactionFeeServiceTest {
     }
 
     @Test
-    void deleteTransactionFee_FeeNotFound_ThrowsException() {
+    void testDeleteTransactionFee_FeeNotFound_ThrowsException() {
         when(transactionFeeRepository.findById(1)).thenReturn(Optional.empty());
 
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
@@ -127,9 +123,9 @@ class TransactionFeeServiceTest {
     }
 
     @Test
-    void deleteTransactionFee_ValidFee_Success() {
+    void testDeleteTransactionFee_ValidFee_Success() {
         TransactionFee fee = new TransactionFee();
-        fee.setFeeId(1);
+        fee.setId(1);
 
         when(transactionFeeRepository.findById(1)).thenReturn(Optional.of(fee));
 
@@ -139,7 +135,7 @@ class TransactionFeeServiceTest {
     }
 
     @Test
-    void calculateFeeForTransaction_InvalidAmount_ThrowsException() {
+    void testCalculateFeeForTransaction_InvalidAmount_ThrowsException() {
         // Arrange: Configure un frais de transaction valide afin que getActiveTransactionFee() ne lève pas une exception.
         TransactionFee fee = new TransactionFee();
         fee.setPercentage(5);
@@ -152,12 +148,11 @@ class TransactionFeeServiceTest {
         assertEquals("Transaction amount must be greater than zero.", exception.getMessage());
     }
 
-
     @Test
-    void calculateFeeForTransaction_ValidAmount_Success() {
+    void testCalculateFeeForTransaction_ValidAmount_Success() {
         // Arrange
         TransactionFee fee = new TransactionFee();
-        fee.setPercentage(5); // 5%
+        fee.setPercentage(5000); // 5%
 
         when(transactionFeeRepository.findTopByOrderByEffectiveDateDesc()).thenReturn(Optional.of(fee));
 

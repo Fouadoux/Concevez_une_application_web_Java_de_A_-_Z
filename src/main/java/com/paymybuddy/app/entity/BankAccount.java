@@ -15,7 +15,7 @@ public class BankAccount {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "transfer_id")
-    private int transferId;
+    private int id;
 
     @ManyToOne
     @JoinColumn(name = "user_id",nullable = false)

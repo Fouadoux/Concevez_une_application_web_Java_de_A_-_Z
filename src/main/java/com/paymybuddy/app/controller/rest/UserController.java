@@ -1,98 +1,137 @@
 package com.paymybuddy.app.controller.rest;
 
-import com.paymybuddy.app.dto.UpdateUserRequest;
+import com.paymybuddy.app.dto.UpdateUserRequestDTO;
+import com.paymybuddy.app.dto.UserDTO;
 import com.paymybuddy.app.entity.User;
-import com.paymybuddy.app.exception.EntityNotFoundException;
 import com.paymybuddy.app.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+/**
+ * Controller for managing user-related operations.
+ * Provides endpoints for updating user information, retrieving users by ID or role, and managing user roles.
+ */
 @Slf4j
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
 
-
-
- @PutMapping("/users/update/{userId}")
- @PreAuthorize("#userId == principal.id")
-    public ResponseEntity<String> updateUser(@PathVariable int userId,
-            @RequestBody UpdateUserRequest request) {
+    /**
+     * Endpoint to update user information.
+     * This method allows a user to update their personal details.
+     *
+     * @param userId  The ID of the user
+     * @param request The new information to update
+     * @return A response confirming the successful update
+     */
+    @PutMapping("/update/{userId}")
+    @PreAuthorize("#userId == principal.id")
+    public ResponseEntity<String> updateUser(
+            @PathVariable int userId,
+            @RequestBody UpdateUserRequestDTO request
+    ) {
+        log.info("Updating user with ID: {} with new information: {}", userId, request);
         userService.updateUser(userId, request);
+        log.info("User with ID: {} updated successfully", userId);
         return ResponseEntity.ok("Vos informations ont été mises à jour avec succès !");
     }
 
     /**
-     * Register a new user
-     *
-     * @param //user The user to be registered
-     * @return A success message if the user is registered successfully
-     */
-    @PostMapping("/users/register")
-  /*  public void registerUser(@RequestBody User user) {
-        userService.createUser(user);
-    }*/
-
-    /**
-     * Get a list of all users
+     * Endpoint to retrieve a list of all users.
+     * This method is secured to allow access only for users with "ROLE_ADMIN".
      *
      * @return A list of users
      */
-    //@PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/users")
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
+    @GetMapping
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
+        log.info("Fetching all users");
+        List<User> users = userService.getAllUsers();
+        List<UserDTO> userDTOS = userService.convertToDTOList(users);
+        log.info("Fetched {} users", userDTOS.size());
+        return ResponseEntity.ok(userDTOS);
     }
 
     /**
-     * Get a user by ID
+     * Endpoint to retrieve a user by their ID.
+     * This method is secured to allow access only for users with "ROLE_ADMIN".
      *
-     * @param id The ID of the user to retrieve
-     * @return The user with the given ID
+     * @param id The ID of the user
+     * @return The user corresponding to the ID
      */
-    @GetMapping("/users/{id}")
-    public User getUserById(@PathVariable int id) {
-        return userService.getUserById(id);
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<UserDTO> getUserById(@PathVariable int id) {
+        log.info("Fetching user with ID: {}", id);
+        User user = userService.getUserById(id);
+        UserDTO dto = userService.convertToDTO(user);
+        log.info("Fetched user with ID: {}: {}", id, dto);
+        return ResponseEntity.ok(dto);
     }
 
-
     /**
-     * Update a user's role
+     * Endpoint to update a user's role.
+     * This method is secured to allow access only for users with "ROLE_ADMIN".
      *
-     * @param id       The ID of the user whose role is being updated
-     * @param roleName The new role name to assign to the user
-     * @return A success message if the user's role is updated successfully
+     * @param id       The ID of the user
+     * @param roleName The new role to assign
+     * @return A response confirming the successful update
      */
-    @PutMapping("/users/{id}/role/{roleName}")
-    public String updateUserRole(@PathVariable int id, @PathVariable String roleName) {
-        return userService.updateUserRole(id, roleName);
+    @PutMapping("/{id}/role/{roleName}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<String> updateUserRole(
+            @PathVariable int id,
+            @PathVariable String roleName
+    ) {
+        log.info("Updating role for user with ID: {} to new role: {}", id, roleName);
+        String response = userService.updateUserRole(id, roleName);
+        log.info("User role updated for user ID: {}: {}", id, roleName);
+        return ResponseEntity.ok(response);
     }
 
     /**
-     * Delete a user by ID
+     * Endpoint to delete a user by their ID.
+     * This method is secured to allow access only for users with "ROLE_ADMIN".
      *
      * @param id The ID of the user to delete
-     * @return A success message if the user is deleted successfully
+     * @return A response confirming the successful deletion
      */
-    @DeleteMapping("/users/{id}")
-    public String deleteUser(@PathVariable int id) {
-        return userService.deleteUser(id);
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<String> deleteUser(@PathVariable int id) {
+        log.info("Deleting user with ID: {}", id);
+        String response = userService.deleteUser(id);
+        log.info("User with ID: {} deleted successfully", id);
+        return ResponseEntity.ok(response);
     }
 
+    /**
+     * Endpoint to retrieve users by their role.
+     *
+     * @param role The role of the users to retrieve
+     * @return A list of users with the specified role or a 404 (NOT FOUND) if no users are found
+     */
+    @GetMapping("/role/{role}")
+    public ResponseEntity<?> getFindByRole(@PathVariable String role) {
+        log.info("Fetching users with role: {}", role);
+        List<User> users = userService.getAllUsers();
+        List<UserDTO> userDTOS = userService.getFindByRole(users, role);
 
+        if (userDTOS.isEmpty()) {
+            log.warn("No users found with role: {}", role);
+            return ResponseEntity.status(404)
+                    .body("No users found with role: " + role);
+        }
 
-
+        log.info("Found {} users with role: {}", userDTOS.size(), role);
+        return ResponseEntity.ok(userDTOS);
+    }
 }

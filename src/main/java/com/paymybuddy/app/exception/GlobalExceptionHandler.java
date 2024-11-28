@@ -6,8 +6,15 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-@ControllerAdvice
+@ControllerAdvice(basePackages = "com.paymybuddy.app.controller.mvc")
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(EntityAlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseBody
+    public String handleEntityAlreadyExistsException(EntityAlreadyExistsException ex) {
+        return ex.getMessage();
+    }
 
     @ExceptionHandler(EntityDeleteException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -57,7 +64,6 @@ public class GlobalExceptionHandler {
     public String handleIllegalArgumentException(IllegalArgumentException ex) {
         return ex.getMessage();
     }
-
 
 
     @ExceptionHandler(Exception.class)

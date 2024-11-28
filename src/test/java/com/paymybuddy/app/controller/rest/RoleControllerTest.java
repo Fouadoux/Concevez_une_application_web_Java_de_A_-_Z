@@ -81,7 +81,7 @@ class RoleControllerTest {
                         .with(csrf()))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value("Role already exists"));
+                .andExpect(jsonPath("$.details").value("Role already exists"));
     }
 
     @Test
@@ -134,7 +134,7 @@ class RoleControllerTest {
         mockMvc.perform(get("/api/roles/{roleId}", roleId))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value("Role not found with ID: " + roleId));
+                .andExpect(jsonPath("$.details").value("Role not found with ID: " + roleId));
     }
 
     @Test
@@ -172,7 +172,7 @@ class RoleControllerTest {
                         .with(csrf()))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value("Role not found with ID: " + roleId));
+                .andExpect(jsonPath("$.details").value("Role not found with ID: " + roleId));
     }
 
     @Test
@@ -198,7 +198,7 @@ class RoleControllerTest {
                         .with(csrf()))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value("Role not found with ID: " + roleId));
+                .andExpect(jsonPath("$.details").value("Role not found with ID: " + roleId));
     }
 
     @Test
@@ -226,6 +226,6 @@ class RoleControllerTest {
                         .with(csrf()))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value("Role not found: " + roleName));
+                .andExpect(jsonPath("$.details").value("Role not found: " + roleName));
     }
 }

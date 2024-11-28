@@ -12,7 +12,6 @@ import java.math.BigDecimal;
 @Table(name = "roles")
 public class Role {
 
-    // Getters and Setters
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "role_id")

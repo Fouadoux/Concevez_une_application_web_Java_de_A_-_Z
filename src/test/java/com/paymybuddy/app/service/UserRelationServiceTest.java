@@ -59,13 +59,13 @@ class UserRelationServiceTest {
     @Test
     void testAddRelation_ShouldAddRelationSuccessfully() {
         log.info("Testing addRelation method for successful addition of relation");
-        when(userService.findByEmail("user2@example.com")).thenReturn(userToAdd);
+        when(userService.getUserByEmail("user2@example.com")).thenReturn(userToAdd);
         when(userRelationRepository.findByUserIdAndUserRelationId(user.getId(), userToAdd.getId()))
                 .thenReturn(Optional.empty());
 
         String result = userRelationService.addRelation(user, "user2@example.com");
 
-        assertEquals("User relation successfully added between user with ID: 1 and user with email: user2@example.com", result);
+        assertEquals("Relation successfully added between user ID: 1 and user email: user2@example.com", result);
         verify(userRelationRepository, times(1)).save(any(UserRelation.class));
         log.info("Relation added successfully between user with ID: {} and user with email: {}", user.getId(), userToAdd.getEmail());
     }
@@ -73,7 +73,7 @@ class UserRelationServiceTest {
     @Test
     void testAddRelation_ShouldThrowEntityNotFoundException_WhenUserNotFound() {
         log.info("Testing addRelation method for user not found scenario");
-        when(userService.findByEmail("user2@example.com")).thenReturn(null);
+        when(userService.getUserByEmail("user2@example.com")).thenReturn(null);
 
         assertThrows(EntityNotFoundException.class, () -> userRelationService.addRelation(user, "user2@example.com"));
         log.warn("EntityNotFoundException thrown as expected for email: user2@example.com");
@@ -82,7 +82,7 @@ class UserRelationServiceTest {
     @Test
     void testAddRelation_ShouldThrowIllegalArgumentException_WhenRelationAlreadyExists() {
         log.info("Testing addRelation method for existing relation scenario");
-        when(userService.findByEmail("user2@example.com")).thenReturn(userToAdd);
+        when(userService.getUserByEmail("user2@example.com")).thenReturn(userToAdd);
         when(userRelationRepository.findByUserIdAndUserRelationId(user.getId(), userToAdd.getId()))
                 .thenReturn(Optional.of(userRelation));
 
@@ -99,7 +99,7 @@ class UserRelationServiceTest {
 
         String result = userRelationService.deleteRelation(user.getId(), userToAdd.getId());
 
-        assertEquals("User relation successfully deleted between user with ID: 1 and user relation ID: 2", result);
+        assertEquals("Relation successfully deleted between user ID: 1 and related user ID: 2", result);
         verify(userRelationRepository, times(1)).delete(userRelation);
         log.info("Relation deleted successfully between user with ID: {} and user relation ID: {}", user.getId(), userToAdd.getId());
     }

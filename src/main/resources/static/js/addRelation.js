@@ -1,7 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const userIdElement = document.getElementById("userId"); // Récupérer le div contenant l'ID utilisateur
-    const userId = userIdElement.dataset.userId; // Extraire l'ID utilisateur depuis l'attribut `data-user-id`
+    const userIdElement = document.getElementById("userId");
+    const userId = userIdElement?.dataset.userId;
     const addRelationForm = document.getElementById("addRelationForm");
+    const addButton = document.getElementById("addButton");
     const messageDiv = document.getElementById("message");
 
     if (!userId) {
@@ -9,14 +10,11 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
-    addRelationForm.addEventListener("submit", async (event) => {
-        event.preventDefault(); // Empêche le rechargement de la page
-
-        // Récupérer l'email du formulaire
+    // Fonction pour gérer la soumission du formulaire
+    const handleSubmit = async () => {
         const email = document.getElementById("email").value;
 
         try {
-            // Envoyer une requête POST à l'API pour ajouter la relation
             const response = await fetch("/api/relation/add", {
                 method: "POST",
                 headers: {
@@ -26,25 +24,34 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             if (response.ok) {
-                // Succès
                 const result = await response.text();
-                messageDiv.textContent = result;
+                messageDiv.textContent = `Relation ajouter a votre liste d'amis`;
                 messageDiv.className = "alert alert-success";
                 messageDiv.style.display = "block";
-                addRelationForm.reset(); // Réinitialise le formulaire
+                addRelationForm.reset();
             } else {
-                // Erreur côté serveur
                 const errorText = await response.text();
                 messageDiv.textContent = `Erreur : ${errorText}`;
                 messageDiv.className = "alert alert-danger";
                 messageDiv.style.display = "block";
             }
         } catch (error) {
-            // Erreur côté client
             console.error("Erreur lors de la requête :", error);
             messageDiv.textContent = "Une erreur s'est produite. Veuillez réessayer.";
             messageDiv.className = "alert alert-danger";
             messageDiv.style.display = "block";
         }
+    };
+
+    // Associer l'événement "click" sur l'image à la soumission du formulaire
+    addButton.addEventListener("click", (event) => {
+        event.preventDefault();
+        handleSubmit();
+    });
+
+    // Associer également l'événement "submit" au cas où l'utilisateur utiliserait "Entrée"
+    addRelationForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        handleSubmit();
     });
 });

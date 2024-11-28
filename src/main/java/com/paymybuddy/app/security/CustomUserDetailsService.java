@@ -1,6 +1,5 @@
 package com.paymybuddy.app.security;
 
-import com.paymybuddy.app.dto.LoginDTO;
 import com.paymybuddy.app.entity.User;
 import com.paymybuddy.app.repository.UserRepository;
 import org.springframework.security.core.GrantedAuthority;

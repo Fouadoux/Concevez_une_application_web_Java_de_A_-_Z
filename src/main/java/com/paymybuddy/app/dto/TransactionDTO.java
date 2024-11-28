@@ -7,12 +7,14 @@ import java.time.LocalDateTime;
 
 @Data
 public class TransactionDTO {
+
     private int senderId;
-    String senderName;
+    private String senderName;
     private int receiverId;
-    String receiverName;
+    private String receiverName;
     private long amount;
     private long amountWithFee;
     private String description;
     private LocalDateTime transactionDate;
+
 }

@@ -29,7 +29,7 @@ public class UserRelationController {
      */
 
     @PostMapping("/add")
-   // @PreAuthorize("#userId == principal.id")
+    @PreAuthorize("#userId == principal.id")
     public ResponseEntity<String> addRelation( @RequestParam int userId, @RequestParam String email) {
         User user = userService.getUserById(userId);
         String result = userRelationService.addRelation(user, email);

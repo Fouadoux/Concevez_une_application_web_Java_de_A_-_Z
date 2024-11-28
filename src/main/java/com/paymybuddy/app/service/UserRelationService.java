@@ -14,6 +14,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Service for managing user relations, including adding, deleting, and retrieving related users.
+ */
 @Slf4j
 @Service
 public class UserRelationService {
@@ -29,25 +32,30 @@ public class UserRelationService {
     /**
      * Adds a new relation between the given user and the user identified by the email.
      *
-     * @param user  The user who wants to add a relation
-     * @param email The email of the user to be added
-     * @return A success message if the relation is added successfully
-     * @throws EntityNotFoundException If the user with the given email is not found
-     * @throws IllegalArgumentException If the relation already exists
-     * @throws EntitySaveException If there is an error while saving the new relation
+     * @param user  The user who wants to add a relation.
+     * @param email The email of the user to be added.
+     * @return A success message if the relation is added successfully.
+     * @throws EntityNotFoundException    If the user with the given email is not found.
+     * @throws IllegalArgumentException   If the relation already exists or the email is invalid.
+     * @throws EntitySaveException        If there is an error while saving the new relation.
      */
     public String addRelation(User user, String email) {
-        log.info("Adding a new relation for user with ID: {} and user with email: {}", user.getId(), email);
+        log.info("Adding a new relation for user ID: {} with user email: {}", user.getId(), email);
 
-        User userToAdd = userService.findByEmail(email);
+        if (!EmailValidationService.isValidEmail(email)) {
+            log.error("Invalid email format: {}", email);
+            throw new IllegalArgumentException("Invalid email format: " + email);
+        }
+
+        User userToAdd = userService.getUserByEmail(email);
         if (userToAdd == null) {
             log.error("User with email {} not found", email);
             throw new EntityNotFoundException("User with email not found: " + email);
         }
 
         if (userRelationRepository.findByUserIdAndUserRelationId(user.getId(), userToAdd.getId()).isPresent()) {
-            log.error("Relation already exists between users with ID: {} and user with email: {}", user.getId(), email);
-            throw new IllegalArgumentException("Relation already exists between users with ID: " + user.getId() + " and user with email: " + email);
+            log.error("Relation already exists between user ID: {} and user email: {}", user.getId(), email);
+            throw new IllegalArgumentException("Relation already exists between user ID: " + user.getId() + " and user email: " + email);
         }
 
         UserRelation newRelation = new UserRelation();
@@ -58,31 +66,31 @@ public class UserRelationService {
 
         try {
             userRelationRepository.save(newRelation);
-
-            log.info("User relation successfully added between user with ID: {} and user with email: {}", user.getId(), email);
+            log.info("Relation successfully added between user ID: {} and user email: {}", user.getId(), email);
         } catch (Exception e) {
-            log.error("Failed to save the new user relation", e);
-            throw new EntitySaveException("Failed to save the new user relation", e);
+            log.error("Failed to save the new relation", e);
+            throw new EntitySaveException("Failed to save the new relation", e);
         }
+
         user.addUserRelation(newRelation);
-        return "User relation successfully added between user with ID: " + user.getId() + " and user with email: " + email;
+        return "Relation successfully added between user ID: " + user.getId() + " and user email: " + email;
     }
 
     /**
-     * Deletes a relation between the given user and user relation ID.
+     * Deletes a relation between a user and a related user by their IDs.
      *
-     * @param userId         The ID of the user
-     * @param userRelationId The ID of the user to remove from relations
-     * @return A success message if the relation is deleted successfully
-     * @throws EntityNotFoundException If the relation is not found
-     * @throws EntityDeleteException If there is an error while deleting the relation
+     * @param userId         The ID of the user.
+     * @param userRelationId The ID of the related user.
+     * @return A success message if the relation is deleted successfully.
+     * @throws EntityNotFoundException If the relation is not found.
+     * @throws EntityDeleteException   If there is an error while deleting the relation.
      */
     public String deleteRelation(int userId, int userRelationId) {
-        log.info("Deleting relation between user with ID: {} and user relation ID: {}", userId, userRelationId);
+        log.info("Deleting relation between user ID: {} and related user ID: {}", userId, userRelationId);
 
         UserRelation userRelation = userRelationRepository.findByUserIdAndUserRelationId(userId, userRelationId)
                 .orElseThrow(() -> {
-                    log.error("Relation not found between user with ID: {} and user relation ID: {}", userId, userRelationId);
+                    log.error("Relation not found between user ID: {} and related user ID: {}", userId, userRelationId);
                     return new EntityNotFoundException("Relation not found");
                 });
 
@@ -90,35 +98,29 @@ public class UserRelationService {
 
         try {
             userRelationRepository.delete(userRelation);
-            log.info("User relation successfully deleted between user with ID: {} and user relation ID: {}", userId, userRelationId);
+            log.info("Relation successfully deleted between user ID: {} and related user ID: {}", userId, userRelationId);
         } catch (Exception e) {
-            log.error("Failed to delete user relation", e);
-            throw new EntityDeleteException("Failed to delete user relation", e);
+            log.error("Failed to delete the relation", e);
+            throw new EntityDeleteException("Failed to delete the relation", e);
         }
 
         user.removeUserRelation(userRelation);
-        return "User relation successfully deleted between user with ID: " + userId + " and user relation ID: " + userRelationId;
+        return "Relation successfully deleted between user ID: " + userId + " and related user ID: " + userRelationId;
     }
 
     /**
-     * Retrieves all relations for the given user.
+     * Retrieves all related users for a given user.
      *
-     * @param user The user whose relations are to be retrieved
-     * @return An unmodifiable list of user relations
+     * @param user The user whose related users are to be retrieved.
+     * @return A list of related users as DTOs.
      */
     public List<RelatedUserDTO> getAllRelatedUsers(User user) {
-        log.info("Retrieving all related users for user with ID: {}", user.getId());
+        log.info("Retrieving all related users for user ID: {}", user.getId());
 
-        // Relations où l'utilisateur est user_id
         List<UserRelation> relationsAsUser = user.getUserRelations();
-
-        // Relations où l'utilisateur est user_relation_id
         List<UserRelation> relationsAsRelatedUser = user.getRelatedUserRelations();
 
-        // Liste des utilisateurs liés
         List<RelatedUserDTO> relatedUsers = new ArrayList<>();
-
-        // Ajouter les relations où l'utilisateur est user_id
         for (UserRelation relation : relationsAsUser) {
             relatedUsers.add(new RelatedUserDTO(
                     relation.getRelatedUser().getId(),
@@ -126,7 +128,6 @@ public class UserRelationService {
             ));
         }
 
-        // Ajouter les relations où l'utilisateur est user_relation_id
         for (UserRelation relation : relationsAsRelatedUser) {
             relatedUsers.add(new RelatedUserDTO(
                     relation.getUser().getId(),
@@ -134,13 +135,23 @@ public class UserRelationService {
             ));
         }
 
-        log.info("Total related users found: {}", relatedUsers.size());
+        log.info("Total related users found for user ID {}: {}", user.getId(), relatedUsers.size());
         return relatedUsers;
     }
 
+    /**
+     * Finds related users for a given user ID.
+     *
+     * @param userId The ID of the user.
+     * @return A list of related users as DTOs.
+     * @throws EntityNotFoundException If the user is not found.
+     */
     public List<RelatedUserDTO> findRelatedUsers(int userId) {
+        log.info("Finding related users for user ID: {}", userId);
+
         User user = userService.getUserById(userId);
         if (user == null) {
+            log.error("User with ID {} not found", userId);
             throw new EntityNotFoundException("User not found with ID: " + userId);
         }
 
@@ -150,20 +161,17 @@ public class UserRelationService {
     /**
      * Checks if a relation exists between two users.
      *
-     * @param userId         The ID of the user
-     * @param userRelationId The ID of the user to check the relation with
-     * @return True if the relation exists, otherwise false
+     * @param userId         The ID of the user.
+     * @param userRelationId The ID of the related user.
+     * @return True if the relation exists, false otherwise.
      */
     public boolean checkRelation(int userId, int userRelationId) {
-        log.info("Checking relation between user with ID: {} and user relation ID: {}", userId, userRelationId);
+        log.info("Checking relation between user ID: {} and related user ID: {}", userId, userRelationId);
 
-        boolean relationExists =userRelationRepository.findByUserIdAndUserRelationId(userId, userRelationId).isPresent() ||
-                userRelationRepository.findByUserIdAndUserRelationId(userRelationId,userId).isPresent();
+        boolean relationExists = userRelationRepository.findByUserIdAndUserRelationId(userId, userRelationId).isPresent() ||
+                userRelationRepository.findByUserIdAndUserRelationId(userRelationId, userId).isPresent();
 
-        log.info("Relation exists: {}", relationExists);
+        log.info("Relation exists between user ID: {} and related user ID: {}: {}", userId, userRelationId, relationExists);
         return relationExists;
     }
-
-
-
 }

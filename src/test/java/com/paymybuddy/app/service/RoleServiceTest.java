@@ -6,6 +6,8 @@ import com.paymybuddy.app.exception.EntityNotFoundException;
 import com.paymybuddy.app.exception.EntitySaveException;
 import com.paymybuddy.app.exception.RoleAlreadyExistsException;
 import com.paymybuddy.app.repository.RoleRepository;
+import com.paymybuddy.app.service.RoleService;
+import com.paymybuddy.app.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -172,7 +174,7 @@ class RoleServiceTest {
     }
 
     @Test
-    void changeDailyLimit_success() {
+    void testChangeDailyLimit_success() {
         // Arrange
         String roleName = "user";
         long newDailyLimit = 300000;
@@ -193,7 +195,7 @@ class RoleServiceTest {
     }
 
     @Test
-    void changeDailyLimit_roleNotFound() {
+    void testChangeDailyLimit_roleNotFound() {
         // Arrange
         String roleName = "nonexistent";
         long newDailyLimit = 300000;
@@ -206,7 +208,7 @@ class RoleServiceTest {
     }
 
     @Test
-    void changeDailyLimit_invalidRoleName() {
+    void testChangeDailyLimit_invalidRoleName() {
         // Arrange
         String roleName = " ";
         long newDailyLimit = 300000;
@@ -217,7 +219,7 @@ class RoleServiceTest {
     }
 
     @Test
-    void changeDailyLimit_invalidDailyLimit() {
+    void testChangeDailyLimit_invalidDailyLimit() {
         // Arrange
         String roleName = "user";
         long newDailyLimit = 0;
@@ -228,7 +230,7 @@ class RoleServiceTest {
     }
 
     @Test
-    void changeDailyLimit_saveException() {
+    void testChangeDailyLimit_saveException() {
         // Arrange
         String roleName = "user";
         long newDailyLimit = 300000;
