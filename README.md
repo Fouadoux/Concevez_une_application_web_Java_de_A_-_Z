@@ -116,3 +116,8 @@ Des logs détaillés sont utilisés tout au long de l'application pour faciliter
     Suivre les requêtes HTTP effectuées.
     Détecter des erreurs et anomalies dans l'application.
     Assurer une traçabilité des actions réalisées par les utilisateurs.
+
+![bdd](https://github.com/user-attachments/assets/f13034c0-e90b-48aa-afbc-d32bd0ed8d70)
+
+
+    
