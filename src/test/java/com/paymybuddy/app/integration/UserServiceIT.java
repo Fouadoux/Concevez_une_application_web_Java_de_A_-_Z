@@ -10,6 +10,7 @@ import com.paymybuddy.app.repository.AppAccountRepository;
 import com.paymybuddy.app.repository.RoleRepository;
 import com.paymybuddy.app.repository.UserRelationRepository;
 import com.paymybuddy.app.repository.UserRepository;
+import com.paymybuddy.app.service.TransactionService;
 import com.paymybuddy.app.service.UserService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,6 +42,9 @@ public class UserServiceIT {
 
     @Autowired
     private UserRelationRepository userRelationRepository;
+
+    @Autowired
+    private TransactionService transactionService;
 
     private Role role;
 

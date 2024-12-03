@@ -55,7 +55,7 @@ public class WebPageController {
         model.addAttribute("transactionList",transactionDTOs);
         model.addAttribute("userId", userId);
         model.addAttribute("currentUsername",userName);
-        return "TransactionPage"; // Va chercher "loginPage.html" dans "templates"
+        return "transactionPage"; // Va chercher "loginPage.html" dans "templates"
     }
     @GetMapping("/profil")
     public String getUserProfile(Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {

@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -297,4 +298,35 @@ public class UserService {
         return user.getUserName();
     }
 
+    //---------------------------
+
+    @Transactional
+    public void performTransactionalOperation() {
+
+        Role userRole = roleRepository.findByRoleName("USER")
+                .orElseThrow(() -> new EntityNotFoundException("Default role 'USER' not found"));
+
+        // Étape 1 : Sauvegarder un utilisateur
+        User user = new User();
+        user.setEmail("test@example.com");
+        user.setUserName("test");
+        user.setPassword("password");
+        user.setCreatedAt(LocalDateTime.now());
+        user.setRole(userRole);
+        userRepository.save(user);
+
+        // Étape 2 : Provoquer une exception
+        if (true) {
+            throw new RuntimeException("Intentional Exception to test rollback");
+        }
+
+        // Étape 3 : Cette opération ne sera pas exécutée
+        User anotherUser = new User();
+        anotherUser.setEmail("another@example.com");
+        anotherUser.setUserName("another");
+        anotherUser.setPassword("password");
+        anotherUser.setCreatedAt(LocalDateTime.now());
+        anotherUser.setRole(userRole);
+        userRepository.save(anotherUser);
+    }
 }

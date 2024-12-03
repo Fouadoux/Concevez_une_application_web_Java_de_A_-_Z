@@ -37,7 +37,7 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/register","/api/register", "/css/**", "/image/**").permitAll() // Autoriser l'accès aux ressources publiques
+                        .requestMatchers("/login", "/register","/api/register", "/css/**", "/image/**","/js/registerPage.js").permitAll() // Autoriser l'accès aux ressources publiques
                         .anyRequest().authenticated() // Tout le reste nécessite une authentification
                 )
                 .formLogin(form -> form

@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Controller for handling user registration and login-related operations.
@@ -39,16 +41,31 @@ public class RegistrationLoginController {
             registrationService.registerUser(registerDTO);
 
             log.info("User registered successfully with email: {}", registerDTO.getEmail());
-            return ResponseEntity.status(HttpStatus.SEE_OTHER).location(URI.create("/login")).build();
+
+            // Message de succès
+            Map<String, String> response = new HashMap<>();
+            response.put("status", "success");
+            response.put("message", "Registration successful. Please login.");
+            return ResponseEntity.ok(response);
 
         } catch (IllegalArgumentException e) {
             log.warn("Error during registration for email {}: {}", registerDTO.getEmail(), e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Collections.singletonMap("error", e.getMessage()));
+
+            // Message d'erreur
+            Map<String, String> response = new HashMap<>();
+            response.put("status", "error");
+            response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         } catch (Exception e) {
             log.error("Error during user registration for email {}: ", registerDTO.getEmail(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Collections.singletonMap("error", "Failed to register user"));
+
+            // Message d'erreur général
+            Map<String, String> response = new HashMap<>();
+            response.put("status", "error");
+            response.put("message", "Failed to register user. Please try again later.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
+
 }

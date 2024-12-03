@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${pageTitle}">Pay My Buddy</title>
+    <title>Relation</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/relation.css}">
 </head>
@@ -24,7 +24,7 @@
         <!-- Label + input -->
         <div class="relation-group ">
             <label for="email" class="label">Chercher une relation</label>
-            <input type="email" id="email" name="email" placeholder="Saisir une adresse mail">
+            <input type="email" id="email" name="email" placeholder="Saisir une adresse mail" required>
         </div>
 
         <!-- Image à droite -->
@@ -43,7 +43,7 @@
 
 
 <div id="message" class="alert" style="display: none;"></div>
-<script type="module" th:src="@{/js/addRelation.js}"></script>
+<script type="module" th:src="@{/js/addRelationPage.js}"></script>
 
 
 </body>

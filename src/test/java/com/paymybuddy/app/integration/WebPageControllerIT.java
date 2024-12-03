@@ -82,7 +82,7 @@ class WebPageControllerIT {
     void testShowTransactionPage_WhenAuthenticated() throws Exception {
         mockMvc.perform(get("/transaction"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("TransactionPage"))
+                .andExpect(view().name("transactionPage"))
                 .andExpect(model().attribute("userId", user.getId()));
     }
 

@@ -1,34 +1,30 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="fr">
 <head>
-    <title>Login Page with SVG Input Fields</title>
+    <title>Login Page</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <link th:href="@{/css/login.css}" rel="stylesheet">
 
 </head>
 <body>
-<!-- Le cadre SVG téléchargé -->
-<div class="frame-container">
-    <img th:src="@{/image/loginPage/Rectangle_1.svg}" alt="Cadre de connexion">
-
-    <!-- Logo placé au-dessus du formulaire -->
-    <img th:src="@{/image/loginPage/00_Button.svg}" alt="Logo" class="logo">
-
-    <!-- Contenu du formulaire -->
-    <div class="content-container">
+        <div class="container">
         <form th:action="@{/login}" method="post">
-            <div>
-                <input type="email" id="email" name="username" placeholder="Email" required>
-            </div>
-            <div>
-                <input type="password" id="password" name="password" placeholder="Mot de passe" required>
-            </div>
-            <div>
-                <button type="submit" class="login-button">
+
+            <button class="custom-button" onclick="window.location.href='/register'">
+                <img src="/image/loginPage/00_Button.svg" alt="Logo">
+            </button>
+
+            <input class="email-input" type="email" id="email" name="username" placeholder="Email" required>
+
+
+            <input class="pass-input" type="password" id="password" name="password" placeholder="Mot de passe" required>
+
+
+            <button type="submit" class="login-button">
                     <img th:src="@{/image/loginPage/01_Button.svg}" alt="Se connecter">
-                </button>
-            </div>
+            </button>
+
         </form>
-    </div>
-</div>
+        </div>
 </body>
 </html>

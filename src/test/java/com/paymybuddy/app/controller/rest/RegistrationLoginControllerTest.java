@@ -1,6 +1,5 @@
 package com.paymybuddy.app.controller.rest;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.paymybuddy.app.dto.RegisterDTO;
 import com.paymybuddy.app.service.RegistrationService;
 import org.junit.jupiter.api.Test;
@@ -79,8 +78,8 @@ class RegistrationLoginControllerTest {
                         .param("password", registerDTO.getPassword())
                         .param("userName", registerDTO.getUserName())
                         .with(csrf()))
-                .andExpect(status().isSeeOther())
-                .andExpect(header().string("Location", "/login")); // Vérifie la redirection
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Registration successful. Please login.")); // Vérifie la redirection
 
         verify(registrationService, times(1)).registerUser(any(RegisterDTO.class));
     }
@@ -104,7 +103,7 @@ class RegistrationLoginControllerTest {
                         .param("userName", registerDTO.getUserName())
                         .with(csrf()))
                 .andExpect(status().isBadRequest()) // Vérifie le statut 400
-                .andExpect(jsonPath("$.error").value("Email already exists"));
+                .andExpect(jsonPath("$.message").value("Email already exists"));
 
 
         verify(registrationService, times(1)).registerUser(any(RegisterDTO.class));
@@ -130,7 +129,7 @@ class RegistrationLoginControllerTest {
                         .param("userName", registerDTO.getUserName())
                         .with(csrf()))
                 .andExpect(status().isInternalServerError()) // Vérifie le statut 500
-                .andExpect(jsonPath("$.error").value("Failed to register user")); // Vérifie le message d'erreur générique
+                .andExpect(jsonPath("$.message").value("Failed to register user. Please try again later.")); // Vérifie le message d'erreur générique
 
         // Vérifie que le service a été appelé une fois
         verify(registrationService, times(1)).registerUser(any(RegisterDTO.class));

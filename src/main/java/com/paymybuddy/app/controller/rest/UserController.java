@@ -134,4 +134,12 @@ public class UserController {
         log.info("Found {} users with role: {}", userDTOS.size(), role);
         return ResponseEntity.ok(userDTOS);
     }
+
+    //----------------------
+    @PostMapping("/test")
+    public void getTestRollback(){
+        userService.performTransactionalOperation();
+
+    }
+
 }
