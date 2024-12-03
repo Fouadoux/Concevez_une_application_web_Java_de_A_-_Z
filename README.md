@@ -27,7 +27,7 @@ git clone https://github.com/votre-utilisateur/pay-my-buddy.git
 
 2. Configuration de la base de données
 
-Utilisez le script SQL qui se trouve dans le fichier script.sql pour initialiser les données de la base de données. Ce script crée un utilisateur admin avec l'email admin@example.com et le mot de passe Password123. 
+Utilisez le script SQL qui se trouve dans le fichier script.sql pour initialiser les données de la base de données. Ce script crée un utilisateur admin avec l'email admin@example.fr et le mot de passe password123. 
 
 3. Dépendances et build
 
@@ -116,3 +116,12 @@ Des logs détaillés sont utilisés tout au long de l'application pour faciliter
     Suivre les requêtes HTTP effectuées.
     Détecter des erreurs et anomalies dans l'application.
     Assurer une traçabilité des actions réalisées par les utilisateurs.
+
+
+5. Modèle physique de données
+
+
+![bdd](https://github.com/user-attachments/assets/f13034c0-e90b-48aa-afbc-d32bd0ed8d70)
+
+
+    
