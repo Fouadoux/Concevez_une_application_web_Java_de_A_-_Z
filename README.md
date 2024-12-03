@@ -117,6 +117,10 @@ Des logs détaillés sont utilisés tout au long de l'application pour faciliter
     Détecter des erreurs et anomalies dans l'application.
     Assurer une traçabilité des actions réalisées par les utilisateurs.
 
+
+5. Modèle physique de données
+
+
 ![bdd](https://github.com/user-attachments/assets/f13034c0-e90b-48aa-afbc-d32bd0ed8d70)
 
 
