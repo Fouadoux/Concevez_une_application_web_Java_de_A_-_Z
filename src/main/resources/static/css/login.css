@@ -1,0 +1,97 @@
+
+    .container{
+        width: 500px;
+        height: 688px;
+        margin-right: auto;
+        margin-left: auto;
+        margin-top: 210px;
+        margin-bottom: 210px;
+        border: 1px solid #000000;
+        filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
+    }
+
+    /* Position du logo dans le cadre */
+    .custom-button {
+        margin-top: 64px;
+        margin-left: auto;
+        margin-right: auto;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        width: 205px;
+        height: 64px;
+        cursor: pointer; /* Affiche un curseur pointer lorsqu'on survole le bouton */
+        border: none;
+        background: none;
+    }
+
+.email-input{
+    /* 01 Input Field */
+    box-sizing: border-box;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    width: 295px;
+    height: 60px;
+    margin-top: 118px;
+    background: #FFFFFF;
+    border: 1px solid #E0E0E0;
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    font-family: 'Inter', serif;
+    font-style: normal;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 150%;
+    color: #828282;
+    flex: none;
+    order: 0;
+    flex-grow: 0;
+}
+
+.pass-input{
+    /* 01 Input Field */
+    margin-top: 42px;
+    box-sizing: border-box;
+    margin-left: auto;
+    margin-right: auto;
+    /* Auto layout */
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 12px 16px;
+    gap: 8px;
+    width: 295px;
+    height: 60px;
+    background: #FFFFFF;
+    border: 1px solid #E0E0E0;
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    font-family: 'Inter', serif;
+    font-style: normal;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 150%;
+    color: #828282;
+    flex: none;
+    order: 0;
+    flex-grow: 0;
+}
+
+/* Style du bouton Se connecter */
+.login-button {
+    margin-top: 114px;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    width: 205px;
+    height: 64px;
+    cursor: pointer; /* Affiche un curseur pointer lorsqu'on survole le bouton */
+    border: none;
+    background: none;
+}
+

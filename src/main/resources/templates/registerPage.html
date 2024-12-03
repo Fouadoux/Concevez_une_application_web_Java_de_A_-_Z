@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="Register"></title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link th:href="@{/css/register.css}" rel="stylesheet">
+    <style>
+
+
+    </style>
+</head>
+<body>
+<!-- Le cadre SVG téléchargé -->
+<div class="frame-container">
+
+    <!-- Logo placé au-dessus du formulaire -->
+    <button class="logo" onclick="window.location.href='/login'">
+        <img th:src="@{/image/loginPage/00_Button.svg}" alt="Logo">
+    </button>
+
+
+
+    <!-- Contenu du formulaire -->
+        <form th:id="registerForm">
+
+                <input class= "username-input" type="text" id="username" name="userName" placeholder="Username" required>
+
+                <input class= "mail-input" type="email" id="email" name="email" placeholder="Email" required>
+
+
+                <input class= "password-input" type="password" id="password" name="password" placeholder="Mot de passe" required>
+
+                <button  type="submit" class="register-button">
+                    <img th:src="@{/image/registerPage/02_Button.svg}" alt="S'inscrire">
+                </button>
+
+        </form>
+    <div class="message" id="message" style="margin-top: 10px;"></div>
+    </div>
+
+
+<script type="module" th:src="@{/js/registerPage.js}"></script>
+
+</body>
+</html>

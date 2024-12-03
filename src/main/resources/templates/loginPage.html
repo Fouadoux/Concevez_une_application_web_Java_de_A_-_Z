@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <title>Login Page</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link th:href="@{/css/login.css}" rel="stylesheet">
+
+</head>
+<body>
+        <div class="container">
+        <form th:action="@{/login}" method="post">
+
+            <button class="custom-button" onclick="window.location.href='/register'">
+                <img src="/image/loginPage/00_Button.svg" alt="Logo">
+            </button>
+
+            <input class="email-input" type="email" id="email" name="username" placeholder="Email" required>
+
+
+            <input class="pass-input" type="password" id="password" name="password" placeholder="Mot de passe" required>
+
+
+            <button type="submit" class="login-button">
+                    <img th:src="@{/image/loginPage/01_Button.svg}" alt="Se connecter">
+            </button>
+
+        </form>
+        </div>
+</body>
+</html>
