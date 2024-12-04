@@ -129,7 +129,7 @@ public class TransactionService {
      * @param userId The user whose transaction history is to be retrieved.
      * @return A list of all transactions where the user is either the sender or receiver.
      */
-    public List<Transaction> getTransactionHistoryByUserId(int userId) {
+  /*  public List<Transaction> getTransactionHistoryByUserId(int userId) {
         log.info("Fetching transaction history for user {}", userId);
 
         User user = userService.getUserById(userId);
@@ -140,7 +140,44 @@ public class TransactionService {
         transactionHistory.sort((t1, t2) -> t2.getTransactionDate().compareTo(t1.getTransactionDate()));
         log.info("Transaction history retrieved: {} transactions found", transactionHistory.size());
         return transactionHistory;
+    }*/
+
+    public List<Transaction> getTransactionHistoryByUserId(int userId) {
+        log.info("Fetching transaction history for user {}", userId);
+
+        // Récupérer l'utilisateur par ID
+        User user = userService.getUserById(userId);
+
+        // Combiner les transactions en tant qu'émetteur et récepteur
+        List<Transaction> transactionHistory = new ArrayList<>();
+        transactionHistory.addAll(user.getSenderTransactions());
+        transactionHistory.addAll(user.getReceiverTransactions());
+
+        transactionHistory.forEach(transaction -> {
+            if (transaction.getUserSender() == null) {
+                log.warn("Transaction {} has a null sender. Setting default sender.", transaction.getId());
+                User defaultSender = new User();
+                defaultSender.setId(-1);
+                defaultSender.setUserName("Utilisateur supprimé");
+                transaction.setUserSender(defaultSender);
+            }
+
+            if (transaction.getUserReceiver() == null) {
+                log.warn("Transaction {} has a null receiver. Setting default receiver.", transaction.getId());
+                User defaultReceiver = new User();
+                defaultReceiver.setId(-1);
+                defaultReceiver.setUserName("Utilisateur supprimé");
+                transaction.setUserReceiver(defaultReceiver);
+            }
+        });
+
+        // Trier les transactions par date (ordre décroissant)
+        transactionHistory.sort((t1, t2) -> t2.getTransactionDate().compareTo(t1.getTransactionDate()));
+
+        log.info("Transaction history retrieved: {} transactions found", transactionHistory.size());
+        return transactionHistory;
     }
+
 
     /**
      * Cancels a transaction by its ID, updating the balances of both the sender and receiver.

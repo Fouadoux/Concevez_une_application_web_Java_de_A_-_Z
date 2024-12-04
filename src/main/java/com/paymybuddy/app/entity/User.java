@@ -57,12 +57,10 @@ public class User {
     private List<UserRelation> relatedUserRelations = new ArrayList<>();
 
 
-    @OneToMany(mappedBy = "userSender"
-    )
+    @OneToMany(mappedBy = "userSender",cascade = CascadeType.DETACH)
     private List<Transaction> senderTransactions = new ArrayList<>();
 
-    @OneToMany(mappedBy = "userReceiver"
-    )
+    @OneToMany(mappedBy = "userReceiver",cascade = CascadeType.DETACH)
     private List<Transaction> receiverTransactions = new ArrayList<>();
 
 

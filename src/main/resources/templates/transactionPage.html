@@ -77,15 +77,19 @@
             <tbody>
             <tr th:each="transaction : ${transactionList}">
                 <!-- Colonne Relations -->
-                <td th:text="${transaction.receiverName == currentUsername ? transaction.senderName : transaction.receiverName}"></td>
+                <td th:text="${transaction.receiverName != null && transaction.receiverName == currentUsername
+                      ? (transaction.senderName != null ? transaction.senderName : 'Inconnu')
+                      : (transaction.receiverName != null ? transaction.receiverName : 'Inconnu')}">
+                </td>
 
                 <!-- Colonne Description -->
-                <td th:text="${transaction.description}"></td>
+                <td th:text="${transaction.description != null ? transaction.description : 'Aucune description'}"></td>
 
                 <!-- Colonne Montant -->
-                <td th:text="${transaction.amount/100} + ' €'"></td>
+                <td th:text="${transaction.amount != null ? transaction.amount / 100 + ' €' : '0 €'}"></td>
             </tr>
             </tbody>
+
         </table>
 
     </div>

@@ -14,6 +14,11 @@ VALUES
 (1, 'ADMIN', 500000),
 (2, 'USER', 250000);
 
+-- Insérer un utilisateur spécial pour représenter un utilisateur supprimé
+INSERT INTO `users` (`id`, `username`, `email`, `password`, `created_at`, `role_id`)
+VALUES
+(-1, 'Utilisateur supprimé', 'deleted@paymybuddy.fr', '', NOW(), NULL);
+
 -- Insérer des données dans la table users
 INSERT INTO `users` (`id`, `username`, `email`, `password`, `created_at`, `role_id`)
 VALUES

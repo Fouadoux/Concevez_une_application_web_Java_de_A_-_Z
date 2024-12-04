@@ -107,11 +107,10 @@ class AppAccountControllerTest {
 
         when(appAccountService.updateBalanceByUserId(userId, newBalance)).thenReturn(updatedBalance);
 
-        String jsonContent = objectMapper.writeValueAsString(newBalance);
+       // String jsonContent = objectMapper.writeValueAsString(newBalance);
 
-        mockMvc.perform(put("/api/appAccounts/{userId}/balance", userId)
+        mockMvc.perform(put("/api/appAccounts/{userId}/balance/{newBalance}", userId,newBalance)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonContent)
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -126,11 +125,9 @@ class AppAccountControllerTest {
         when(appAccountService.updateBalanceByUserId(userId, newBalance))
                 .thenThrow(new InvalidBalanceException("Balance can't be negative."));
 
-        String jsonContent = objectMapper.writeValueAsString(newBalance);
 
-        mockMvc.perform(put("/api/appAccounts/{userId}/balance", userId)
+        mockMvc.perform(put("/api/appAccounts/{userId}/balance/{newBalance}", userId,newBalance)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonContent)
                         .with(csrf()))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))

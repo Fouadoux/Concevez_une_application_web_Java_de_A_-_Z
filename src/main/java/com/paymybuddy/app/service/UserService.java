@@ -145,6 +145,9 @@ public class UserService {
                     return new EntityNotFoundException("User not found with ID: " + id);
                 });
 
+        user.getSenderTransactions().forEach(transaction -> transaction.setUserSender(null));
+        user.getReceiverTransactions().forEach(transaction -> transaction.setUserReceiver(null));
+
         try {
             userRepository.delete(user);
             log.info("User with ID: {} deleted successfully.", id);

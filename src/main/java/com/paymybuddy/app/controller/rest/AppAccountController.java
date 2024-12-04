@@ -91,9 +91,10 @@ public class AppAccountController {
      * @param newBalance The new balance to add or subtract
      * @return The updated balance of the account or a 404 (NOT FOUND) if the account does not exist
      */
-    @PutMapping("/{accountId}/balance")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PutMapping("/{accountId}/balance/{newBalance}")
     public ResponseEntity<Long> updateBalanceById(@PathVariable int accountId,
-                                                        @RequestBody long newBalance) {
+                                                        @PathVariable long newBalance) {
         log.info("Updating balance for account with ID: {}. New balance: {}", accountId, newBalance);
         long updatedBalance = appAccountService.updateBalanceByUserId(accountId, newBalance);
         log.info("Balance for account {} updated successfully. New balance: {}", accountId, updatedBalance);
