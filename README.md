@@ -50,8 +50,10 @@ Utilisateurs
     PUT /api/users/{userId} : Met à jour les informations d'un utilisateur.
     GET /api/users : Récupère la liste de tous les utilisateurs. Seuls les utilisateurs avec le rôle ROLE_ADMIN peuvent accéder à cette route.
     PUT /api/users/{id}/role/{roleName} : Met à jour le rôle d'un utilisateur.
-    DELETE /api/users/{id} : Supprime un utilisateur par son ID.
+    DELETE /api/users/{id} : ATTENTION Supprime un utilisateur par son ID de toutes les tables associées.
     GET /api/users/role/{role} : Récupère les utilisateurs ayant un rôle spécifique.
+    PUT /api/users/softDelete/{userId} : Désactive un utilisateur sans le supprimer définitivement.
+    PUT /api/users/softDelete/cancel/{userId} : Réactive un utilisateur précédemment désactivé.
 
 Relations Utilisateurs
 
@@ -80,9 +82,7 @@ Comptes
     GET /api/appAccounts/{accountId} : Récupère un compte d'application par son ID.
     GET /api/appAccounts/{userId}/balance : Récupère le solde du compte d'application d'un utilisateur.
     PUT /api/appAccounts/{accountId}/balance : Met à jour le solde du compte d'application d'un utilisateur.
-    POST /api/bankAccounts/user/{userId} : Crée un compte bancaire pour un utilisateur.
-    GET /api/bankAccounts/user/{userId} : Récupère tous les comptes bancaires associés à un utilisateur.
-
+    PUT /api/appAccounts//dailyLimit/userId/{userId}/limit/{dailyLimit} : Met à jour la limite quotidienne de transfert d'argent.
 Rôles
 
     GET /api/roles : Récupère tous les rôles disponibles dans l'application.
