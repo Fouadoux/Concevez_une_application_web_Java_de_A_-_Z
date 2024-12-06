@@ -27,27 +27,34 @@
             <!-- Username -->
             <div class="profile-item">
                 <label for="userName" class="label">Username</label>
-                <input type="text" id="userName" name="userName" placeholder="@username">
-                <img th:src="@{/image/profilePage/Chevron_Right.svg}" alt="Chevron Right" class="chevron-right">
+                <input type="text" id="userName" name="userName" placeholder="@username" required>
+                <button type="submit" class="chevron-right">
+                    <img th:src="@{/image/profilePage/Chevron_Right.svg}" alt="Chevron Right"  th:title="@{Modifier ses infos}">
+                </button>
             </div>
 
             <!-- Mail -->
             <div class="profile-item">
                 <label for="email" class="label">Mail</label>
-                <input type="email" id="email" name="email" placeholder="nom@domain.com">
-                <img th:src="@{/image/profilePage/Chevron_Right.svg}" alt="Chevron Right" class="chevron-right">
+                <input type="email" id="email" name="email" placeholder="nom@domain.com" required>
+                <button type="submit" class="chevron-right">
+                <img th:src="@{/image/profilePage/Chevron_Right.svg}" alt="Chevron Right"  th:title="@{Modifier ses infos}">
+                </button>
             </div>
 
-            <!-- Password + Bouton -->
+            <!-- Password + Button -->
             <div class="profile-item">
                 <label for="password" class="label">Mot de passe</label>
-                <input type="password" id="password" name="password" placeholder="Mot de passe">
-                <img th:src="@{/image/profilePage/Chevron_Right.svg}" alt="Chevron Right" class="chevron-right">
-                <!-- Bouton placé ici -->
+                <input type="password" id="password" name="password" placeholder="Mot de passe" required>
+                <button type="submit" class="chevron-right">
+                    <img th:src="@{/image/profilePage/Chevron_Right.svg}" alt="Chevron Right"  th:title="@{Modifier ses infos}">
+                </button>
+
                 <img th:src="@{/image/profilePage/modif_Button.svg}"
                      alt="Modifier"
                      class="modif-button"
-                     id="submitButton">
+                     id="submitButton"
+                     th:title="@{Modifier ses infos}">
             </div>
 
             <!-- Message de confirmation -->

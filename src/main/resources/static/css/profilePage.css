@@ -140,3 +140,9 @@ input[type="text"], input[type="email"], input[type="password"] {
 }
 
 
+.chevron-right
+{
+    border: none;
+    background: none;
+
+}

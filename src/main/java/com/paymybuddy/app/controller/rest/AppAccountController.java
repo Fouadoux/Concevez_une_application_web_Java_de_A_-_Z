@@ -151,6 +151,4 @@ public class AppAccountController {
         log.info("Daily limit for user {} updated successfully to {}", userId, dailyLimit);
         return ResponseEntity.ok("Daily limit updated successfully");
     }
-
-
 }
