@@ -1,11 +1,16 @@
-/* Réinitialiser les marges et le padding par défaut */
+@font-face {
+    font-family: 'MyCustomFont';
+    src: url('../fonts/Inter.ttf') format('ttf');
+    font-weight: normal;
+    font-style: normal;
+}
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-/* Style du header */
 header {
     display: flex;
     justify-content: space-between;
@@ -15,27 +20,23 @@ header {
     background: #FFFFFF;
 }
 
-/* Logo ou titre du site */
 h1 {
-    font-family: 'Inter', serif;
+    font-family: 'Inter',Arial, sans-serif;
     font-style: normal;
 
     font-weight: 500;
     font-size: 20px;
     color: #000000;
     line-height: 150%;
-
 }
 
-/* Style du conteneur de navigation */
 nav {
     display: flex;
     gap: 30px;
 }
 
-/* Style des liens de navigation */
 nav a {
-    font-family: 'Inter', serif;
+    font-family: 'Inter',Arial, sans-serif;
     font-weight: 500;
     font-size: 20px;
     color: #000000;
@@ -45,42 +46,38 @@ nav a {
     transition: background-color 0.3s;
 }
 
-/* Styles spécifiques pour chaque lien */
 nav a[href="/transaction"] {
     font-weight: 700;
     color: #207FEE;
 }
 
-/* Effet de survol */
+
 nav a:hover {
     background-color: #f0f0f0;
 }
 
 main {
     display: flex;
-    flex-direction: column; /* Organise les enfants verticalement */
-    gap: 182px;             /* Espacement vertical entre les enfants */
+    flex-direction: column;
+    gap: 182px;
 }
 
 .container-center {
-    display: flex;              /* Active le mode Flexbox */
-    justify-content: center;    /* Centre horizontalement */
-    padding: 0 20px;            /* Ajout d'un padding horizontal optionnel */
-    box-sizing: border-box;     /* Inclut le padding dans la hauteur totale */
+    display: flex;
+    justify-content: center;
+    padding: 0 20px;
+    box-sizing: border-box;
     margin-bottom: 182px;
 }
 
-/* Conteneur Flex pour aligner le dropdown et le champ de description */
 .dropdown-description-container {
-    display: flex;               /* Affiche les éléments en ligne */
-    align-items: center;         /* Aligne les éléments verticalement */
-    gap: 16px;                   /* Espacement entre les éléments */
-    padding: 20px;               /* Espace intérieur */
-    position: absolute;          /* Positionnement absolu si nécessaire */
-    top: 239px;                  /* Distance par rapport au haut */
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    position: absolute;
+    top: 239px;
 }
-
-
 
 .dropdown-select {
     appearance: none;
@@ -88,9 +85,9 @@ main {
     height: 81px;
     padding: 16px;
     font-size: 24px;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter',Arial, sans-serif;
     color: #333;
-    background-color: #FFFFFF; /* Couleur de fond */
+    background-color: #FFFFFF;
     border: 1px solid #E0E0E0;
     border-radius: 8px;
     box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1);
@@ -98,17 +95,16 @@ main {
     background-repeat: no-repeat;
     background-position: right 16px center;
     cursor: pointer;
-    background-image: url('/image/transactionPage/chevron-down.svg'); /* Chemin relatif depuis la racine */
+    background-image: url('/image/transactionPage/chevron-down.svg');
     margin-right: 42px;
 }
 
-/* Style du champ de description */
 .description-field {
     width: 382px;
     height: 81px;
     padding: 24px 16px;
     font-size: 24px;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter',Arial, sans-serif;
     color: #000000;
     background-color: #FFFFFF;
     border: 1px solid #E0E0E0;
@@ -119,7 +115,6 @@ main {
     margin-right: 42px;
 }
 
-/* Style pour le champ de saisie du montant */
 .amount-input {
     width: 189px;
     height: 121px;
@@ -128,8 +123,8 @@ main {
     border-radius: 8px;
     padding: 16px;
     box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
-    position: relative; /* Pour positionner le chevron à l'intérieur */
+    font-family: 'Inter',Arial, sans-serif;
+    position: relative;
     display: flex;
     align-items: center;
     margin-right: 89px;
@@ -152,9 +147,9 @@ main {
     position: absolute;
     width: 24px;
     height: 24px;
-    right: 16px; /* Positionnez le chevron à droite */
+    right: 16px;
     top: 70%;
-    transform: translateY(-50%) rotate(0deg); /* Centre verticalement et le fait pointer vers le bas */
+    transform: translateY(-50%) rotate(0deg);
 
 }
 
@@ -162,9 +157,9 @@ main {
     position: absolute;
     width: 24px;
     height: 24px;
-    right: 16px; /* Positionnez le chevron à droite */
+    right: 16px;
     top: 30%;
-    transform: translateY(-50%) rotate(180deg); /* Centre verticalement et le fait pointer vers le bas */
+    transform: translateY(-50%) rotate(180deg);
 
 }
 
@@ -177,13 +172,13 @@ main {
 }
 
 .amount-input input[type="number"] {
-    -moz-appearance: textfield; /* Pour Firefox */
+    -moz-appearance: textfield;
 }
 
 .icon-button {
     display: flex;
     align-items: center;
-    gap: 8px; /* Espace entre l'icône et le texte */
+    gap: 8px;
     border: none;
     background-color: #207FEE;
     color: white;
@@ -193,17 +188,19 @@ main {
 }
 
 .icon-button img {
-    width: 120px;          /* Ajustez la largeur de l'icône */
-    height: 88px;         /* Ajustez la hauteur de l'icône */
-    object-fit: contain;  /* Conserve les proportions de l'image */
+    width: 120px;
+    height: 88px;
+    object-fit: contain;
 }
 
 
 .transTable
 {
-    display: flex;              /* Active le mode Flexbox */
-    justify-content: center;    /* Centre horizontalement */
-    width: 1311px;    /* Largeur fixe de la table */
+    font-family: 'Inter',Arial, sans-serif;
+
+    display: flex;
+    justify-content: center;
+    width: 1311px;
     border: 1px solid #E0E0E0;
     border-radius: 8px;
     filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.04));
@@ -214,14 +211,14 @@ main {
 
 
 caption {
-    caption-side: top; /* Assure que le caption est placé au-dessus du tableau */
-    font-family: 'Inter', serif;
+    font-family: 'Inter',Arial, sans-serif;
+    caption-side: top;
     font-style: normal;
     font-weight: 600;
     font-size: 24px;
-    line-height: 36px; /* Ajuste la hauteur de la ligne */
+    line-height: 36px;
     color: #000000;
-    text-align: left; /* Alignement à gauche */
+    text-align: left;
     margin-top: 24px;
     margin-left: 19px;
 }
@@ -234,43 +231,40 @@ tr {
 
 .table-relation {
     width: 40%;
-    font-family: 'Inter', serif;
+    font-family: 'Inter',Arial, sans-serif;
     font-weight: 600;
     font-size: 24px;
     line-height: 36px;
     color: #000000;
-    text-align: left; /* Alignement à droite pour les montants */
+    text-align: left;
     padding: 15px;
 }
 
 .table-description {
     width: 40%;
-    font-family: 'Inter', serif;
+    font-family: 'Inter',Arial, sans-serif;
     font-weight: 600;
     font-size: 24px;
     line-height: 36px;
     color: #000000;
-    text-align: justify; /* Alignement à droite pour les montants */
+    text-align: justify;
     padding: 15px;
 }
 
 .table-montant {
     width: 20%;
-    font-family: 'Inter', serif;
+    font-family: 'Inter',Arial, sans-serif;
     font-weight: 600;
     font-size: 24px;
     line-height: 36px;
     color: #000000;
-    text-align: right; /* Alignement à droite pour les montants */
+    text-align: right;
     padding: 15px;
 }
 
-
-
-/* Colonnes alignées spécifiquement */
 #transactionsTable td:nth-child(1) {
-    font-family: 'Inter', serif;
-    width: 40%; /* Largeur pour Relation */
+    font-family: 'Inter',Arial, sans-serif;
+    width: 40%;
     font-size: 24px;
     border-top: 1px solid #E0E0E0;
     height: 60px;
@@ -279,8 +273,8 @@ tr {
 }
 
 #transactionsTable td:nth-child(2) {
-    font-family: 'Inter', serif;
-    width: 40%; /* Largeur pour Description */
+    font-family: 'Inter',Arial, sans-serif;
+    width: 40%;
     font-size: 24px;
     border-top: 1px solid #E0E0E0;
     height: 60px;
@@ -288,11 +282,35 @@ tr {
 }
 
 #transactionsTable td:nth-child(3) {
-    font-family: 'Inter', serif;
-    width: 20%; /* Largeur pour Montant */
-    text-align: right; /* Alignement à droite pour les montants */
+    font-family: 'Inter',Arial, sans-serif;
+    width: 20%;
+    text-align: right;
     font-size: 24px;
     border-top: 1px solid #E0E0E0;
     height: 60px;
     padding: 15px;
+}
+
+.successMessage
+{
+    color: green;
+    font-family: 'Inter',Arial, sans-serif;
+    width: 300px;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.errorMessage
+{
+    color: red;
+    font-family: 'Inter',Arial, sans-serif;
+    width: 300px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    margin-right: auto;
 }

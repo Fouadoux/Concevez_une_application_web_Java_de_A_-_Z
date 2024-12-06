@@ -1,6 +1,5 @@
 package com.paymybuddy.app.security;
 
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,20 +15,20 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.filter.HiddenHttpMethodFilter;
 
-import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true) // Assurez-vous que cette option est bien activée
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
 
     private final CustomUserDetailsService customUserDetailsService;
 
+
     public SecurityConfig(CustomUserDetailsService customUserDetailsService) {
         this.customUserDetailsService = customUserDetailsService;
+
     }
 
     @Bean
@@ -37,18 +36,19 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/register","/api/register", "/css/**", "/image/**","/js/registerPage.js").permitAll() // Autoriser l'accès aux ressources publiques
-                        .anyRequest().authenticated() // Tout le reste nécessite une authentification
+                        .requestMatchers("/login", "/register","/api/register", "/css/**", "/image/**","/js/registerPage.js").permitAll()
+                        .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
-                        .loginPage("/login") // URL de votre page de login personnalisée
-                        .defaultSuccessUrl("/transaction", true) // Rediriger vers "/connected" après une connexion réussie
-                        .permitAll() // Autoriser tout le monde à accéder à la page de login
+                        .loginPage("/login")
+                        .failureUrl("/login?error=true")
+                        .defaultSuccessUrl("/transaction", true)
+                        .permitAll()
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/logout") // URL pour la déconnexion
-                        .logoutSuccessUrl("/login") // Rediriger vers la page de login après la déconnexion
-                        .permitAll() // Autoriser tout le monde à se déconnecter
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login")
+                        .permitAll()
                 )
                 .httpBasic(Customizer.withDefaults())
                 .build();
@@ -71,17 +71,5 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
     }
-
-    @Bean
-    public FilterRegistrationBean<HiddenHttpMethodFilter> hiddenHttpMethodFilter() {
-        FilterRegistrationBean<HiddenHttpMethodFilter> filter = new FilterRegistrationBean<>(new HiddenHttpMethodFilter());
-        filter.setUrlPatterns(Collections.singletonList("/*"));
-        return filter;
-    }
-
-
-
-
-
 
 }

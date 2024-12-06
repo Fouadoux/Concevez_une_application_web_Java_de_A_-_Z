@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-class WebPageControllerIT {
+class LoginWebControllerIT {
 
     @Autowired
     private MockMvc mockMvc;
@@ -47,16 +47,14 @@ class WebPageControllerIT {
 
     @BeforeEach
     void setUp() {
-        // Initialisation des données pour H2
         Role role = new Role();
         role.setRoleName("USER");
-        role.setDailyLimit(500000L);
         roleRepository.save(role);
 
         user = new User();
         user.setUserName("John Doe");
         user.setEmail("john.doe@example.com");
-        user.setPassword("$2a$10$testhashedpassword"); // Mot de passe bcrypté
+        user.setPassword("$2a$10$testhashedpassword");
         user.setRole(role);
         user.setCreatedAt(LocalDateTime.now());
         userRepository.save(user);
@@ -89,9 +87,9 @@ class WebPageControllerIT {
     @Test
     @WithUserDetails(value = "john.doe@example.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     void testShowProfilePage_WhenAuthenticated() throws Exception {
-        mockMvc.perform(get("/profil"))
+        mockMvc.perform(get("/profile"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("profilPage"))
+                .andExpect(view().name("profilePage"))
                 .andExpect(model().attribute("userId", user.getId()));
     }
 

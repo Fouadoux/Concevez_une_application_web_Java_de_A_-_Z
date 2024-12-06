@@ -36,4 +36,7 @@ public class AppAccount {
     @Column(name = "last_update")
     private LocalDateTime lastUpdate;
 
+    @Column(name = "daily_limit",nullable = false)
+    private long dailyLimit;
+
 }

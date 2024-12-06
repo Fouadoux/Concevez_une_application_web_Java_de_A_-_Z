@@ -48,7 +48,7 @@ class BankAccountControllerTest {
 
     @BeforeEach
     void setUp() {
-        objectMapper.registerModule(new JavaTimeModule()); // Enregistre le module JSR310
+        objectMapper.registerModule(new JavaTimeModule());
     }
 
     @Test
@@ -172,17 +172,16 @@ class BankAccountControllerTest {
     @Test
     void testGetBankAccountsByUser_UserNotFound() throws Exception {
         // Arrange
-        int userId = 1; // Identifiant long
+        int userId = 1;
 
-        // Simuler une exception levée lorsque l'utilisateur n'est pas trouvé
         when(userService.getUserById(userId))
                 .thenThrow(new EntityNotFoundException("User not found with ID: " + userId));
 
         // Act & Assert
         mockMvc.perform(get("/api/bankAccounts/user/{userId}", userId))
-                .andExpect(status().isNotFound()) // Vérifie que le statut HTTP est 404
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON)) // Vérifie le type de contenu
-                .andExpect(jsonPath("$.details").value("User not found with ID: " + userId)); // Vérifie le message d'erreur
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.details").value("User not found with ID: " + userId));
     }
 
     @Test
@@ -208,10 +207,9 @@ class BankAccountControllerTest {
     @Test
     void testUpdateBankAccountStatus_NotFound() throws Exception {
         // Arrange
-        int transferId = 1; // Identifiant long
+        int transferId = 1;
         boolean newStatus = true;
 
-        // Simuler une exception levée lorsque le compte bancaire n'est pas trouvé
         when(bankAccountService.updateBankAccountStatus(transferId, newStatus))
                 .thenThrow(new EntityNotFoundException("Bank account not found with ID: " + transferId));
 
@@ -219,8 +217,8 @@ class BankAccountControllerTest {
         mockMvc.perform(put("/api/bankAccounts/updateStatus/{transferId}", transferId)
                         .param("status", String.valueOf(newStatus))
                         .with(csrf()))
-                .andExpect(status().isNotFound()) // Vérifie que le statut HTTP est 404
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON)) // Vérifie le type de contenu
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.details").value("Bank account not found with ID: " + transferId)); // Vérifie le message d'erreur
     }
 
@@ -241,16 +239,15 @@ class BankAccountControllerTest {
         // Arrange
         int transferId = 1; // Identifiant long
 
-        // Simuler une exception levée lorsque le compte bancaire n'est pas trouvé
         doThrow(new EntityNotFoundException("Bank account not found with ID: " + transferId))
                 .when(bankAccountService).deleteBankAccount(transferId);
 
         // Act & Assert
         mockMvc.perform(delete("/api/bankAccounts/delete/{transferId}", transferId)
                         .with(csrf()))
-                .andExpect(status().isNotFound()) // Vérifie que le statut HTTP est 404
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON)) // Vérifie le type de contenu
-                .andExpect(jsonPath("$.details").value("Bank account not found with ID: " + transferId)); // Vérifie le message d'erreur
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.details").value("Bank account not found with ID: " + transferId));
     }
 
 

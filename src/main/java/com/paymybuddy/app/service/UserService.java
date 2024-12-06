@@ -4,9 +4,7 @@ import com.paymybuddy.app.dto.UpdateUserRequestDTO;
 import com.paymybuddy.app.dto.UserDTO;
 import com.paymybuddy.app.entity.Role;
 import com.paymybuddy.app.entity.User;
-import com.paymybuddy.app.exception.EntityDeleteException;
-import com.paymybuddy.app.exception.EntityNotFoundException;
-import com.paymybuddy.app.exception.EntitySaveException;
+import com.paymybuddy.app.exception.*;
 import com.paymybuddy.app.repository.RoleRepository;
 import com.paymybuddy.app.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -48,6 +46,10 @@ public class UserService {
     public User createUser(User user) {
         log.info("Creating user with username: {}", user.getUserName());
 
+        if (existsByEmail(user.getEmail())){
+            log.error("Email already exist: {}", user.getEmail());
+            throw new EmailAlreadyExistsException("Email already exist");
+        }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         log.info("Password encoded for user: {}", user.getUserName());
 
@@ -112,9 +114,14 @@ public class UserService {
         if (request.getEmail() != null && !request.getEmail().isBlank()) {
             if (!EmailValidationService.isValidEmail(request.getEmail())) {
                 log.error("Invalid email format: {}", request.getEmail());
-                throw new IllegalArgumentException("Invalid email format: " + request.getEmail());
+                throw new InvalidEmailException("Invalid email format: " + request.getEmail());
             }
-            existingUser.setEmail(request.getEmail());
+            if(existsByEmail(request.getEmail())){
+                throw new EntityAlreadyExistsException("Email already exist, please change");
+            }
+           existingUser.setEmail(request.getEmail());
+
+
         }
         if (request.getPassword() != null && !request.getPassword().isBlank()) {
             existingUser.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -301,35 +308,61 @@ public class UserService {
         return user.getUserName();
     }
 
-    //---------------------------
+    /**
+     * Marks a user as "soft deleted" in the system.
+     *
+     * <p>This method does not physically delete the user from the database. Instead, it updates the user's
+     * status to indicate that they are soft deleted.</p>
+     *
+     * @param userId the ID of the user to be soft deleted
+     * @return A message indicating whether the user was successfully soft deleted or is already marked as deleted
+     * @throws EntityNotFoundException if no user with the specified ID is found in the database
+     */
 
-    @Transactional
-    public void performTransactionalOperation() {
+    public String softDeleteUser(int userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> {
+                    log.error("User not found with ID: {}", userId);
+                    return new EntityNotFoundException("User not found with ID: " + userId);
+                });
 
-        Role userRole = roleRepository.findByRoleName("USER")
-                .orElseThrow(() -> new EntityNotFoundException("Default role 'USER' not found"));
-
-        // Étape 1 : Sauvegarder un utilisateur
-        User user = new User();
-        user.setEmail("test@example.com");
-        user.setUserName("test");
-        user.setPassword("password");
-        user.setCreatedAt(LocalDateTime.now());
-        user.setRole(userRole);
-        userRepository.save(user);
-
-        // Étape 2 : Provoquer une exception
-        if (true) {
-            throw new RuntimeException("Intentional Exception to test rollback");
+        if (!user.isDeleted()) {
+            user.setDeleted(true);
+            userRepository.save(user);
+            log.info("User with ID {} has been soft deleted.", userId);
+            return "User soft deleted successfully.";
         }
 
-        // Étape 3 : Cette opération ne sera pas exécutée
-        User anotherUser = new User();
-        anotherUser.setEmail("another@example.com");
-        anotherUser.setUserName("another");
-        anotherUser.setPassword("password");
-        anotherUser.setCreatedAt(LocalDateTime.now());
-        anotherUser.setRole(userRole);
-        userRepository.save(anotherUser);
+        log.warn("User with ID {} is already soft deleted.", userId);
+        return "User is already soft deleted.";
     }
+    /**
+     * Cancels the soft delete of a user in the system.
+     *
+     * <p>This method updates the user's status to indicate that they are no longer considered deleted.</p>
+     *
+     * @param userId the ID of the user whose soft delete status is to be canceled
+     * @return A message indicating whether the soft delete was successfully canceled or if the user was not marked as deleted
+     * @throws EntityNotFoundException if no user with the specified ID is found in the database
+     */
+    public String cancelSoftDeleteUser(int userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> {
+                    log.error("User not found with ID: {}", userId);
+                    return new EntityNotFoundException("User not found with ID: " + userId);
+                });
+
+        if (user.isDeleted()) {
+            user.setDeleted(false);
+            userRepository.save(user);
+            log.info("Soft delete for user with ID {} has been canceled.", userId);
+            return "User soft delete has been canceled.";
+        }
+
+        log.warn("User with ID {} is not marked as deleted.", userId);
+        return "User is not marked as deleted.";
+    }
+
+
+
 }

@@ -3,8 +3,10 @@ package com.paymybuddy.app.service;
 import com.paymybuddy.app.dto.RegisterDTO;
 import com.paymybuddy.app.entity.Role;
 import com.paymybuddy.app.entity.User;
+import com.paymybuddy.app.exception.EmailAlreadyExistsException;
 import com.paymybuddy.app.exception.EntityAlreadyExistsException;
 import com.paymybuddy.app.exception.EntityNotFoundException;
+import com.paymybuddy.app.exception.InvalidEmailException;
 import com.paymybuddy.app.repository.UserRepository;
 import com.paymybuddy.app.service.RegistrationService;
 import com.paymybuddy.app.service.UserService;
@@ -47,7 +49,7 @@ class RegistrationServiceTest {
         when(userService.existsByEmail("test@example.com")).thenReturn(true);
 
         // Act & Assert
-        assertThrows(EntityAlreadyExistsException.class, () -> registrationService.registerUser(registerDTO));
+        assertThrows(EmailAlreadyExistsException.class, () -> registrationService.registerUser(registerDTO));
 
         verify(userService, times(1)).existsByEmail("test@example.com");
     }
@@ -81,7 +83,7 @@ class RegistrationServiceTest {
 
         when(userService.existsByEmail(registerDTO.getEmail())).thenReturn(true);
 
-        EntityAlreadyExistsException exception = assertThrows(EntityAlreadyExistsException.class, () ->
+        EmailAlreadyExistsException exception = assertThrows(EmailAlreadyExistsException.class, () ->
                 registrationService.registerUser(registerDTO));
 
         assertEquals("Registration failed. Email already in use: "+ registerDTO.getEmail(), exception.getMessage());
@@ -97,7 +99,7 @@ class RegistrationServiceTest {
         registerDTO.setPassword("password123");
 
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+        InvalidEmailException exception = assertThrows(InvalidEmailException.class, () ->
                 registrationService.registerUser(registerDTO));
 
         assertEquals("Invalid email format: " + registerDTO.getEmail(), exception.getMessage());

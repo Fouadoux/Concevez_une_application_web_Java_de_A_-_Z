@@ -17,10 +17,9 @@ public  class EmailValidationService {
         String domainPartRegex = "[A-Za-z0-9.-]*[^.](\\.[A-Za-z0-9-]+)*\\.[A-Za-z]{2,}$";
 
         if (!email.matches(emailRegex)) {
-            return false; // Vérifie le format général
+            return false;
         }
 
-        // Vérifie qu'il n'y a pas de double point dans la partie domaine
         String domainPart = email.substring(email.indexOf('@') + 1);
         return domainPart.matches(domainPartRegex);
     }

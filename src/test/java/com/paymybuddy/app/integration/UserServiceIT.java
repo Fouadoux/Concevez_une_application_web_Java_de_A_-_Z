@@ -1,15 +1,9 @@
 package com.paymybuddy.app.integration;
 
 import com.paymybuddy.app.dto.UpdateUserRequestDTO;
-import com.paymybuddy.app.entity.AppAccount;
-import com.paymybuddy.app.entity.Role;
-import com.paymybuddy.app.entity.User;
-import com.paymybuddy.app.entity.UserRelation;
+import com.paymybuddy.app.entity.*;
 import com.paymybuddy.app.exception.EntityNotFoundException;
-import com.paymybuddy.app.repository.AppAccountRepository;
-import com.paymybuddy.app.repository.RoleRepository;
-import com.paymybuddy.app.repository.UserRelationRepository;
-import com.paymybuddy.app.repository.UserRepository;
+import com.paymybuddy.app.repository.*;
 import com.paymybuddy.app.service.TransactionService;
 import com.paymybuddy.app.service.UserService;
 import jakarta.transaction.Transactional;
@@ -38,13 +32,13 @@ public class UserServiceIT {
     private AppAccountRepository appAccountRepository;
 
     @Autowired
+    private TransactionRepository transactionRepository;
+
+    @Autowired
     private RoleRepository roleRepository;
 
     @Autowired
     private UserRelationRepository userRelationRepository;
-
-    @Autowired
-    private TransactionService transactionService;
 
     private Role role;
 
@@ -52,7 +46,7 @@ public class UserServiceIT {
     void setUo() {
         role = new Role();
         role.setRoleName("USER");
-        role.setDailyLimit(500000L);
+
         roleRepository.save(role);
     }
 
@@ -141,6 +135,14 @@ public class UserServiceIT {
         relation.setStatus(true);
         relation.setCreatedAt(LocalDateTime.now());
 
+        Transaction transaction = new Transaction();
+        transaction.setAmount(500L);
+        transaction.setUserSender(user);
+        transaction.setUserReceiver(otherUser);
+        transaction.setTransactionDate(LocalDateTime.now());
+        user.addSenderTransactions(transaction);
+        transactionRepository.save(transaction);
+
         savedUser.setAppAccount(appUser);
         userRepository.save(savedUser);
 
@@ -151,7 +153,7 @@ public class UserServiceIT {
         assertFalse(userRepository.findById(savedUser.getId()).isPresent());
         assertFalse(appAccountRepository.findByUserId(user.getId()).isPresent());
         assertFalse(userRelationRepository.findByUserIdAndUserRelationId(savedUser.getId(), savedOtherUser.getId()).isPresent());
-
+        assertTrue(transactionRepository.findAll().isEmpty());
     }
 
     @Test
@@ -159,5 +161,41 @@ public class UserServiceIT {
         // Act & Assert
         assertThrows(EntityNotFoundException.class, () -> userService.deleteUser(999));
     }
+
+    @Test
+    void testSoftDeleteUser()
+    {
+        User user = new User();
+        user.setUserName("John Doe");
+        user.setEmail("john.doe@example.com");
+        user.setPassword("password123");
+        user.setRole(role);
+        user.setCreatedAt(LocalDateTime.now());
+        userRepository.save(user);
+
+        userService.softDeleteUser(user.getId());
+        User updatedUser = userRepository.findById(user.getId()).orElseThrow();
+
+        assertTrue(updatedUser.isDeleted());
+    }
+
+    @Test
+    void testCancelSoftDeleteUser()
+    {
+        User user = new User();
+        user.setUserName("John Doe");
+        user.setEmail("john.doe@example.com");
+        user.setPassword("password123");
+        user.setRole(role);
+        user.setCreatedAt(LocalDateTime.now());
+        userRepository.save(user);
+
+        userService.softDeleteUser(user.getId());
+        userService.cancelSoftDeleteUser(user.getId());
+        User updatedUser = userRepository.findById(user.getId()).orElseThrow();
+
+        assertFalse(updatedUser.isDeleted());
+    }
+
 
 }

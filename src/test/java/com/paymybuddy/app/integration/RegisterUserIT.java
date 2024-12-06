@@ -4,7 +4,9 @@ import com.paymybuddy.app.dto.RegisterDTO;
 import com.paymybuddy.app.entity.AppAccount;
 import com.paymybuddy.app.entity.Role;
 import com.paymybuddy.app.entity.User;
+import com.paymybuddy.app.exception.EmailAlreadyExistsException;
 import com.paymybuddy.app.exception.EntityAlreadyExistsException;
+import com.paymybuddy.app.exception.InvalidEmailException;
 import com.paymybuddy.app.repository.AppAccountRepository;
 import com.paymybuddy.app.repository.RoleRepository;
 import com.paymybuddy.app.repository.UserRepository;
@@ -46,10 +48,8 @@ public class RegisterUserIT {
 
     @BeforeEach
     void setUp() {
-        // Configure le rôle par défaut
         defaultRole = new Role();
         defaultRole.setRoleName("USER");
-        defaultRole.setDailyLimit(500000);
         roleRepository.save(defaultRole);
     }
 
@@ -97,12 +97,11 @@ public class RegisterUserIT {
         newUser.setPassword("securepassword");
 
         // Act & Assert
-        EntityAlreadyExistsException exception = assertThrows(EntityAlreadyExistsException.class, () ->
+        EmailAlreadyExistsException exception = assertThrows(EmailAlreadyExistsException.class, () ->
                 registrationService.registerUser(newUser));
 
         assertEquals("Registration failed. Email already in use: "+ newUser.getEmail(), exception.getMessage());
 
-        // Vérifier qu'aucun nouveau compte utilisateur n'a été créé
         assertEquals(1, userRepository.findAll().size());
         assertEquals(1, appAccountRepository.findAll().size());
     }
@@ -116,12 +115,11 @@ public class RegisterUserIT {
         newUser.setPassword("securepassword");
 
         // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+        InvalidEmailException exception = assertThrows(InvalidEmailException.class, () ->
                 registrationService.registerUser(newUser));
 
         assertEquals("Invalid email format: " + newUser.getEmail(), exception.getMessage());
 
-        // Vérifier qu'aucun utilisateur n'a été créé
         assertTrue(userRepository.findAll().isEmpty());
         assertTrue(appAccountRepository.findAll().isEmpty());
     }
@@ -134,7 +132,6 @@ public class RegisterUserIT {
         newUser.setEmail("failuser@example.com");
         newUser.setPassword("securepassword");
 
-        // Simule une erreur en supprimant les rôles
         roleRepository.deleteAll();
 
         // Act & Assert
@@ -143,7 +140,6 @@ public class RegisterUserIT {
 
         assertTrue(exception.getMessage().contains("Default role 'USER' not found"));
 
-        // Vérifier qu'aucun utilisateur n'a été créé
         assertTrue(userRepository.findAll().isEmpty());
         assertTrue(appAccountRepository.findAll().isEmpty());
     }

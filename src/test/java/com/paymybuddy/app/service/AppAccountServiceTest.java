@@ -8,6 +8,7 @@ import com.paymybuddy.app.entity.Role;
 import com.paymybuddy.app.entity.User;
 import com.paymybuddy.app.exception.AccountAlreadyExistsException;
 import com.paymybuddy.app.exception.EntityNotFoundException;
+import com.paymybuddy.app.exception.EntitySaveException;
 import com.paymybuddy.app.exception.InvalidBalanceException;
 import com.paymybuddy.app.repository.AppAccountRepository;
 import com.paymybuddy.app.repository.RoleRepository;
@@ -17,11 +18,15 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.MediaType;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 class AppAccountServiceTest {
 
@@ -33,6 +38,9 @@ class AppAccountServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private UserService userService;
 
     @InjectMocks
     private AppAccountService appAccountService;
@@ -60,22 +68,20 @@ class AppAccountServiceTest {
         account.setBalance(100);
         account.setCreatedAt(LocalDateTime.now());
         account.setLastUpdate(LocalDateTime.now());
+        account.setDailyLimit(50000L);
 
 
-        // Mock pour les méthodes findById et findByUserId
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(appAccountRepository.findByUserId(user.getId())).thenReturn(Optional.of(account));
     }
 
     @Test
     void testGetBalanceByUserId_Success() {
-        // Mock du retour de appAccountRepository.findByUserId
         when(appAccountRepository.findByUserId(user.getId())).thenReturn(Optional.of(account));
 
-        // Appel de la méthode à tester
+
         long balance = appAccountService.getBalanceByUserId(user.getId());
 
-        // Vérifications
         assertEquals(100, balance);
         verify(appAccountRepository, times(1)).findByUserId(user.getId());
         verify(userRepository, times(0)).findById(anyInt()); // Aucun appel attendu à userRepository
@@ -139,36 +145,35 @@ class AppAccountServiceTest {
 
     @Test
     void testCreateAccountForUser_Success() {
-        // Configurer les mocks pour le retour de userRepository et vérifier qu'aucun compte n'existe
-        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
-        when(appAccountRepository.findByUserId(user.getId())).thenReturn(Optional.empty());
 
-        // Mock pour le retour de save afin de renvoyer le nouvel account
+
+        when(userService.getUserById(user.getId())).thenReturn(user);
         when(appAccountRepository.save(any(AppAccount.class))).thenReturn(account);
 
-        // Appel de la méthode à tester
         AppAccount createdAccount = appAccountService.createAccountForUser(user.getId());
 
-        // Vérifications
-        assertNotNull(createdAccount); // S'assure que le compte créé n'est pas nul
-        assertEquals(account.getUser(), createdAccount.getUser()); // Vérifie que le compte est associé à l'utilisateur correct
+        assertNotNull(createdAccount);
+        assertEquals(account.getUser(), createdAccount.getUser());
         verify(appAccountRepository, times(1)).save(any(AppAccount.class));
     }
 
     @Test
     void testCreateAccountForUser_UserNotFound() {
-        when(userRepository.findById(user.getId())).thenReturn(Optional.empty());
+        doThrow(new EntityNotFoundException("User not found with ID: " + user.getId()))
+                .when(userRepository).findById(user.getId());
 
         assertThrows(EntityNotFoundException.class, () -> appAccountService.createAccountForUser(user.getId()));
-        verify(userRepository, times(1)).findById(user.getId());
+
+        verify(appAccountRepository, never()).save(any());
     }
+
 
     @Test
     void testCreateAccountForUser_AccountAlreadyExists() {
 
         user.setAppAccount(account);
 
-        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(userService.getUserById(user.getId())).thenReturn(user);
         when(appAccountRepository.findByUserId(user.getId())).thenReturn(Optional.of(account));
 
         assertThrows(AccountAlreadyExistsException.class, () -> appAccountService.createAccountForUser(user.getId()));
@@ -177,7 +182,8 @@ class AppAccountServiceTest {
 
     @Test
     void testDeleteAccountByUserId_Success() {
-        when(appAccountRepository.findByUserId(user.getId())).thenReturn(Optional.of(account));
+
+        when(userService.getUserById(user.getId())).thenReturn(user);
 
         appAccountService.deleteAccountByUserId(user.getId());
 
@@ -186,15 +192,17 @@ class AppAccountServiceTest {
 
     @Test
     void testDeleteAccountByUserId_UserNotFound() {
-
         int userId = 123;
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        doThrow(new EntityNotFoundException("User not found with ID: " + userId))
+                .when(userService).getUserById(userId);
 
         assertThrows(EntityNotFoundException.class, () -> appAccountService.deleteAccountByUserId(userId));
 
-        verify(userRepository, times(1)).findById(userId);
         verify(appAccountRepository, never()).findByUserId(anyInt());
+        verify(appAccountRepository, never()).delete(any());
     }
+
 
 
     @Test
@@ -205,4 +213,61 @@ class AppAccountServiceTest {
         assertThrows(EntityNotFoundException.class, () -> appAccountService.deleteAccountByUserId(user.getId()));
         verify(appAccountRepository, times(0)).delete(any(AppAccount.class));
     }
+
+    @Test
+    void testGetTransactionLimitForUser() {
+        long limit = appAccountService.getTransactionLimitForUser(1);
+
+        assertEquals(limit, account.getDailyLimit());
+    }
+
+    @Test
+    void testChangeDailyLimit_success() {
+        // Arrange
+        int userId = 1;
+        long newDailyLimit = 300000;
+
+        // Act
+        appAccountService.changeDailyLimit(userId, newDailyLimit);
+
+        // Assert
+        assertEquals(newDailyLimit, account.getDailyLimit());
+        verify(appAccountRepository, times(1)).save(account);
+    }
+
+    @Test
+    void testChangeDailyLimit_roleNotFound() {
+        // Arrange
+        int userId = 2;
+        long newDailyLimit = 300000;
+
+        when(appAccountRepository.findByUserId(userId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(EntityNotFoundException.class, () ->
+                appAccountService.changeDailyLimit(userId, newDailyLimit));
+    }
+
+    @Test
+    void testChangeDailyLimit_invalidRoleName() {
+        // Arrange
+        int userId = 2;
+        long newDailyLimit = 300000;
+
+        // Act & Assert
+        assertThrows(EntityNotFoundException.class, () ->
+                appAccountService.changeDailyLimit(userId, newDailyLimit));
+    }
+
+    @Test
+    void testChangeDailyLimit_invalidDailyLimit() {
+        // Arrange
+        int userId = 2;
+        long newDailyLimit = 0;
+
+        // Act & Assert
+        assertThrows(EntityNotFoundException.class, () ->
+                appAccountService.changeDailyLimit(userId, newDailyLimit));
+    }
+
 }

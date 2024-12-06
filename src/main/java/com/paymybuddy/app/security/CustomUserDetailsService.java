@@ -28,8 +28,11 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
-        GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + user.getRole().getRoleName());
+        if(user.isDeleted()){
+            throw new UsernameNotFoundException("This account has been deleted.");
+        }
 
+        GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + user.getRole().getRoleName());
         return new CustomUserDetails(
                 user.getEmail(),
                 user.getPassword(),
@@ -37,9 +40,6 @@ public class CustomUserDetailsService implements UserDetailsService {
                 user.getId(),
                 user.getUserName()
         );
-
-
-
     }
 
 

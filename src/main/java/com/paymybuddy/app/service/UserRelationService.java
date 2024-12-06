@@ -3,15 +3,14 @@ package com.paymybuddy.app.service;
 import com.paymybuddy.app.dto.RelatedUserDTO;
 import com.paymybuddy.app.entity.User;
 import com.paymybuddy.app.entity.UserRelation;
-import com.paymybuddy.app.exception.EntityDeleteException;
-import com.paymybuddy.app.exception.EntityNotFoundException;
-import com.paymybuddy.app.exception.EntitySaveException;
+import com.paymybuddy.app.exception.*;
 import com.paymybuddy.app.repository.UserRelationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -44,13 +43,25 @@ public class UserRelationService {
 
         if (!EmailValidationService.isValidEmail(email)) {
             log.error("Invalid email format: {}", email);
-            throw new IllegalArgumentException("Invalid email format: " + email);
+            throw new InvalidEmailException("Invalid email format: " + email);
         }
 
         User userToAdd = userService.getUserByEmail(email);
         if (userToAdd == null) {
             log.error("User with email {} not found", email);
             throw new EntityNotFoundException("User with email not found: " + email);
+        }
+
+        // Check if the user is marked as deleted in the system
+        if (userToAdd.isDeleted()) {
+            log.warn("The user with ID {} does not exist or has been marked as deleted.", userToAdd.getId());
+            throw new EntityNotFoundException("The specified user does not exist or has been deleted.");
+        }
+
+        // Check if the user is trying to add himself
+        if (user.getEmail().equals(userToAdd.getEmail())) {
+            log.warn("User with ID {} tried to add their own email", userToAdd.getId());
+            throw new EmailAlreadyExistsException("You can't add your own email");
         }
 
         if (userRelationRepository.findByUserIdAndUserRelationId(user.getId(), userToAdd.getId()).isPresent()) {
@@ -133,6 +144,16 @@ public class UserRelationService {
                     relation.getUser().getId(),
                     relation.getUser().getUserName()
             ));
+        }
+
+        Iterator<RelatedUserDTO> iterator = relatedUsers.iterator();
+        while (iterator.hasNext()) {
+            RelatedUserDTO dto = iterator.next();
+            User related = userService.getUserById(dto.getId());
+
+            if (related.isDeleted()) {
+                iterator.remove();
+            }
         }
 
         log.info("Total related users found for user ID {}: {}", user.getId(), relatedUsers.size());

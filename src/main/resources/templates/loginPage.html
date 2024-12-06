@@ -2,7 +2,6 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="fr">
 <head>
     <title>Login Page</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <link th:href="@{/css/login.css}" rel="stylesheet">
 
 </head>
@@ -10,15 +9,19 @@
         <div class="container">
         <form th:action="@{/login}" method="post">
 
+
             <button class="custom-button" onclick="window.location.href='/register'">
-                <img src="/image/loginPage/00_Button.svg" alt="Logo">
+                <img th:src="@{/image/loginPage/00_Button.svg}" alt="Logo" th:title="@{Pay my budy}">
             </button>
 
             <input class="email-input" type="email" id="email" name="username" placeholder="Email" required>
 
 
-            <input class="pass-input" type="password" id="password" name="password" placeholder="Mot de passe" required>
+            <input class="pass-input" type="password" id="password" name="password" placeholder="Mot de pass" required>
 
+            <div class="message" th:if="${errorMessage}" style="color: red; font-size: 0.9em;">
+                <p th:text="${errorMessage}"></p>
+            </div>
 
             <button type="submit" class="login-button">
                     <img th:src="@{/image/loginPage/01_Button.svg}" alt="Se connecter">

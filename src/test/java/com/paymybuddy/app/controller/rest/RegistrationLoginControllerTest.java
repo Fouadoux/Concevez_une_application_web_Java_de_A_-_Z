@@ -79,7 +79,7 @@ class RegistrationLoginControllerTest {
                         .param("userName", registerDTO.getUserName())
                         .with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Registration successful. Please login.")); // Vérifie la redirection
+                .andExpect(jsonPath("$.message").value("Registration successful. Please login."));
 
         verify(registrationService, times(1)).registerUser(any(RegisterDTO.class));
     }
@@ -117,7 +117,6 @@ class RegistrationLoginControllerTest {
         registerDTO.setPassword("password123");
         registerDTO.setUserName("TestUser");
 
-        // Simuler une exception générique levée par le service
         doThrow(new RuntimeException("Unexpected error"))
                 .when(registrationService).registerUser(any(RegisterDTO.class));
 
@@ -131,7 +130,6 @@ class RegistrationLoginControllerTest {
                 .andExpect(status().isInternalServerError()) // Vérifie le statut 500
                 .andExpect(jsonPath("$.message").value("Failed to register user. Please try again later.")); // Vérifie le message d'erreur générique
 
-        // Vérifie que le service a été appelé une fois
         verify(registrationService, times(1)).registerUser(any(RegisterDTO.class));
     }
 

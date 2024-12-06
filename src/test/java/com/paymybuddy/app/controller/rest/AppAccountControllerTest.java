@@ -39,7 +39,7 @@ class AppAccountControllerTest {
 
     @BeforeEach
     void setUp() {
-        objectMapper.findAndRegisterModules(); // Supporte JavaTimeModule pour les formats de date
+        objectMapper.findAndRegisterModules();
     }
 
     @Test
@@ -106,8 +106,6 @@ class AppAccountControllerTest {
         long updatedBalance = 150;
 
         when(appAccountService.updateBalanceByUserId(userId, newBalance)).thenReturn(updatedBalance);
-
-       // String jsonContent = objectMapper.writeValueAsString(newBalance);
 
         mockMvc.perform(put("/api/appAccounts/{userId}/balance/{newBalance}", userId,newBalance)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -191,6 +189,19 @@ class AppAccountControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.details").value("Account not found for user with ID: " + userId));
+    }
+
+    @Test
+    void testUpdateDailyLimit_Success() throws Exception {
+        int userId = 1;
+        long dailyLimit = 2000L;
+
+        doNothing().when(appAccountService).changeDailyLimit(userId, dailyLimit);
+
+        mockMvc.perform(put("/api/appAccounts/dailyLimit/userId/{userId}/limit/{dailyLimit}", userId, dailyLimit)
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Daily limit updated successfully"));
     }
 }
 

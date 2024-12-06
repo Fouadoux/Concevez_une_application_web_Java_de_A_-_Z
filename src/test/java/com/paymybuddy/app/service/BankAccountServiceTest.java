@@ -45,11 +45,11 @@ class BankAccountServiceTest {
 
         appAccount = new AppAccount();
         appAccount.setId(1);
-        appAccount.setBalance(100000L); // Balance in cents (1000.00)
+        appAccount.setBalance(100000L);
 
         bankAccount = new BankAccount();
         bankAccount.setId(1);
-        bankAccount.setAmount(50000L); // Amount in cents (500.00)
+        bankAccount.setAmount(50000L);
         bankAccount.setUser(user);
         bankAccount.setExternalBankAccountNumber("1234-5678");
         bankAccount.setStatus(false);
@@ -94,8 +94,8 @@ class BankAccountServiceTest {
 
         bankAccountService.transferToBankAccount(appAccount.getId(), bankAccount.getId(), 100L); // 1.00 in cents
 
-        assertEquals(90000, appAccount.getBalance()); // 100000 - 100 * 100
-        assertEquals(60000, bankAccount.getAmount()); // 50000 + 100 * 100
+        assertEquals(90000, appAccount.getBalance());
+        assertEquals(60000, bankAccount.getAmount());
         verify(appAccountRepository, times(1)).save(appAccount);
         verify(bankAccountRepository, times(1)).save(bankAccount);
     }
@@ -106,7 +106,7 @@ class BankAccountServiceTest {
         when(appAccountRepository.findById(appAccount.getId())).thenReturn(Optional.of(appAccount));
         when(bankAccountRepository.findById(bankAccount.getId())).thenReturn(Optional.of(bankAccount));
 
-        assertThrows(IllegalArgumentException.class, () -> bankAccountService.transferToBankAccount(appAccount.getId(), bankAccount.getId(), 2000L)); // 2000.00 in cents
+        assertThrows(IllegalArgumentException.class, () -> bankAccountService.transferToBankAccount(appAccount.getId(), bankAccount.getId(), 2000L));
     }
 
     @Test
@@ -115,7 +115,7 @@ class BankAccountServiceTest {
         when(appAccountRepository.findById(appAccount.getId())).thenReturn(Optional.of(appAccount));
         when(bankAccountRepository.findById(bankAccount.getId())).thenReturn(Optional.of(bankAccount));
 
-        assertThrows(IllegalArgumentException.class, () -> bankAccountService.transferToBankAccount(appAccount.getId(), bankAccount.getId(), -100L)); // -1.00 in cents
+        assertThrows(IllegalArgumentException.class, () -> bankAccountService.transferToBankAccount(appAccount.getId(), bankAccount.getId(), -100L));
     }
 
     @Test
@@ -124,10 +124,10 @@ class BankAccountServiceTest {
         when(appAccountRepository.findById(appAccount.getId())).thenReturn(Optional.of(appAccount));
         when(bankAccountRepository.findById(bankAccount.getId())).thenReturn(Optional.of(bankAccount));
 
-        bankAccountService.transferFromBankAccount(appAccount.getId(), bankAccount.getId(), 100L); // 1.00 in cents
+        bankAccountService.transferFromBankAccount(appAccount.getId(), bankAccount.getId(), 100L);
 
-        assertEquals(110000, appAccount.getBalance()); // 100000 + 100 * 100
-        assertEquals(40000L, bankAccount.getAmount()); // 50000 - 100 * 100
+        assertEquals(110000, appAccount.getBalance());
+        assertEquals(40000L, bankAccount.getAmount());
         verify(appAccountRepository, times(1)).save(appAccount);
         verify(bankAccountRepository, times(1)).save(bankAccount);
     }
@@ -138,7 +138,7 @@ class BankAccountServiceTest {
         when(appAccountRepository.findById(appAccount.getId())).thenReturn(Optional.of(appAccount));
         when(bankAccountRepository.findById(bankAccount.getId())).thenReturn(Optional.of(bankAccount));
 
-        assertThrows(IllegalArgumentException.class, () -> bankAccountService.transferFromBankAccount(appAccount.getId(), bankAccount.getId(), 60000L)); // 600.00 in cents
+        assertThrows(IllegalArgumentException.class, () -> bankAccountService.transferFromBankAccount(appAccount.getId(), bankAccount.getId(), 60000L));
     }
 
     @Test
@@ -147,7 +147,7 @@ class BankAccountServiceTest {
         when(appAccountRepository.findById(appAccount.getId())).thenReturn(Optional.of(appAccount));
         when(bankAccountRepository.findById(bankAccount.getId())).thenReturn(Optional.of(bankAccount));
 
-        assertThrows(IllegalArgumentException.class, () -> bankAccountService.transferFromBankAccount(appAccount.getId(), bankAccount.getId(), -100L)); // -1.00 in cents
+        assertThrows(IllegalArgumentException.class, () -> bankAccountService.transferFromBankAccount(appAccount.getId(), bankAccount.getId(), -100L));
     }
 
     @Test
@@ -156,7 +156,7 @@ class BankAccountServiceTest {
         when(appAccountRepository.findById(appAccount.getId())).thenReturn(Optional.of(appAccount));
         when(bankAccountRepository.findById(bankAccount.getId())).thenReturn(Optional.of(bankAccount));
 
-        assertThrows(IllegalArgumentException.class, () -> bankAccountService.transferToBankAccount(appAccount.getId(), bankAccount.getId(), 0L)); // 0.00 in cents
+        assertThrows(IllegalArgumentException.class, () -> bankAccountService.transferToBankAccount(appAccount.getId(), bankAccount.getId(), 0L));
     }
 
     @Test
@@ -165,7 +165,7 @@ class BankAccountServiceTest {
         when(appAccountRepository.findById(appAccount.getId())).thenReturn(Optional.of(appAccount));
         when(bankAccountRepository.findById(bankAccount.getId())).thenReturn(Optional.of(bankAccount));
 
-        assertThrows(IllegalArgumentException.class, () -> bankAccountService.transferFromBankAccount(appAccount.getId(), bankAccount.getId(), 0L)); // 0.00 in cents
+        assertThrows(IllegalArgumentException.class, () -> bankAccountService.transferFromBankAccount(appAccount.getId(), bankAccount.getId(), 0L));
     }
 
     @Test

@@ -15,7 +15,7 @@ public class Monetization {
     @Column(name="id")
     int id;
 
-    @OneToOne
+    @OneToOne(orphanRemoval = true)
     @JoinColumn( name = "transaction_id", nullable = false,unique = true)
     private Transaction transaction;
 

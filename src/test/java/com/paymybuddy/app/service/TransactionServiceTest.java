@@ -40,9 +40,6 @@ class TransactionServiceTest {
     @Mock
     private UserRelationService userRelationService;
 
-    @Mock
-    private RoleService roleService;
-
     @InjectMocks
     private TransactionService transactionService;
 
@@ -71,7 +68,7 @@ class TransactionServiceTest {
         when(userRelationService.checkRelation(senderId, receiverId)).thenReturn(true);
         when(appAccountService.getBalanceById(senderId)).thenReturn(Optional.of(20000L));
         when(transactionFeeService.calculateFeeForTransaction(amountCent)).thenReturn(500L);
-        when(roleService.getTransactionLimitForUser(senderId)).thenReturn(50000L);
+        when(appAccountService.getTransactionLimitForUser(senderId)).thenReturn(50000L);
         when(transactionRepository.save(any(Transaction.class))).thenAnswer(invocation -> invocation.getArgument(0));
         doNothing().when(monetizationService).saveMonetization(any(Transaction.class));
 
@@ -128,7 +125,7 @@ class TransactionServiceTest {
         when(userRelationService.checkRelation(senderId, receiverId)).thenReturn(true);
         when(appAccountService.getBalanceById(senderId)).thenReturn(Optional.of(0L));
         when(transactionFeeService.calculateFeeForTransaction(amountCent)).thenReturn(1000L);
-        when(roleService.getTransactionLimitForUser(senderId)).thenReturn(50000L);
+        when(appAccountService.getTransactionLimitForUser(senderId)).thenReturn(50000L);
 
         // Act & Assert
         assertThrows(InsufficientBalanceException.class, () ->
@@ -155,7 +152,7 @@ class TransactionServiceTest {
         when(userRelationService.checkRelation(senderId, receiverId)).thenReturn(true);
         when(appAccountService.getBalanceById(senderId)).thenReturn(Optional.of(20000L));
         when(transactionFeeService.calculateFeeForTransaction(amountCent)).thenReturn(500L);
-        when(roleService.getTransactionLimitForUser(senderId)).thenReturn(5000L);
+        when(appAccountService.getTransactionLimitForUser(senderId)).thenReturn(5000L);
 
         // Act & Assert
         assertThrows(IllegalStateException.class, () ->
@@ -279,7 +276,7 @@ class TransactionServiceTest {
         LocalDateTime startOfDay = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0);
         LocalDateTime endOfDay = startOfDay.plusDays(1).minusSeconds(1);
 
-        when(roleService.getTransactionLimitForUser(userId)).thenReturn(dailyLimit);
+        when(appAccountService.getTransactionLimitForUser(userId)).thenReturn(dailyLimit);
         when(transactionRepository.calculateTotalSentByUserAndDateRange(any(User.class), eq(startOfDay), eq(endOfDay))).thenReturn(20000L);
 
         // Act
@@ -299,7 +296,7 @@ class TransactionServiceTest {
         LocalDateTime startOfDay = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0);
         LocalDateTime endOfDay = startOfDay.plusDays(1).minusSeconds(1);
 
-        when(roleService.getTransactionLimitForUser(userId)).thenReturn(dailyLimit);
+        when(appAccountService.getTransactionLimitForUser(userId)).thenReturn(dailyLimit);
         when(transactionRepository.calculateTotalSentByUserAndDateRange(any(User.class), eq(startOfDay), eq(endOfDay))).thenReturn(20000L);
 
         // Act

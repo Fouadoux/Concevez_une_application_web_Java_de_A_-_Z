@@ -41,7 +41,7 @@ public class UserController {
         log.info("Updating user with ID: {} with new information: {}", userId, request);
         userService.updateUser(userId, request);
         log.info("User with ID: {} updated successfully", userId);
-        return ResponseEntity.ok("Vos informations ont été mises à jour avec succès !");
+        return ResponseEntity.ok("Your information has been successfully updated.");
     }
 
     /**
@@ -119,6 +119,7 @@ public class UserController {
      * @param role The role of the users to retrieve
      * @return A list of users with the specified role or a 404 (NOT FOUND) if no users are found
      */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/role/{role}")
     public ResponseEntity<?> getFindByRole(@PathVariable String role) {
         log.info("Fetching users with role: {}", role);
@@ -135,11 +136,35 @@ public class UserController {
         return ResponseEntity.ok(userDTOS);
     }
 
-    //----------------------
-    @PostMapping("/test")
-    public void getTestRollback(){
-        userService.performTransactionalOperation();
+    /**
+     * Marks a user as "deleted" in the system (soft delete).
+     *
+     * <p>This method does not physically remove the user from the database.
+     * It only updates their status to indicate that they are deleted.</p>
+     *
+     * @param userId the ID of the user to be marked as deleted
+     * @return A response containing a message indicating whether the operation was successful
+     *         or if the user is already marked as deleted
+     */
+    @PutMapping("/softDelete/{userId}")
+    public ResponseEntity<String> softDeleteUSer(@PathVariable int userId){
+     String result= userService.softDeleteUser(userId);
+        return ResponseEntity.ok(result);
+    }
 
+    /**
+     * Cancels the soft delete of a user in the system.
+     *
+     * <p>This method resets the user's status so that they are no longer considered deleted.</p>
+     *
+     * @param userId the ID of the user whose soft delete status is to be canceled
+     * @return A response containing a message indicating whether the operation was successful
+     *         or if the user was not marked as deleted
+     */
+    @PutMapping("/softDelete/cancel/{userId}")
+    public ResponseEntity<String> cancelSoftDeleteUser(@PathVariable int userId){
+        String result= userService.cancelSoftDeleteUser(userId);
+        return ResponseEntity.ok(result);
     }
 
 }

@@ -34,6 +34,9 @@ public class User {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
@@ -50,17 +53,17 @@ public class User {
     }
 
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserRelation> userRelations = new ArrayList<>();
 
-    @OneToMany(mappedBy = "relatedUser", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "relatedUser", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserRelation> relatedUserRelations = new ArrayList<>();
 
 
-    @OneToMany(mappedBy = "userSender",cascade = CascadeType.DETACH)
+    @OneToMany(mappedBy = "userSender",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Transaction> senderTransactions = new ArrayList<>();
 
-    @OneToMany(mappedBy = "userReceiver",cascade = CascadeType.DETACH)
+    @OneToMany(mappedBy = "userReceiver",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Transaction> receiverTransactions = new ArrayList<>();
 
 

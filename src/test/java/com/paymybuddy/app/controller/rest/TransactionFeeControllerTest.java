@@ -35,7 +35,7 @@ class TransactionFeeControllerTest {
         // Arrange
         TransactionFee fee = new TransactionFee();
         fee.setId(1);
-        fee.setPercentage(2500); // 2.5% exprimé en millièmes
+        fee.setPercentage(2500);
         fee.setEffectiveDate(LocalDateTime.now());
 
         when(transactionFeeService.getActiveTransactionFee()).thenReturn(fee);
@@ -44,7 +44,7 @@ class TransactionFeeControllerTest {
         mockMvc.perform(get("/api/transactionfee"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.percentage").value(2500)) // En millièmes
+                .andExpect(jsonPath("$.percentage").value(2500))
                 .andExpect(jsonPath("$.effectiveDate").exists());
 
         verify(transactionFeeService, times(1)).getActiveTransactionFee();
@@ -55,7 +55,7 @@ class TransactionFeeControllerTest {
         // Arrange
         TransactionFee fee = new TransactionFee();
         fee.setId(1);
-        fee.setPercentage(2500); // 2.5% exprimé en millièmes
+        fee.setPercentage(2500);
         fee.setEffectiveDate(LocalDateTime.now());
 
         when(transactionFeeService.createTransactionFee(any(TransactionFee.class))).thenReturn(fee);
@@ -81,7 +81,7 @@ class TransactionFeeControllerTest {
         // Arrange
         TransactionFee updatedFee = new TransactionFee();
         updatedFee.setId(1);
-        updatedFee.setPercentage(3000); // 3.0% exprimé en millièmes
+        updatedFee.setPercentage(3000);
         updatedFee.setEffectiveDate(LocalDateTime.now());
 
         when(transactionFeeService.updateTransactionFeePercentage(1, 3000)).thenReturn(updatedFee);
@@ -91,7 +91,7 @@ class TransactionFeeControllerTest {
                 .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.percentage").value(3000)); // Vérifier en millièmes
+                .andExpect(jsonPath("$.percentage").value(3000));
 
         verify(transactionFeeService, times(1)).updateTransactionFeePercentage(1, 3000);
     }

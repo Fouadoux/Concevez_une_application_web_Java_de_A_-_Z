@@ -111,6 +111,7 @@ public class AppAccountController {
      * or a 400 (BAD REQUEST) error if the user already has an account,
      * or 404 (NOT FOUND) if the user is not found
      */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/user/{userId}")
     public ResponseEntity<AppAccount> createAccountForUser(@PathVariable int userId) {
         log.info("Attempting to create account for user with ID: {}", userId);
@@ -127,6 +128,7 @@ public class AppAccountController {
      * @return A ResponseEntity with a confirmation message and a 200 (OK) status,
      * or a 404 (NOT FOUND) error if the user or account is not found
      */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/user/{userId}")
     public ResponseEntity<String> deleteAccountByUserId(@PathVariable int userId) {
         log.info("Attempting to delete account for user with ID: {}", userId);
@@ -134,5 +136,21 @@ public class AppAccountController {
         log.info("Account for user {} deleted successfully", userId);
         return ResponseEntity.ok("Account deleted successfully");
     }
+
+    /**
+     * Endpoint to update the daily limit for a specific role.
+     *
+     * @param userId The name of the role
+     * @param dailyLimit The new daily limit to set for the role
+     * @return A response indicating success
+     */
+    @PutMapping("/dailyLimit/userId/{userId}/limit/{dailyLimit}")
+    public ResponseEntity<String> updateDailyLimit(@PathVariable int userId, @PathVariable long dailyLimit) {
+        log.info("Updating daily limit for user {}: new limit {}", userId, dailyLimit);
+        appAccountService.changeDailyLimit(userId, dailyLimit);
+        log.info("Daily limit for user {} updated successfully to {}", userId, dailyLimit);
+        return ResponseEntity.ok("Daily limit updated successfully");
+    }
+
 
 }

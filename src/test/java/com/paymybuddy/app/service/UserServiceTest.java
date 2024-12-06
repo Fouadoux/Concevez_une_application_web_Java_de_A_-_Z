@@ -5,7 +5,9 @@ import com.paymybuddy.app.dto.UserDTO;
 import com.paymybuddy.app.entity.AppAccount;
 import com.paymybuddy.app.entity.Role;
 import com.paymybuddy.app.entity.User;
+import com.paymybuddy.app.exception.EmailAlreadyExistsException;
 import com.paymybuddy.app.exception.EntityNotFoundException;
+import com.paymybuddy.app.exception.InvalidEmailException;
 import com.paymybuddy.app.repository.RoleRepository;
 import com.paymybuddy.app.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,7 +58,7 @@ class UserServiceTest {
         newUser.setPassword("password123");
 
         when(userRepository.findByEmail("newuser@example.com")).thenReturn(Optional.empty());
-        when(roleRepository.findByRoleName("USER")).thenReturn(Optional.empty()); // Retourne Optional.empty() au lieu de null
+        when(roleRepository.findByRoleName("USER")).thenReturn(Optional.empty());
 
         // Act & Assert
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
@@ -246,13 +248,11 @@ class UserServiceTest {
         updateUserRequestDTO.setEmail("invalid-email");
 
         // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+        InvalidEmailException exception = assertThrows(InvalidEmailException.class, () ->
                 userService.updateUser(1, updateUserRequestDTO));
 
-        // Vérifier le message de l'exception
         assertEquals("Invalid email format: invalid-email", exception.getMessage());
 
-        // Vérifier que la méthode save n'a pas été appelée
         verify(userRepository, never()).save(any(User.class));
     }
 
@@ -294,7 +294,6 @@ class UserServiceTest {
         updateUserRequestDTO.setEmail("new@example.com");
         updateUserRequestDTO.setPassword("newPassword");
 
-        // Mock le comportement du repository et de l'encodeur de mot de passe
         when(userRepository.findById(1)).thenReturn(Optional.of(user));
         when(passwordEncoder.encode("newPassword")).thenReturn("encodedNewPassword");
 
@@ -317,7 +316,6 @@ class UserServiceTest {
         updateUserRequestDTO.setEmail("new@example.com");
         updateUserRequestDTO.setPassword("newPassword");
 
-        // Simuler le comportement du repository : l'utilisateur n'existe pas
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         // Act & Assert
@@ -325,10 +323,8 @@ class UserServiceTest {
                 userService.updateUser(userId, updateUserRequestDTO)
         );
 
-        // Vérification du message de l'exception
         assertEquals("User not found with ID: " + userId, exception.getMessage());
 
-        // Vérifier que la méthode save n'a pas été appelée
         verify(userRepository, never()).save(any(User.class));
     }
     @Test
@@ -340,7 +336,6 @@ class UserServiceTest {
         user.setEmail(email);
         user.setUserName("TestUser");
 
-        // Simuler le comportement du repository
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
 
         // Act
@@ -358,7 +353,6 @@ class UserServiceTest {
         // Arrange
         String email = "nonexistent@example.com";
 
-        // Simuler le comportement du repository : aucun utilisateur trouvé
         when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
 
         // Act & Assert
@@ -366,10 +360,8 @@ class UserServiceTest {
                 userService.getUserByEmail(email)
         );
 
-        // Vérifier le message de l'exception
         assertEquals("User not found with email: " + email, exception.getMessage());
 
-        // Vérifier que la méthode du repository a été appelée une fois
         verify(userRepository).findByEmail(email);
     }
 
@@ -381,7 +373,6 @@ class UserServiceTest {
         user.setId(userId);
         user.setUserName("TestUser");
 
-        // Simuler le comportement du repository
         when(userRepository.findUserById(userId)).thenReturn(Optional.of(user));
 
         // Act
@@ -391,7 +382,6 @@ class UserServiceTest {
         assertNotNull(result, "The returned username should not be null");
         assertEquals("TestUser", result, "The username should match the expected value");
 
-        // Vérifier que le repository a bien été appelé une fois
         verify(userRepository, times(1)).findUserById(userId);
     }
 
@@ -400,7 +390,6 @@ class UserServiceTest {
         // Arrange
         int userId = 1;
 
-        // Simuler l'absence de l'utilisateur dans le repository
         when(userRepository.findUserById(userId)).thenReturn(Optional.empty());
 
         // Act & Assert
@@ -429,13 +418,13 @@ class UserServiceTest {
         when(roleRepository.findByRoleName("USER")).thenReturn(Optional.of(role));
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
             User savedUser = invocation.getArgument(0);
-            savedUser.setId(1); // Simuler l'attribution d'un ID
+            savedUser.setId(1);
             return savedUser;
         });
 
         AppAccount mockAccount = new AppAccount();
         mockAccount.setUser(user);
-        mockAccount.setBalance(100); // Balance initiale
+        mockAccount.setBalance(100);
 
         when(appAccountService.createAccountForUser(user.getId())).thenReturn(mockAccount);
 
@@ -443,8 +432,8 @@ class UserServiceTest {
         userService.registerAndCreateAccount(user);
 
         // Assert
-        verify(userRepository).save(user); // Vérifier que l'utilisateur a été sauvegardé
-        verify(appAccountService).createAccountForUser(user.getId()); // Vérifier que le compte a été créé
+        verify(userRepository).save(user);
+        verify(appAccountService).createAccountForUser(user.getId());
     }
 
     @Test
@@ -456,7 +445,7 @@ class UserServiceTest {
         when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user)); // Simuler un email déjà existant
 
         // Act & Assert
-        assertThrows(EntityNotFoundException.class, () ->
+        assertThrows(EmailAlreadyExistsException.class, () ->
                 userService.registerAndCreateAccount(user)
         );
 
@@ -479,11 +468,10 @@ class UserServiceTest {
         when(roleRepository.findByRoleName("USER")).thenReturn(Optional.of(role));
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
             User savedUser = invocation.getArgument(0);
-            savedUser.setId(1); // Simuler l'attribution d'un ID
+            savedUser.setId(1);
             return savedUser;
         });
 
-        // Simuler une exception lors de la création du compte
         doThrow(new RuntimeException("Failed to create account")).when(appAccountService).createAccountForUser(user.getId());
 
         // Act & Assert
@@ -530,7 +518,6 @@ class UserServiceTest {
 
     @Test
     void testConvertToDTO() {
-        // Création d'un objet User mocké
         User user = mock(User.class);
         Role role = mock(Role.class);
 
@@ -540,10 +527,8 @@ class UserServiceTest {
         when(user.getRole()).thenReturn(role);
         when(user.getCreatedAt()).thenReturn(LocalDateTime.of(2023, 11, 27, 10, 30));
 
-        // Classe sous test
         UserDTO userDTO = userService.convertToDTO(user);
 
-        // Vérification des valeurs dans le DTO
         assertNotNull(userDTO);
         assertEquals("John Doe", userDTO.getName());
         assertEquals("john.doe@example.com", userDTO.getEmail());
@@ -573,7 +558,6 @@ class UserServiceTest {
 
         List<UserDTO> userDTOList = userService.convertToDTOList(users);
 
-        // Vérification des résultats
         assertNotNull(userDTOList);
         assertEquals(2, userDTOList.size());
         assertEquals("User1", userDTOList.get(0).getName());
@@ -601,11 +585,114 @@ class UserServiceTest {
 
         List<UserDTO> adminUsers = userService.getFindByRole(users, "ADMIN");
 
-        // Vérification des résultats
         assertNotNull(adminUsers);
         assertEquals(2, adminUsers.size());
         assertEquals("ADMIN", adminUsers.get(0).getRole());
         assertEquals("ADMIN", adminUsers.get(1).getRole());
     }
+    @Test
+    void softDeleteUser_Success() {
+        // Arrange
+        int userId = 1;
+        User user = new User();
+        user.setId(userId);
+        user.setDeleted(false);
 
+        when(userRepository.findById(userId)).thenReturn(java.util.Optional.of(user));
+
+        // Act
+        String result = userService.softDeleteUser(userId);
+
+        // Assert
+        assertEquals("User soft deleted successfully.", result);
+        assertTrue(user.isDeleted());
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    void softDeleteUser_AlreadyDeleted() {
+        // Arrange
+        int userId = 1;
+        User user = new User();
+        user.setId(userId);
+        user.setDeleted(true);
+
+        when(userRepository.findById(userId)).thenReturn(java.util.Optional.of(user));
+
+        // Act
+        String result = userService.softDeleteUser(userId);
+
+        // Assert
+        assertEquals("User is already soft deleted.", result);
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void softDeleteUser_UserNotFound() {
+        // Arrange
+        int userId = 1;
+
+        when(userRepository.findById(userId)).thenReturn(java.util.Optional.empty());
+
+        // Act & Assert
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
+            userService.softDeleteUser(userId);
+        });
+
+        assertEquals("User not found with ID: " + userId, exception.getMessage());
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void cancelSoftDeleteUser_Success() {
+        // Arrange
+        int userId = 1;
+        User user = new User();
+        user.setId(userId);
+        user.setDeleted(true);
+
+        when(userRepository.findById(userId)).thenReturn(java.util.Optional.of(user));
+
+        // Act
+        String result = userService.cancelSoftDeleteUser(userId);
+
+        // Assert
+        assertEquals("User soft delete has been canceled.", result);
+        assertFalse(user.isDeleted());
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    void cancelSoftDeleteUser_NotDeleted() {
+        // Arrange
+        int userId = 1;
+        User user = new User();
+        user.setId(userId);
+        user.setDeleted(false);
+
+        when(userRepository.findById(userId)).thenReturn(java.util.Optional.of(user));
+
+        // Act
+        String result = userService.cancelSoftDeleteUser(userId);
+
+        // Assert
+        assertEquals("User is not marked as deleted.", result);
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void cancelSoftDeleteUser_UserNotFound() {
+        // Arrange
+        int userId = 1;
+
+        when(userRepository.findById(userId)).thenReturn(java.util.Optional.empty());
+
+        // Act & Assert
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
+            userService.cancelSoftDeleteUser(userId);
+        });
+
+        assertEquals("User not found with ID: " + userId, exception.getMessage());
+        verify(userRepository, never()).save(any());
+    }
 }

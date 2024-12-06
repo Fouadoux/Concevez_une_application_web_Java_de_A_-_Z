@@ -40,7 +40,7 @@ class RoleControllerTest {
 
     @BeforeEach
     void setUp() {
-        objectMapper.findAndRegisterModules(); // Support pour les formats JSON
+        objectMapper.findAndRegisterModules();
     }
 
     @Test
@@ -48,7 +48,6 @@ class RoleControllerTest {
         Role role = new Role();
         role.setId(1);
         role.setRoleName("ADMIN");
-        role.setDailyLimit(1000L);
 
         when(roleService.createRole(any(Role.class))).thenReturn(role);
 
@@ -61,8 +60,7 @@ class RoleControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(role.getId()))
-                .andExpect(jsonPath("$.roleName").value(role.getRoleName()))
-                .andExpect(jsonPath("$.dailyLimit").value(role.getDailyLimit()));
+                .andExpect(jsonPath("$.roleName").value(role.getRoleName()));
     }
 
     @Test
@@ -89,12 +87,10 @@ class RoleControllerTest {
         Role role1 = new Role();
         role1.setId(1);
         role1.setRoleName("ADMIN");
-        role1.setDailyLimit(1000L);
 
         Role role2 = new Role();
         role2.setId(2);
         role2.setRoleName("USER");
-        role2.setDailyLimit(500L);
 
         when(roleService.getAllRoles()).thenReturn(List.of(role1, role2));
 
@@ -112,7 +108,6 @@ class RoleControllerTest {
         Role role = new Role();
         role.setId(roleId);
         role.setRoleName("ADMIN");
-        role.setDailyLimit(1000L);
 
         when(roleService.getRoleById(roleId)).thenReturn(role);
 
@@ -120,8 +115,7 @@ class RoleControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(role.getId()))
-                .andExpect(jsonPath("$.roleName").value(role.getRoleName()))
-                .andExpect(jsonPath("$.dailyLimit").value(role.getDailyLimit()));
+                .andExpect(jsonPath("$.roleName").value(role.getRoleName()));
     }
 
     @Test
@@ -201,31 +195,4 @@ class RoleControllerTest {
                 .andExpect(jsonPath("$.details").value("Role not found with ID: " + roleId));
     }
 
-    @Test
-    void testUpdateDailyLimit_Success() throws Exception {
-        String roleName = "ADMIN";
-        long dailyLimit = 2000L;
-
-        doNothing().when(roleService).changeDailyLimit(roleName, dailyLimit);
-
-        mockMvc.perform(put("/api/roles/dailyLimit/role/{roleName}/limit/{dailyLimit}", roleName, dailyLimit)
-                        .with(csrf()))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Daily limit updated successfully"));
-    }
-
-    @Test
-    void testUpdateDailyLimit_RoleNotFound() throws Exception {
-        String roleName = "ADMIN";
-        long dailyLimit = 2000L;
-
-        doThrow(new EntityNotFoundException("Role not found: " + roleName))
-                .when(roleService).changeDailyLimit(roleName, dailyLimit);
-
-        mockMvc.perform(put("/api/roles/dailyLimit/role/{roleName}/limit/{dailyLimit}", roleName, dailyLimit)
-                        .with(csrf()))
-                .andExpect(status().isNotFound())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.details").value("Role not found: " + roleName));
-    }
 }

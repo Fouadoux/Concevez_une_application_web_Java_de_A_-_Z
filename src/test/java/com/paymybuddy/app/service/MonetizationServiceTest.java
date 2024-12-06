@@ -59,10 +59,9 @@ public class MonetizationServiceTest {
     void testSaveMonetization_success() {
         // Arrange
         Transaction transaction = new Transaction();
-        transaction.setAmount(10000); // 100 euros en centimes
-        transaction.setAmountWithFee(10250); // 100 euros + 2,5 % (frais)
+        transaction.setAmount(10000);
+        transaction.setAmountWithFee(10250);
 
-        // Simuler le comportement du repository
         when(monetizationRepository.save(any(Monetization.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act
@@ -79,14 +78,12 @@ public class MonetizationServiceTest {
         transaction.setAmount(10000);
         transaction.setAmountWithFee(10250);
 
-        // Simuler une exception lors de la sauvegarde
         doThrow(new RuntimeException("Database error"))
                 .when(monetizationRepository).save(any(Monetization.class));
 
         // Act & Assert
         assertThrows(EntitySaveException.class, () -> monetizationService.saveMonetization(transaction));
 
-        // Vérifier que save a été appelé
         verify(monetizationRepository, times(1)).save(any(Monetization.class));
     }
 

@@ -45,7 +45,7 @@ public class TransactionServiceIT {
     @Autowired
     private TransactionFeeRepository transactionFeeRepository;
 
-    private Role role; // Déclaré au niveau de la classe
+    private Role role;
     private User sender;
     private User receiver;
     private AppAccount senderApp;
@@ -64,7 +64,6 @@ public class TransactionServiceIT {
         receiverApp = new AppAccount();
 
         role.setRoleName("USER");
-        role.setDailyLimit(500000);
         roleRepository.save(role);
         roleRepository.flush();
 
@@ -74,7 +73,7 @@ public class TransactionServiceIT {
         sender.setPassword("password");
         sender.setCreatedAt(LocalDateTime.now());
         sender.setRole(role);
-        sender = userRepository.save(sender); // Sauvegarder dans la base
+        sender = userRepository.save(sender);
 
         receiver.setUserName("Receiver");
         receiver.setEmail("receiver@example.com");
@@ -86,12 +85,14 @@ public class TransactionServiceIT {
         senderApp.setBalance(200_00L);
         senderApp.setUser(sender);
         senderApp.setCreatedAt(LocalDateTime.now());
+        senderApp.setDailyLimit(500_00L);
         appAccountRepository.save(senderApp);
 
         receiverApp.setBalance(50_00L);
         receiverApp.setUser(receiver);
         receiverApp.setCreatedAt(LocalDateTime.now());
-        appAccountRepository.save(receiverApp); // 50 euros
+        receiverApp.setDailyLimit(500_00L);
+        appAccountRepository.save(receiverApp);
 
         userRelation = new UserRelation();
         userRelation.setUserId(sender.getId());
@@ -132,16 +133,14 @@ public class TransactionServiceIT {
     void testCreateTransaction_dailyLimitExceeded() {
 
         role.setRoleName("USER");
-        role.setDailyLimit(17000);
         roleRepository.save(role);
         roleRepository.flush();
 
-        // Simuler plusieurs transactions pour dépasser la limite quotidienne
         transactionService.createTransaction(sender.getId(), receiver.getId(), 150, "First payment");
         transactionService.createTransaction(sender.getId(), receiver.getId(), 10, "Second payment");
 
         // Act & Assert
-        assertThrows(IllegalStateException.class, () ->
+        assertThrows(InsufficientBalanceException.class, () ->
                 transactionService.createTransaction(sender.getId(), receiver.getId(), 100, "Transaction limit exceeded for the day."));
     }
 
@@ -162,8 +161,8 @@ public class TransactionServiceIT {
         Transaction transaction = new Transaction();
         transaction.setUserSender(sender);
         transaction.setUserReceiver(receiver);
-        transaction.setAmount(50_00L); // 50 euros
-        transaction.setAmountWithFee(51_00L); // 50 euros + 1 euro frais
+        transaction.setAmount(50_00L);
+        transaction.setAmountWithFee(51_00L);
         transaction.setTransactionDate(LocalDateTime.now());
         transactionRepository.save(transaction);
 
@@ -173,10 +172,9 @@ public class TransactionServiceIT {
         // Assert
         assertEquals("Transaction canceled successfully", result);
 
-        // Vérifier les soldes
         AppAccount senderAccount = appAccountRepository.findByUserId(sender.getId()).orElseThrow();
         AppAccount receiverAccount = appAccountRepository.findByUserId(receiver.getId()).orElseThrow();
-        assertEquals(25100, senderAccount.getBalance()); // Restauré
+        assertEquals(25100, senderAccount.getBalance());
         assertEquals(50_00L, receiverAccount.getBalance());
     }
 
@@ -246,7 +244,7 @@ public class TransactionServiceIT {
 
         // Assert
         assertEquals(2, transactions.size());
-        assertEquals(50_00L, transactions.get(0).getAmount()); // Vérifier l'ordre chronologique
+        assertEquals(50_00L, transactions.get(0).getAmount());
         assertEquals(30_00L, transactions.get(1).getAmount());
     }
 
@@ -287,7 +285,7 @@ public class TransactionServiceIT {
         long totalFees = transactionService.calculateTotalFees();
 
         // Assert
-        assertEquals(200L, totalFees); // 7,5 euros
+        assertEquals(200L, totalFees);
     }
 
     @Test
@@ -306,8 +304,8 @@ public class TransactionServiceIT {
         Transaction transaction = new Transaction();
         transaction.setUserSender(sender);
         transaction.setUserReceiver(receiver);
-        transaction.setAmount(50_00L); // 50 euros
-        transaction.setAmountWithFee(51_00L); // 50 euros + 1 euro frais
+        transaction.setAmount(50_00L);
+        transaction.setAmountWithFee(51_00L);
         transaction.setTransactionDate(LocalDateTime.now().minusDays(2));
         transactionRepository.save(transaction);
 
@@ -321,7 +319,7 @@ public class TransactionServiceIT {
 
     @Test
     void testCreateTransactionWithInsufficientBalance() {
-        senderApp.setBalance(40_00L); // 40 euros
+        senderApp.setBalance(40_00L);
         appAccountRepository.save(senderApp);
 
         // Act & Assert

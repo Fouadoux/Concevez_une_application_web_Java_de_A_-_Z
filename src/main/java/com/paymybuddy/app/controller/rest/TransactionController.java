@@ -56,7 +56,6 @@ public class TransactionController {
 
         String transactionResult = transactionService.createTransaction(senderId, receiverId, amount, description);
 
-        // Creating a structured response
         Map<String, Object> response = new HashMap<>();
         response.put("message", transactionResult);
         response.put("status", "success");

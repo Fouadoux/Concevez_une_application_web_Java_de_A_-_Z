@@ -36,7 +36,7 @@ class AppAccountTest {
         AppAccount account = new AppAccount();
         account.setBalance(100);
 
-        account.setBalance(150);  // Update the balance to 150.0
+        account.setBalance(150);
 
         assertEquals(150.0, account.getBalance(), "Balance should be updated to 150.0");
     }

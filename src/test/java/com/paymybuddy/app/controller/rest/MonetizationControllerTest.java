@@ -63,7 +63,7 @@ class MonetizationControllerTest {
     @WithMockUser(roles = "ADMIN")
     void testGetTotalMonetization_success() throws Exception {
         // Arrange
-        when(monetizationService.getTotalResult()).thenReturn(12345L); // 123.45 après division
+        when(monetizationService.getTotalResult()).thenReturn(12345L);
 
         // Act & Assert
         mockMvc.perform(get("/api/monetization/total"))

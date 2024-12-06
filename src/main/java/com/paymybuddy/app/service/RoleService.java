@@ -20,11 +20,9 @@ import java.util.List;
 public class RoleService {
 
     private final RoleRepository roleRepository;
-    private final UserService userService;
 
-    public RoleService(RoleRepository roleRepository, UserService userService) {
+    public RoleService(RoleRepository roleRepository) {
         this.roleRepository = roleRepository;
-        this.userService = userService;
     }
 
     /**
@@ -121,57 +119,5 @@ public class RoleService {
         log.info("Role with ID: {} deleted successfully.", id);
     }
 
-    /**
-     * Changes the daily transaction limit for a role.
-     *
-     * @param roleName   the name of the role.
-     * @param dailyLimit the new daily transaction limit.
-     * @throws IllegalArgumentException if the role name is null/blank or the daily limit is invalid.
-     * @throws EntityNotFoundException if the role is not found.
-     * @throws EntitySaveException if updating the role fails.
-     */
-    @Transactional
-    public void changeDailyLimit(String roleName, long dailyLimit) {
-        log.info("Changing daily limit for role: {} to {}", roleName, dailyLimit);
 
-        if (roleName == null || roleName.isBlank()) {
-            log.error("Invalid role name provided for changing daily limit.");
-            throw new IllegalArgumentException("Role name must not be null or blank.");
-        }
-        if (dailyLimit <= 0) {
-            log.error("Invalid daily limit provided: {}", dailyLimit);
-            throw new IllegalArgumentException("Daily limit must be a positive value.");
-        }
-
-        Role role = roleRepository.findByRoleName(roleName)
-                .orElseThrow(() -> {
-                    log.error("Role not found with name: {}", roleName);
-                    return new EntityNotFoundException("Role not found: " + roleName);
-                });
-
-        role.setDailyLimit(dailyLimit);
-
-        try {
-            roleRepository.save(role);
-            log.info("Daily limit for role '{}' updated to {}", roleName, dailyLimit);
-        } catch (Exception e) {
-            log.error("Failed to update daily limit for role: {}", roleName, e);
-            throw new EntitySaveException("Error while updating the daily limit for role: " + roleName, e);
-        }
-    }
-
-    /**
-     * Gets the daily transaction limit for a user based on their role.
-     *
-     * @param userId the ID of the user.
-     * @return the daily transaction limit for the user's role.
-     * @throws EntityNotFoundException if the user is not found.
-     */
-    public long getTransactionLimitForUser(int userId) {
-        log.info("Fetching transaction limit for user ID: {}", userId);
-        User user = userService.getUserById(userId);
-        long dailyLimit = user.getRole().getDailyLimit();
-        log.info("Transaction limit for user ID {} is {}", userId, dailyLimit);
-        return dailyLimit;
-    }
 }

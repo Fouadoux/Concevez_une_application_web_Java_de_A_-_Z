@@ -43,7 +43,7 @@ public class MonetizationIT {
 
         Role role = new Role();
         role.setRoleName("USER");
-        role.setDailyLimit(500000);
+
         roleRepository.save(role);
 
         // Arrange
@@ -53,9 +53,8 @@ public class MonetizationIT {
         sender.setPassword("password");
         sender.setCreatedAt(LocalDateTime.now());
         sender.setRole(role);
-        sender = userRepository.save(sender); // Sauvegarder dans la base
+        sender = userRepository.save(sender);
 
-        // Créer et sauvegarder l'utilisateur destinataire
         User receiver = new User();
         receiver.setUserName("Receiver");
         receiver.setEmail("receiver@example.com");
@@ -63,18 +62,18 @@ public class MonetizationIT {
         receiver.setCreatedAt(LocalDateTime.now());
 
         receiver.setRole(role);
-        receiver = userRepository.save(receiver); // Sauvegarder dans la base
+        receiver = userRepository.save(receiver);
 
         Transaction transaction = new Transaction();
         transaction.setUserSender(sender);
         transaction.setUserReceiver(receiver);
-        transaction.setAmount(10000); // 100 euros en centimes
-        transaction.setAmountWithFee(10250); // 100 euros + 2,5 % (frais)
+        transaction.setAmount(10000);
+        transaction.setAmountWithFee(10250);
         transaction.setTransactionDate(LocalDateTime.now());
         transaction = transactionRepository.save(transaction);
 
 
-        long feeAmount = 250; // Exemple de frais calculé
+        long feeAmount = 250;
 
         // Act
         monetizationService.saveMonetization(transaction);
@@ -82,7 +81,7 @@ public class MonetizationIT {
         // Assert
         Optional<Monetization> result = monetizationRepository.findByTransactionId(transaction.getId());
         assertTrue(result.isPresent());
-        assertEquals(feeAmount, result.get().getResult()); // Vérifier les frais
+        assertEquals(feeAmount, result.get().getResult());
     }
 
     @Test
@@ -92,7 +91,6 @@ public class MonetizationIT {
 
         Role role = new Role();
         role.setRoleName("USER");
-        role.setDailyLimit(500000);
         roleRepository.save(role);
         roleRepository.flush();
 
@@ -103,30 +101,29 @@ public class MonetizationIT {
         sender.setPassword("password");
         sender.setCreatedAt(LocalDateTime.now());
         sender.setRole(role);
-        sender = userRepository.save(sender); // Sauvegarder dans la base
+        sender = userRepository.save(sender);
 
-        // Créer et sauvegarder l'utilisateur destinataire
         User receiver = new User();
         receiver.setUserName("Receiver");
         receiver.setEmail("receiver@example.com");
         receiver.setPassword("password");
         receiver.setCreatedAt(LocalDateTime.now());
         receiver.setRole(role);
-        receiver = userRepository.save(receiver); // Sauvegarder dans la base
+        receiver = userRepository.save(receiver);
 
         Transaction t1 = new Transaction();
         t1.setUserSender(sender);
         t1.setUserReceiver(receiver);
-        t1.setAmount(10000); // 100 euros en centimes
-        t1.setAmountWithFee(10250); // 100 euros + 2,5 % (frais)
+        t1.setAmount(10000);
+        t1.setAmountWithFee(10250);
         t1.setTransactionDate(LocalDateTime.now());
         t1 = transactionRepository.save(t1);
 
         Transaction t2 = new Transaction();
         t2.setUserSender(sender);
         t2.setUserReceiver(receiver);
-        t2.setAmount(10000); // 100 euros en centimes
-        t2.setAmountWithFee(10250); // 100 euros + 2,5 % (frais)
+        t2.setAmount(10000);
+        t2.setAmountWithFee(10250);
         t2.setTransactionDate(LocalDateTime.now());
         t2 = transactionRepository.save(t2);
 

@@ -9,8 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,12 +35,10 @@ public class RegistrationLoginController {
         try {
             log.info("Registering user with email: {}", registerDTO.getEmail());
 
-            // Délégation au service pour effectuer l'enregistrement
             registrationService.registerUser(registerDTO);
 
             log.info("User registered successfully with email: {}", registerDTO.getEmail());
 
-            // Message de succès
             Map<String, String> response = new HashMap<>();
             response.put("status", "success");
             response.put("message", "Registration successful. Please login.");
@@ -51,7 +47,6 @@ public class RegistrationLoginController {
         } catch (IllegalArgumentException e) {
             log.warn("Error during registration for email {}: {}", registerDTO.getEmail(), e.getMessage());
 
-            // Message d'erreur
             Map<String, String> response = new HashMap<>();
             response.put("status", "error");
             response.put("message", e.getMessage());
@@ -59,7 +54,6 @@ public class RegistrationLoginController {
         } catch (Exception e) {
             log.error("Error during user registration for email {}: ", registerDTO.getEmail(), e);
 
-            // Message d'erreur général
             Map<String, String> response = new HashMap<>();
             response.put("status", "error");
             response.put("message", "Failed to register user. Please try again later.");

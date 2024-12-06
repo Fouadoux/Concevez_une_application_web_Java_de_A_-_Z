@@ -136,12 +136,10 @@ class TransactionFeeServiceTest {
 
     @Test
     void testCalculateFeeForTransaction_InvalidAmount_ThrowsException() {
-        // Arrange: Configure un frais de transaction valide afin que getActiveTransactionFee() ne lève pas une exception.
         TransactionFee fee = new TransactionFee();
         fee.setPercentage(5);
         when(transactionFeeRepository.findTopByOrderByEffectiveDateDesc()).thenReturn(Optional.of(fee));
 
-        // Act & Assert: Maintenant, vous pouvez tester l'argument invalide pour calculateFeeForTransaction.
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
                 transactionFeeService.calculateFeeForTransaction(0));
 
@@ -152,11 +150,11 @@ class TransactionFeeServiceTest {
     void testCalculateFeeForTransaction_ValidAmount_Success() {
         // Arrange
         TransactionFee fee = new TransactionFee();
-        fee.setPercentage(5000); // 5%
+        fee.setPercentage(5000);
 
         when(transactionFeeRepository.findTopByOrderByEffectiveDateDesc()).thenReturn(Optional.of(fee));
 
-        long transactionAmount = 10000; // 100.00 unités en centimes
+        long transactionAmount = 10000;
 
         // Act
         long calculatedFee = transactionFeeService.calculateFeeForTransaction(transactionAmount);

@@ -43,17 +43,20 @@ class UserRelationServiceTest {
         user.setId(1);
         user.setEmail("user1@example.com");
         user.setUserName("User 1");
+        user.setDeleted(false);
 
         userToAdd = new User();
         userToAdd.setId(2);
         userToAdd.setEmail("user2@example.com");
         userToAdd.setUserName("User 2");
+        userToAdd.setDeleted(false);
 
         userRelation = new UserRelation();
         userRelation.setUserId(user.getId());
         userRelation.setUserRelationId(userToAdd.getId());
         userRelation.setStatus(true);
         userRelation.setCreatedAt(LocalDateTime.now());
+        userRelation.setRelatedUser(userToAdd);
     }
 
     @Test
@@ -133,32 +136,43 @@ class UserRelationServiceTest {
     @Test
     void getAllRelatedUsers_success() {
         log.info("Testing getAllRelatedUsers method for successful retrieval");
-        user.setUserRelations(List.of(createRelation(user, userToAdd)));
-        userToAdd.setUserRelations(List.of(createRelation(userToAdd, user)));
 
+        user.setUserRelations(List.of(userRelation));
 
+        when(userService.getUserById(userToAdd.getId())).thenReturn(userToAdd);
 
         List<RelatedUserDTO> relatedUsers = userRelationService.getAllRelatedUsers(user);
 
-        assertEquals(1, relatedUsers.size());
-        assertEquals(2, relatedUsers.get(0).getId());
-        assertEquals("User 2", relatedUsers.get(0).getName());
+        // Assertions
+        assertEquals(1, relatedUsers.size(), "There should be exactly one related user.");
+        assertEquals(userToAdd.getId(), relatedUsers.get(0).getId(), "The related user's ID should match.");
+        assertEquals(userToAdd.getUserName(), relatedUsers.get(0).getName(), "The related user's name should match.");
+
         log.info("Successfully retrieved all related users for user with ID: {}", user.getId());
     }
+
+
+
 
     @Test
     void findRelatedUsers_success() {
         log.info("Testing findRelatedUsers method for successful retrieval");
-        user.setUserRelations(List.of(createRelation(user, userToAdd)));
+
+        UserRelation relation = createRelation(user, userToAdd);
+        user.setUserRelations(List.of(relation));
+
         when(userService.getUserById(user.getId())).thenReturn(user);
+        when(userService.getUserById(userToAdd.getId())).thenReturn(userToAdd);
 
         List<RelatedUserDTO> relatedUsers = userRelationService.findRelatedUsers(user.getId());
 
-        assertEquals(1, relatedUsers.size());
-        assertEquals(2, relatedUsers.get(0).getId());
-        assertEquals("User 2", relatedUsers.get(0).getName());
+        assertEquals(1, relatedUsers.size(), "There should be exactly one related user.");
+        assertEquals(userToAdd.getId(), relatedUsers.get(0).getId(), "The related user's ID should match.");
+        assertEquals(userToAdd.getUserName(), relatedUsers.get(0).getName(), "The related user's name should match.");
+
         log.info("Successfully retrieved related users for user with ID: {}", user.getId());
     }
+
 
     @Test
     void findRelatedUsers_userNotFound() {

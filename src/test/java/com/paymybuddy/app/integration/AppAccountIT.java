@@ -50,22 +50,17 @@ public class AppAccountIT {
 
         AppAccount savedAccount = appAccountRepository.save(account);
 
-        // Vérifier que le champ createdAt est automatiquement rempli
         assertNotNull(savedAccount.getCreatedAt(), "The created_at timestamp should be generated automatically");
         assertNotNull(savedAccount.getLastUpdate(), "The last_update timestamp should be generated automatically");
 
-        // Obtenir la valeur de lastUpdate après la création
         LocalDateTime initialLastUpdate = account.getLastUpdate();
 
-        // Mettre à jour le compte
         savedAccount.setBalance(200);
         appAccountRepository.save(savedAccount);
         appAccountRepository.flush();
 
-        // Recharger l'entité pour vérifier la mise à jour du timestamp
         AppAccount updatedAccount = appAccountRepository.findById(account.getId()).orElseThrow();
 
-        // Vérifier que le champ lastUpdate a bien été mis à jour
         assertTrue(updatedAccount.getLastUpdate().isAfter(initialLastUpdate), "The last_update timestamp should be updated");
 
     }

@@ -31,7 +31,7 @@ class TransactionTest {
         transaction.setUserReceiver(receiver);
         transaction.setAmount(100);
         transaction.setDescription("Test Transaction");
-        transaction.setTransactionDate(LocalDateTime.now()); // Définir la date actuelle
+        transaction.setTransactionDate(LocalDateTime.now());
 
     }
 

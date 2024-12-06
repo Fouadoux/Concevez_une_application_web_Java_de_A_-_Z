@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.attribute.UserPrincipalNotFoundException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,19 +30,17 @@ public class TransactionService {
     private final AppAccountService appAccountService;
     private final UserService userService;
     private final UserRelationService userRelationService;
-    private final RoleService roleService;
     private final MonetizationService monetizationService;
 
     @Autowired
     public TransactionService(TransactionRepository transactionRepository, TransactionFeeService transactionFeeService,
                               AppAccountService appAccountService, UserService userService, UserRelationService userRelationService,
-                              RoleService roleService, MonetizationService monetizationService) {
+                              MonetizationService monetizationService) {
         this.transactionRepository = transactionRepository;
         this.transactionFeeService = transactionFeeService;
         this.appAccountService = appAccountService;
         this.userService = userService;
         this.userRelationService = userRelationService;
-        this.roleService = roleService;
         this.monetizationService = monetizationService;
     }
 
@@ -66,6 +65,12 @@ public class TransactionService {
         User sender = userService.getUserById(senderId);
         User receiver = userService.getUserById(receiverId);
         log.debug("Sender: {}, Receiver: {}", sender, receiver);
+
+        // Check if the user is marked as deleted in the system
+        if (receiver.isDeleted()) {
+            log.warn("The user with ID {} does not exist or has been marked as deleted.", receiver.getId());
+            throw new EntityNotFoundException("The specified user does not exist or has been deleted.");
+        }
 
         // Check relation between sender and receiver
         if (!userRelationService.checkRelation(sender.getId(), receiver.getId())) {
@@ -129,55 +134,18 @@ public class TransactionService {
      * @param userId The user whose transaction history is to be retrieved.
      * @return A list of all transactions where the user is either the sender or receiver.
      */
-  /*  public List<Transaction> getTransactionHistoryByUserId(int userId) {
-        log.info("Fetching transaction history for user {}", userId);
-
-        User user = userService.getUserById(userId);
-        List<Transaction> transactionHistory = new ArrayList<>();
-        transactionHistory.addAll(user.getSenderTransactions());
-        transactionHistory.addAll(user.getReceiverTransactions());
-
-        transactionHistory.sort((t1, t2) -> t2.getTransactionDate().compareTo(t1.getTransactionDate()));
-        log.info("Transaction history retrieved: {} transactions found", transactionHistory.size());
-        return transactionHistory;
-    }*/
-
     public List<Transaction> getTransactionHistoryByUserId(int userId) {
         log.info("Fetching transaction history for user {}", userId);
 
-        // Récupérer l'utilisateur par ID
         User user = userService.getUserById(userId);
-
-        // Combiner les transactions en tant qu'émetteur et récepteur
         List<Transaction> transactionHistory = new ArrayList<>();
         transactionHistory.addAll(user.getSenderTransactions());
         transactionHistory.addAll(user.getReceiverTransactions());
 
-        transactionHistory.forEach(transaction -> {
-            if (transaction.getUserSender() == null) {
-                log.warn("Transaction {} has a null sender. Setting default sender.", transaction.getId());
-                User defaultSender = new User();
-                defaultSender.setId(-1);
-                defaultSender.setUserName("Utilisateur supprimé");
-                transaction.setUserSender(defaultSender);
-            }
-
-            if (transaction.getUserReceiver() == null) {
-                log.warn("Transaction {} has a null receiver. Setting default receiver.", transaction.getId());
-                User defaultReceiver = new User();
-                defaultReceiver.setId(-1);
-                defaultReceiver.setUserName("Utilisateur supprimé");
-                transaction.setUserReceiver(defaultReceiver);
-            }
-        });
-
-        // Trier les transactions par date (ordre décroissant)
         transactionHistory.sort((t1, t2) -> t2.getTransactionDate().compareTo(t1.getTransactionDate()));
-
         log.info("Transaction history retrieved: {} transactions found", transactionHistory.size());
         return transactionHistory;
     }
-
 
     /**
      * Cancels a transaction by its ID, updating the balances of both the sender and receiver.
@@ -246,7 +214,7 @@ public class TransactionService {
     public boolean checkTransactionLimit(int userId, long transactionAmount) {
         log.info("Checking transaction limit for user {}", userId);
 
-        long dailyLimit = roleService.getTransactionLimitForUser(userId);
+        long dailyLimit = appAccountService.getTransactionLimitForUser(userId);
 
         LocalDateTime startOfDay = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0);
         LocalDateTime endOfDay = startOfDay.plusDays(1).minusSeconds(1);

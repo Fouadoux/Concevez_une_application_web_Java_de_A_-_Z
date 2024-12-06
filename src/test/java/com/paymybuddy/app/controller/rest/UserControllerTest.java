@@ -51,7 +51,7 @@ class UserControllerTest {
                                 }
                                 """))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Vos informations ont été mises à jour avec succès !"));
+                .andExpect(content().string("Your information has been successfully updated."));
 
         verify(userService, times(1)).updateUser(eq(1), any(UpdateUserRequestDTO.class));
     }
@@ -230,4 +230,69 @@ class UserControllerTest {
         verify(userService, times(1)).deleteUser(1);
     }
 
+    @Test
+    void softDeleteUser_UserNotFound() throws Exception {
+        // Arrange
+        int userId = 1;
+        when(userService.softDeleteUser(userId)).thenThrow(new EntityNotFoundException("User not found with ID: " + userId));
+
+        // Act & Assert
+        mockMvc.perform(put("/api/users/softDelete/{userId}", userId)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.details").value("User not found with ID: 1"));
+
+        verify(userService, times(1)).softDeleteUser(userId);
+    }
+
+    @Test
+    void cancelSoftDeleteUser_Success() throws Exception {
+        // Arrange
+        int userId = 1;
+        String expectedResponse = "User soft delete has been canceled.";
+        when(userService.cancelSoftDeleteUser(userId)).thenReturn(expectedResponse);
+
+        // Act & Assert
+        mockMvc.perform(put("/api/users/softDelete/cancel/{userId}", userId)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedResponse));
+
+        verify(userService, times(1)).cancelSoftDeleteUser(userId);
+    }
+
+    @Test
+    void cancelSoftDeleteUser_UserNotFound() throws Exception {
+        // Arrange
+        int userId = 1;
+        when(userService.cancelSoftDeleteUser(userId)).thenThrow(new EntityNotFoundException("User not found with ID: " + userId));
+
+        // Act & Assert
+        mockMvc.perform(put("/api/users/softDelete/cancel/{userId}", userId)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.details").value("User not found with ID: " + userId));
+
+        verify(userService, times(1)).cancelSoftDeleteUser(userId);
+    }
+
+    @Test
+    void softDeleteUser_Success() throws Exception {
+        // Arrange
+        int userId = 1;
+        String expectedResponse = "User soft deleted successfully.";
+        when(userService.softDeleteUser(userId)).thenReturn(expectedResponse);
+
+        // Act & Assert
+        mockMvc.perform(put("/api/users/softDelete/{userId}", userId)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedResponse));
+
+        verify(userService, times(1)).softDeleteUser(userId);
+    }
 }

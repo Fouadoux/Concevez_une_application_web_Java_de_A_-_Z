@@ -2,6 +2,8 @@ package com.paymybuddy.app.controller.rest;
 
 import com.paymybuddy.app.dto.RelatedUserDTO;
 import com.paymybuddy.app.entity.User;
+import com.paymybuddy.app.exception.EntityNotFoundException;
+import com.paymybuddy.app.exception.InvalidEmailException;
 import com.paymybuddy.app.service.UserRelationService;
 import com.paymybuddy.app.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/relation")

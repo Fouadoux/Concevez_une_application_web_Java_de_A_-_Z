@@ -1,0 +1,127 @@
+@font-face {
+    font-family: 'MyCustomFont';
+    src: url('../fonts/Inter.ttf') format('ttf');
+    font-weight: normal;
+    font-style: normal;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 40px 40px;
+    background: #FFFFFF;
+}
+
+h1 {
+    font-family: 'Inter',Arial, sans-serif;
+    font-style: normal;
+
+    font-weight: 500;
+    font-size: 20px;
+    color: #000000;
+    line-height: 150%;
+
+}
+
+nav {
+    display: flex;
+    width: 593px;
+    height: 30px;
+    gap: 30px;
+}
+
+
+nav a {
+    font-family: 'Inter',Arial, sans-serif;
+    font-weight: 500;
+    font-size: 20px;
+    color: #000000;
+    line-height: 150%;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+nav a[href="/transaction"] {
+    width: 98px;
+}
+
+nav a[href="/profil"] {
+
+    width: 50px;
+}
+nav a[href="/addRelation"] {
+    width: 153px;
+    font-weight: 700;
+    color: #207FEE;
+}
+nav a[href="/logout"] {
+    width: 152px;
+}
+
+nav a:hover {
+    background-color: #f0f0f0;
+}
+
+body{
+
+}
+
+.conteneur {
+    width: 946px;
+    height: 300px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: auto;
+}
+
+.relation-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-left: 20%;
+    gap: 8px;
+
+}
+
+.label {
+    width: 484px;
+    height: 30px;
+    font-family: 'Inter',Arial, sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 150%;
+    color: #000000;
+}
+
+
+input {
+    width: 484px;
+    height: 54px;
+    padding: 16px 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.add-button {
+margin-top: 1%;
+}
+
+.add-button {
+    width: 151px;
+    height: 62px;
+    cursor: pointer;
+    background: none;
+    border: none;
+
+}

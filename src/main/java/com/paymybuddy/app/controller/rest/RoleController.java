@@ -100,18 +100,6 @@ public class RoleController {
         return ResponseEntity.ok("Role deleted successfully");
     }
 
-    /**
-     * Endpoint to update the daily limit for a specific role.
-     *
-     * @param roleName The name of the role
-     * @param dailyLimit The new daily limit to set for the role
-     * @return A response indicating success
-     */
-    @PutMapping("/dailyLimit/role/{roleName}/limit/{dailyLimit}")
-    public ResponseEntity<String> updateDailyLimit(@PathVariable String roleName, @PathVariable long dailyLimit) {
-        log.info("Updating daily limit for role {}: new limit {}", roleName, dailyLimit);
-        roleService.changeDailyLimit(roleName, dailyLimit);
-        log.info("Daily limit for role {} updated successfully to {}", roleName, dailyLimit);
-        return ResponseEntity.ok("Daily limit updated successfully");
-    }
+
+
 }

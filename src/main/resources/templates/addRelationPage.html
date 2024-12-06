@@ -4,47 +4,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relation</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/relation.css}">
+    <link rel="stylesheet" th:href="@{/css/addRelationPage.css}">
 </head>
 <div id="userId" th:data-user-id="${userId}"></div>
 <header>
     <h1>Pay My Buddy</h1>
     <nav>
         <a th:href="@{/transaction}" th:classappend="${activePage == 'transfere' ? 'active' : ''}">Transférer</a>
-        <a th:href="@{/profil}" th:classappend="${activePage == 'profil' ? 'active' : ''}">Profil</a>
+        <a th:href="@{/profile}" th:classappend="${activePage == 'profil' ? 'active' : ''}">Profil</a>
         <a th:href="@{/addRelation}" th:classappend="${activePage == 'addRelation' ? 'active' : ''}">Ajouter
             relation</a>
         <a th:href="@{/logout}">Se déconnecter</a>
     </nav>
 </header>
 <body>
-<form id="addRelationForm">
+<form th:action="@{/add}" method="post">
     <div class="conteneur">
         <!-- Label + input -->
         <div class="relation-group ">
+            <input type="hidden" name="userId" th:value="${userId}">
             <label for="email" class="label">Chercher une relation</label>
-            <input type="email" id="email" name="email" placeholder="Saisir une adresse mail" required>
+            <input type="email" id="email" name="email" placeholder="Saisir une adresse mail." required>
         </div>
 
-        <!-- Image à droite -->
-        <div class="add-button">
-            <img th:src="@{/image/addRelationPage/Button-New.svg}"
-                 alt="Ajouter une relation"
-                 class="add-button"
-                 id="addButton">
-        </div>
 
+        <button type="submit" id="addButton" class="add-button" >
+            <img th:src="@{/image/addRelationPage/Button-New.svg}" th:alt="ajouter" th:title="@{Ajouter une relation}">
+        </button>
+
+
+        <div th:if="${successMessage}" style="color: green;">
+            <p th:text="${successMessage}"></p>
+        </div>
+        <div th:if="${errorMessage}" style="color: red;">
+            <p th:text="${errorMessage}"></p>
+        </div>
 
     </div>
 
 </form>
-<!-- Message de confirmation ou d'erreur -->
-
-
-<div id="message" class="alert" style="display: none;"></div>
-<script type="module" th:src="@{/js/addRelationPage.js}"></script>
-
-
 </body>
 </html>

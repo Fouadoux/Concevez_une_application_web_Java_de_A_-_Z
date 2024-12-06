@@ -1,11 +1,18 @@
-/* Réinitialiser les marges et le padding par défaut */
+
+@font-face {
+    font-family: 'MyCustomFont';
+    src: url('../fonts/Inter.ttf') format('ttf');
+    font-weight: normal;
+    font-style: normal;
+}
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-/* Style du header */
+
 header {
     display: flex;
     justify-content: space-between;
@@ -15,9 +22,9 @@ header {
     background: #FFFFFF;
 }
 
-/* Logo ou titre du site */
+
 h1 {
-    font-family: 'Inter', serif;
+    font-family: 'Inter',Arial, sans-serif;
     font-style: normal;
 
     font-weight: 500;
@@ -27,7 +34,6 @@ h1 {
 
 }
 
-/* Style du conteneur de navigation */
 nav {
     display: flex;
     width: 593px;
@@ -35,9 +41,8 @@ nav {
     gap: 30px;
 }
 
-/* Style des liens de navigation */
 nav a {
-    font-family: 'Inter', serif;
+    font-family: 'Inter',Arial, sans-serif;
     font-weight: 500;
     font-size: 20px;
     color: #000000;
@@ -46,12 +51,12 @@ nav a {
     border-radius: 4px;
     transition: background-color 0.3s;
 }
-/* Styles spécifiques pour chaque lien */
+
 nav a[href="/transaction"] {
     width: 98px;
 }
 
-nav a[href="/profil"] {
+nav a[href="/profile"] {
     font-weight: 700;
     color: #207FEE;
     width: 52px;
@@ -63,18 +68,18 @@ nav a[href="/logout"] {
     width: 152px;
 }
 
-/* Effet de survol */
+
 nav a:hover {
     background-color: #f0f0f0;
 }
 
-/* Général */
+
 body {
-    font-family: 'Arial', sans-serif;
+    font-family: 'Inter',Arial, sans-serif;
     background-color: #ffffff;
 }
 
-/* Conteneur principal */
+
 .profile-container {
 
     width: 749px;
@@ -87,45 +92,40 @@ body {
     overflow: hidden;
 }
 
-/* Chaque groupe de formulaire */
+
 .profile-item {
     display: flex;
-    align-items: center; /* Aligne verticalement les éléments */
-    gap: 15px; /* Espacement entre les éléments (label, input, icône) */
-    margin-bottom: 15px; /* Espacement entre les lignes */
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
 }
 
 
-/* Dernier élément sans bordure */
 .profile-item:last-child {
     border-bottom: none;
 }
 
-/* Hover effect */
 .profile-item:hover {
     background-color: #ffffff;
 }
 
-/* Les labels */
 .label {
-    width: 150px; /* Largeur fixe pour aligner tous les labels */
-    text-align: left; /* Aligne le texte à droite */
+    width: 150px;
+    text-align: left;
     font-size: 16px;
     font-weight: bold;
 }
 
-
-
 .modif-button {
-    cursor: pointer; /* Change le curseur pour indiquer que l'image est cliquable */
-    width: 147px; /* Ajustez la taille selon vos besoins */
+    cursor: pointer;
+    width: 147px;
     height: 64px;
     margin-left: 15px;
 }
 
 input {
 
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter',Arial, sans-serif;
     outline: none;
     border: 1px solid #ffffff;
     padding: 10px;
@@ -135,6 +135,7 @@ input {
 
 
 input[type="text"], input[type="email"], input[type="password"] {
+    font-family: 'Inter',Arial, sans-serif;
 
 }
 

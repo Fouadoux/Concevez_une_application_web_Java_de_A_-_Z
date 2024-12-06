@@ -21,11 +21,11 @@ public class Transaction {
     private int id;
 
     @ManyToOne
-    @JoinColumn(name = "sender_id",nullable = true)
+    @JoinColumn(name = "sender_id",nullable = false)
     private User userSender;
 
     @ManyToOne
-    @JoinColumn(name = "receiver_id",nullable = true)
+    @JoinColumn(name = "receiver_id",nullable = false)
     private User userReceiver;
 
     @Column(name = "description")
